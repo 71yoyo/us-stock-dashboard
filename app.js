@@ -4,7 +4,7 @@
 
 // 1. 상태(State) 관리
 const state = {
-  currentPin: localStorage.getItem('stock_app_pin') || '1234',
+  currentPin: (localStorage.getItem('stock_app_pin') === '1234' ? '5260' : (localStorage.getItem('stock_app_pin') || '5260')),
   enteredPin: '',
   usdKrwRate: 1342.50,
   isKrwView: false,
@@ -47,38 +47,46 @@ let ma60Series = null;
 function setupPinKeypad() {
   document.querySelectorAll('.key-btn[data-key]').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (state.enteredPin.length < 4) {
-        state.enteredPin += btn.getAttribute('data-key');
-        updatePinDots();
-        if (state.enteredPin.length === 4) {
-          validatePin();
-        }
-      }
+      handlePinDigit(btn.getAttribute('data-key'));
     });
   });
 
   document.getElementById('pinDeleteBtn').addEventListener('click', () => {
-    state.enteredPin = state.enteredPin.slice(0, -1);
-    updatePinDots();
+    deletePinDigit();
   });
 
   document.getElementById('pinClearBtn').addEventListener('click', () => {
-    state.enteredPin = '';
-    updatePinDots();
+    clearPin();
   });
 
-  // 키보드 숫자 입력 지원
+  // 키보드 숫자키 & 넘버패드 & 백스페이스 & 엔터 키 지원
   window.addEventListener('keydown', (e) => {
-    if (!mainApp.classList.contains('hidden')) return;
+    // 잠금 화면이 닫혀 있으면 키보드 리스너 무시
+    if (pinScreen.classList.contains('hidden')) return;
+
+    // 모달창이 열려있을 때도 무시
+    if (document.querySelector('.modal-overlay:not(.hidden)')) return;
+
     if (e.key >= '0' && e.key <= '9') {
-      if (state.enteredPin.length < 4) {
-        state.enteredPin += e.key;
-        updatePinDots();
-        if (state.enteredPin.length === 4) validatePin();
+      e.preventDefault();
+      handlePinDigit(e.key);
+    } else if (e.code && e.code.startsWith('Numpad') && e.code.length === 7) {
+      const num = e.code.replace('Numpad', '');
+      if (num >= '0' && num <= '9') {
+        e.preventDefault();
+        handlePinDigit(num);
       }
     } else if (e.key === 'Backspace') {
-      state.enteredPin = state.enteredPin.slice(0, -1);
-      updatePinDots();
+      e.preventDefault();
+      deletePinDigit();
+    } else if (e.key === 'Escape' || e.key === 'Delete') {
+      e.preventDefault();
+      clearPin();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (state.enteredPin.length === 4) {
+        validatePin();
+      }
     }
   });
 
@@ -86,6 +94,26 @@ function setupPinKeypad() {
   document.getElementById('lockAppBtn').addEventListener('click', () => {
     lockApp();
   });
+}
+
+function handlePinDigit(digit) {
+  if (state.enteredPin.length < 4) {
+    state.enteredPin += digit;
+    updatePinDots();
+    if (state.enteredPin.length === 4) {
+      setTimeout(validatePin, 100);
+    }
+  }
+}
+
+function deletePinDigit() {
+  state.enteredPin = state.enteredPin.slice(0, -1);
+  updatePinDots();
+}
+
+function clearPin() {
+  state.enteredPin = '';
+  updatePinDots();
 }
 
 function updatePinDots() {
