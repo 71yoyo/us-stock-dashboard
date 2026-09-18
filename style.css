@@ -1,0 +1,805 @@
+/* ========================================================
+   US Stock Pro - 프리미엄 다크 테마 & 반응형 스타일시트
+   ======================================================== */
+
+:root {
+  --bg-main: #07090e;
+  --bg-card: rgba(17, 24, 39, 0.75);
+  --bg-card-hover: rgba(31, 41, 55, 0.85);
+  --bg-input: #111827;
+  
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-focus: #38bdf8;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent-cyan: #38bdf8;
+  --accent-blue: #2563eb;
+  
+  /* 주식 등락 색상 (글로벌 표준: 상승 초록, 하락 빨강) */
+  --color-up: #10b981;
+  --color-up-bg: rgba(16, 185, 129, 0.12);
+  --color-down: #f43f5e;
+  --color-down-bg: rgba(244, 63, 94, 0.12);
+
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  --glass-blur: blur(16px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* 유틸리티 */
+.hidden { display: none !important; }
+.text-gradient {
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.text-accent { color: var(--accent-cyan); }
+.up { color: var(--color-up) !important; }
+.down { color: var(--color-down) !important; }
+
+/* 🔒 1. PIN 보안 잠금 화면 */
+.pin-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #07090e 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pin-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.pin-logo {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: white;
+  margin: 0 auto 18px;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+}
+
+.pin-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.pin-subtext {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pin-dots .dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.pin-dots .dot.filled {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+  transform: scale(1.15);
+}
+
+.pin-error-msg {
+  color: var(--color-down);
+  font-size: 0.85rem;
+  min-height: 20px;
+  margin-bottom: 12px;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.key-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  padding: 16px 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.key-btn:active {
+  background: rgba(56, 189, 248, 0.2);
+  transform: scale(0.96);
+}
+
+.key-btn.action-key {
+  font-size: 0.95rem;
+  font-family: var(--font-main);
+  color: var(--text-secondary);
+}
+
+/* 📱 2. 메인 앱 컨테이너 */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 75px; /* 모바일 하단바 여백 */
+}
+
+/* 헤더 네비게이션 */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo strong {
+  color: var(--accent-cyan);
+}
+
+.market-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.live {
+  background: var(--color-up);
+  box-shadow: 0 0 8px var(--color-up);
+  animation: pulse 2s infinite;
+}
+
+/* 지수 롤링 바 */
+.index-ticker-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+.index-ticker-bar::-webkit-scrollbar { display: none; }
+
+.ticker-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.chip-name { color: var(--text-muted); font-weight: 600; }
+.chip-price { font-weight: 600; }
+.chip-change { font-weight: 700; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon.danger:hover {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--color-down);
+}
+
+/* 대시보드 그리드 레이아웃 */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr 340px;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1700px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-card {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-title h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+/* 버튼 스타일 */
+.btn-sm {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* 📋 3. 관심종목 리스트 */
+.watchlist-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  padding-right: 4px;
+}
+
+.stock-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stock-item:hover, .stock-item.active {
+  background: var(--bg-card-hover);
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateX(3px);
+}
+
+.stock-item-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-item-ticker {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stock-item-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.stock-item-right {
+  text-align: right;
+}
+
+.stock-item-price {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.stock-item-change {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* 📊 4. TradingView 캔들 차트 섹션 */
+.chart-section {
+  min-height: 520px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selected-stock-info {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.stock-ticker {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.stock-company {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.current-price {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.price-change {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.price-change.up { background: var(--color-up-bg); }
+.price-change.down { background: var(--color-down-bg); }
+
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.btn-pill {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-pill.active {
+  background: var(--accent-cyan);
+  color: #07090e;
+}
+
+.chart-indicators {
+  display: flex;
+  gap: 6px;
+}
+
+.indicator-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.indicator-tag.ma20 { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+.indicator-tag.ma60 { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+.chart-canvas-container {
+  width: 100%;
+  height: 420px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.chart-ohlc-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+.chart-ohlc-bar strong { color: var(--text-primary); }
+
+/* 💼 5. 포트폴리오 관리 섹션 */
+.portfolio-summary-card {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 16px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-item .label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.summary-item .value {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.summary-item .main-balance {
+  color: var(--accent-cyan);
+}
+
+.summary-item .sub-krw {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.summary-divider {
+  width: 1px;
+  background: var(--border-color);
+}
+
+.holdings-table-wrap {
+  overflow-x: auto;
+}
+
+.holdings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.holdings-table th {
+  text-align: left;
+  padding: 10px 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.holdings-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.btn-delete-holding {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+.btn-delete-holding:hover { color: var(--color-down); }
+
+/* 📱 6. 모바일 탭 네비게이션 */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(11, 15, 25, 0.95);
+  backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-color);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.nav-item {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-item i { font-size: 1.1rem; }
+.nav-item.active {
+  color: var(--accent-cyan);
+}
+
+/* 🪟 모달창 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #111827;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  animation: modalScale 0.25s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.modal-body label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 12px 0 6px;
+}
+
+.modal-body input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-body input:focus {
+  border-color: var(--border-focus);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.pin-change-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+}
+
+.backup-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* 📱 반응형 미디어 쿼리 (모바일 & 태블릿) */
+@media (max-width: 1100px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 340px;
+  }
+  .watchlist-section {
+    grid-column: 1 / -1;
+  }
+  .watchlist-container {
+    flex-direction: row;
+    overflow-x: auto;
+    max-height: none;
+  }
+  .stock-item {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 14px;
+  }
+  .mobile-nav {
+    display: flex;
+  }
+  .index-ticker-bar {
+    display: none; /* 모바일 헤더 단순화 */
+  }
+  .chart-section {
+    min-height: 440px;
+  }
+  .chart-canvas-container {
+    height: 320px;
+  }
+  
+  /* 모바일 탭 전환 */
+  .section-card {
+    display: none;
+  }
+  .section-card.mobile-active {
+    display: flex !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
