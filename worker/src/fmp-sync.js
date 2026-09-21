@@ -182,6 +182,81 @@ async function syncDividends(environment, ticker) {
     calculated.growthCagr, calculated.nextExDate, calculated.status, calculated.nextPaymentDate).run();
 }
 
+async function syncEarningsSchedule(environment, ticker) {
+  const records = asRecords(await fetchFmp(environment, 'earnings', { symbol: ticker }));
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = records
+    .map(record => ({
+      date: toIsoDate(record.date || record.earningsDate),
+      // FMP가 실제 EPS를 제공한 과거 행은 확정 일정으로 취급하지 않는다.
+      hasActualResult: pickNumber(record, ['epsActual', 'actualEps']) !== null
+    }))
+    .filter(record => record.date && record.date >= today && !record.hasActualResult)
+    .sort((left, right) => left.date.localeCompare(right.date))[0];
+
+  await environment.DB.prepare(`INSERT INTO earnings_schedule
+    (ticker, next_earnings_date, is_confirmed, source, last_checked_at, last_error, updated_at)
+    VALUES (?, ?, ?, 'FMP', CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP)
+    ON CONFLICT(ticker) DO UPDATE SET next_earnings_date=excluded.next_earnings_date,
+      is_confirmed=excluded.is_confirmed, source='FMP', last_checked_at=CURRENT_TIMESTAMP,
+      last_error=NULL, updated_at=CURRENT_TIMESTAMP`
+  ).bind(ticker, upcoming?.date || null, upcoming ? 1 : 0).run();
+}
+
+async function getNextUsTradingDate(environment, isoDate) {
+  const cursor = new Date(`${isoDate}T00:00:00Z`);
+  cursor.setUTCDate(cursor.getUTCDate() + 1);
+  for (let attempts = 0; attempts < 10; attempts += 1) {
+    const candidate = cursor.toISOString().slice(0, 10);
+    const day = cursor.getUTCDay();
+    const holiday = await environment.DB.prepare(`SELECT 1 FROM market_holidays
+      WHERE market = 'NYSE' AND holiday_date = ? AND is_full_close = 1`).bind(candidate).first();
+    if (day !== 0 && day !== 6 && !holiday) return candidate;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return null;
+}
+
+async function shouldRefreshFinancialsAfterEarnings(environment, ticker) {
+  const schedule = await environment.DB.prepare(`SELECT next_earnings_date AS nextEarningsDate,
+    last_checked_at AS lastCheckedAt, last_financial_refresh_at AS lastFinancialRefreshAt
+    FROM earnings_schedule WHERE ticker = ?`).bind(ticker).first();
+  const today = new Date().toISOString().slice(0, 10);
+  const scheduleIsStale = !schedule?.lastCheckedAt || isStale(schedule.lastCheckedAt, 24 * 60);
+
+  if (scheduleIsStale) {
+    try {
+      await syncEarningsSchedule(environment, ticker);
+    } catch (error) {
+      await environment.DB.prepare(`INSERT INTO earnings_schedule (ticker, source, last_checked_at, last_error, updated_at)
+        VALUES (?, 'FMP', CURRENT_TIMESTAMP, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(ticker) DO UPDATE SET last_checked_at=CURRENT_TIMESTAMP, last_error=excluded.last_error, updated_at=CURRENT_TIMESTAMP`
+      ).bind(ticker, String(error).slice(0, 500)).run();
+    }
+  }
+
+  const refreshedSchedule = await environment.DB.prepare(`SELECT next_earnings_date AS nextEarningsDate,
+    last_financial_refresh_at AS lastFinancialRefreshAt FROM earnings_schedule WHERE ticker = ?`).bind(ticker).first();
+  if (refreshedSchedule?.nextEarningsDate) {
+    const refreshDate = await getNextUsTradingDate(environment, refreshedSchedule.nextEarningsDate);
+    if (refreshDate && today >= refreshDate && String(refreshedSchedule.lastFinancialRefreshAt || '') < refreshDate) {
+      return true;
+    }
+    return false;
+  }
+
+  // 발표일이 없는 종목·ETF는 새 공시를 놓치지 않도록 기존 주 1회 확인을 안전망으로 둔다.
+  return isStale(refreshedSchedule?.lastFinancialRefreshAt, 7 * 24 * 60);
+}
+
+async function markFinancialsRefreshed(environment, ticker) {
+  await environment.DB.prepare(`INSERT INTO earnings_schedule
+    (ticker, source, last_financial_refresh_at, updated_at)
+    VALUES (?, 'FMP', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ON CONFLICT(ticker) DO UPDATE SET last_financial_refresh_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP`
+  ).bind(ticker).run();
+}
+
 async function syncFinancials(environment, ticker, periodType, limit) {
   const period = periodType === 'annual' ? 'annual' : 'quarter';
   const params = { symbol: ticker, period, limit };
@@ -329,9 +404,17 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
     : allJobs;
   const result = {};
   for (const [dataType, task] of jobs) {
-    try { await task(); await markSyncState(environment, ticker, dataType); result[dataType] = 'ok'; }
+    try {
+      await task();
+      await markSyncState(environment, ticker, dataType);
+      if (dataType === 'financials') await markFinancialsRefreshed(environment, ticker);
+      result[dataType] = 'ok';
+    }
     catch (error) { await markSyncState(environment, ticker, dataType, error); result[dataType] = String(error); }
   }
+  // 발표 일정은 재무 수집 실패와 별개로 갱신해 다음 Cron의 판단 재료로 쓴다.
+  try { await syncEarningsSchedule(environment, ticker); result.earningsSchedule = 'ok'; }
+  catch (error) { result.earningsSchedule = String(error); }
   return result;
 }
 
@@ -353,6 +436,9 @@ export async function syncTickerIncrementally(environment, ticker) {
   const requestedDataTypes = refreshRules
     .filter(([dataType, minutes]) => isStale(lastSuccessByType.get(dataType), minutes))
     .map(([dataType]) => dataType);
+  if (await shouldRefreshFinancialsAfterEarnings(environment, ticker)) {
+    requestedDataTypes.push('financials');
+  }
   if (!requestedDataTypes.length) return { skipped: '최신 데이터가 이미 저장되어 있습니다.' };
   return syncTickerFromFmp(environment, ticker, requestedDataTypes);
 }
