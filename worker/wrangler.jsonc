@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "us-stock-pro",
-      "database_id": "__CREATE_D1_DATABASE_AND_REPLACE_THIS_VALUE__",
+      "database_id": "698ab9b8-4573-40c7-b119-d7b1d681abc8",
       "migrations_dir": "migrations"
     }
   ]
