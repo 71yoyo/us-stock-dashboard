@@ -207,28 +207,12 @@
           <div class="detail-chart-placeholder"><i class="fa-solid fa-chart-line"></i><strong>상세 차트 영역</strong><span>외부 시세 API 연결 후 기간별 캔들 차트와 Williams %R 추이를 표시합니다.</span></div>
         </div>
         <div class="company-detail-panel hidden" data-detail-panel="financials">
-          <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span>외부 재무 API 연결 후 최근 분기와 연간 기준으로 갱신됩니다.</span></div>
-          <div class="detail-data-grid">
-            <div class="company-metric"><span>매출</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>영업이익</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>순이익</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>EPS</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>잉여현금흐름</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>PER</span><strong>API 연결 예정</strong></div>
-          </div>
+          <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span id="detailFinancialSource">저장된 최신 재무 데이터를 불러오는 중입니다.</span></div>
+          <div class="detail-data-grid" id="detailFinancialMetrics"></div>
         </div>
         <div class="company-detail-panel hidden" data-detail-panel="dividend">
-          <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span>배당 API 연결 후 분할·증배 이력을 반영한 실제 수치로 갱신됩니다.</span></div>
-          <div class="detail-data-grid detail-dividend-grid">
-            <div class="company-metric"><span>배당수익률</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>연 배당금</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>분기 배당수익률</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>분기 배당금</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>배당 성장 연수</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>배당 성장률</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>다음 배당일</span><strong>API 연결 예정</strong></div>
-            <div class="company-metric"><span>다음 배당 남은 일수</span><strong>API 연결 예정</strong></div>
-          </div>
+          <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span id="detailDividendSource">저장된 배당 이력을 불러오는 중입니다.</span></div>
+          <div class="detail-data-grid detail-dividend-grid" id="detailDividendMetrics"></div>
         </div>
       </section>
       </div>

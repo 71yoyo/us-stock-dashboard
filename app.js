@@ -417,76 +417,62 @@ function initChart() {
   loadStockChart(state.selectedTicker);
 }
 
-// 모의 주가 캔들 및 이평선 데이터 생성
-function generateHistoricalData(basePrice, days = 160) {
-  const data = [];
-  const volumes = [];
-  let price = basePrice * 0.75;
-  const now = new Date();
-  
-  for (let i = days; i >= 0; i--) {
-    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    // 주말 제외
-    if (date.getDay() === 0 || date.getDay() === 6) continue;
-    
-    const timeStr = date.toISOString().split('T')[0];
-    const change = (Math.random() - 0.48) * (price * 0.04);
-    const open = price;
-    const close = price + change;
-    const high = Math.max(open, close) + Math.random() * (price * 0.02);
-    const low = Math.min(open, close) - Math.random() * (price * 0.02);
-    const volume = Math.floor(Math.random() * 8000000) + 1500000;
-    
-    price = close;
-    data.push({ time: timeStr, open, high, low, close });
-    volumes.push({
-      time: timeStr,
-      value: volume,
-      color: close >= open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)'
-    });
-  }
-
-  // MA 계산
-  const ma20 = [];
-  const ma60 = [];
-  for (let i = 0; i < data.length; i++) {
-    if (i >= 19) {
-      const sum20 = data.slice(i - 19, i + 1).reduce((acc, c) => acc + c.close, 0);
-      ma20.push({ time: data[i].time, value: sum20 / 20 });
-    }
-    if (i >= 59) {
-      const sum60 = data.slice(i - 59, i + 1).reduce((acc, c) => acc + c.close, 0);
-      ma60.push({ time: data[i].time, value: sum60 / 60 });
-    }
-  }
-
-  return { candles: data, volumes, ma20, ma60 };
+function calculateMovingAverage(candles, days) {
+  return candles.flatMap((candle, index) => {
+    if (index < days - 1) return [];
+    const average = candles.slice(index - days + 1, index + 1).reduce((sum, item) => sum + item.close, 0) / days;
+    return [{ time: candle.time, value: average }];
+  });
 }
 
-function loadStockChart(ticker) {
-  const stock = state.watchlist.find(s => s.ticker === ticker) || {
-    ticker,
-    name: ticker,
-    price: 150.00,
-    change: 2.5,
-    changePct: 1.5
-  };
+async function fetchCompanyFromCloudflare(ticker) {
+  const apiUrl = getCloudflareApiUrl(`/api/companies/${encodeURIComponent(ticker)}`);
+  if (!apiUrl) return null;
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) return null;
+    return (await response.json()).company || null;
+  } catch (error) {
+    console.warn('저장된 회사 데이터를 불러오지 못했습니다.', error);
+    return null;
+  }
+}
+
+/** D1에 저장된 3개월 일봉만 차트에 사용하며, 임의 차트 데이터는 생성하지 않는다. */
+async function loadStockChart(ticker) {
+  const stock = state.watchlist.find(item => item.ticker === ticker);
+  if (!stock || !tvChart) return;
+  const company = await fetchCompanyFromCloudflare(ticker);
+  if (ticker !== state.selectedTicker || !company) return;
+
+  stock.name = company.name || stock.name;
+  stock.sector = company.sector || stock.sector;
+  if (Number.isFinite(company.currentPrice)) stock.price = company.currentPrice;
+  if (Number.isFinite(company.changeAmount)) stock.change = company.changeAmount;
+  if (Number.isFinite(company.changePercent)) stock.changePct = company.changePercent;
+  stock.marketData = company;
+  renderCompanyDetailData(company);
 
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
   document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
-  
-  const changeElem = document.getElementById('chartChange');
   const isUp = stock.change >= 0;
+  const changeElem = document.getElementById('chartChange');
   changeElem.className = `price-change ${isUp ? 'up' : 'down'}`;
   changeElem.textContent = `${isUp ? '+' : ''}${stock.change.toFixed(2)} (${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
 
-  const history = generateHistoricalData(stock.price, 180);
-  candleSeries.setData(history.candles);
-  volumeSeries.setData(history.volumes);
-  ma20Series.setData(history.ma20);
-  ma60Series.setData(history.ma60);
+  const candles = (company.candles || []).map(candle => ({
+    time: candle.candleDate, open: candle.open, high: candle.high, low: candle.low, close: candle.close
+  })).filter(candle => candle.time && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
+  candleSeries.setData(candles);
+  volumeSeries.setData(candles.map((candle, index) => ({
+    time: candle.time, value: company.candles[index]?.volume || 0,
+    color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)'
+  })));
+  ma20Series.setData(calculateMovingAverage(candles, 20));
+  ma60Series.setData(calculateMovingAverage(candles, 60));
   tvChart.timeScale().fitContent();
+  updateCompanySummary();
 }
 
 // ========================================================
@@ -790,6 +776,44 @@ function updateCompanySummary() {
     const element = document.getElementById(id);
     if (element) element.textContent = value;
   });
+}
+
+function formatMetricValue(value, suffix = '') {
+  return Number.isFinite(value) ? `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}` : '데이터 없음';
+}
+
+/** 상세 모달의 재무·배당 카드는 D1 원본 집계값만 표시한다. */
+function renderCompanyDetailData(company) {
+  const financialContainer = document.getElementById('detailFinancialMetrics');
+  const dividendContainer = document.getElementById('detailDividendMetrics');
+  if (!financialContainer || !dividendContainer) return;
+
+  const financial = (company.financials || []).find(item => item.periodType === 'quarterly') || company.financials?.[0];
+  const financialEntries = [
+    ['매출', financial?.revenue, '$'], ['영업이익', financial?.operatingIncome, '$'],
+    ['순이익', financial?.netIncome, '$'], ['EPS', financial?.eps, '$'],
+    ['잉여현금흐름', financial?.freeCashFlow, '$'], ['ROE', financial?.roe, '%'],
+    ['ROIC', financial?.roic, '%'], ['Gross Margin', financial?.grossMargin, '%'], ['Oper. Margin', financial?.operatingMargin, '%']
+  ];
+  financialContainer.innerHTML = financialEntries.map(([label, value, suffix]) =>
+    `<div class="company-metric"><span>${label}</span><strong>${formatMetricValue(value, suffix)}</strong></div>`).join('');
+  document.getElementById('detailFinancialSource').textContent = financial
+    ? `${financial.periodType === 'quarterly' ? '분기' : '연간'} ${financial.fiscalPeriodEnd} · ${financial.source} 저장값`
+    : '아직 저장된 재무 데이터가 없습니다.';
+
+  const dividend = company.dividendMetrics;
+  const statusText = dividend?.nextDateStatus === 'confirmed' ? '확정' : dividend?.nextDateStatus === 'estimated' ? '예정' : '미정';
+  const dividendEntries = [
+    ['배당수익률', dividend?.dividendYield, '%'], ['연 배당금', dividend?.annualDividend, '$'],
+    ['최근 4회 배당금', dividend?.quarterlyDividend, '$'], ['배당 성장 연수', dividend?.dividendGrowthYears, '년'],
+    ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'], ['다음 배당일', dividend?.nextExDividendDate || '미정', ''],
+    ['날짜 상태', statusText, '']
+  ];
+  dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix]) =>
+    `<div class="company-metric"><span>${label}</span><strong>${typeof value === 'string' ? value : formatMetricValue(value, suffix)}</strong></div>`).join('');
+  document.getElementById('detailDividendSource').textContent = dividend
+    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · FMP 배당 이력 기반`
+    : '배당 이력이 아직 저장되지 않았습니다.';
 }
 
 /**
