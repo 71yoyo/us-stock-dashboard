@@ -1,4 +1,5 @@
 const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
+const SEC_FACTS_BASE_URL = 'https://data.sec.gov/api/xbrl/companyfacts';
 
 function toFiniteNumber(value) {
   const number = Number(value);
@@ -198,6 +199,104 @@ async function syncFinancials(environment, ticker, periodType, limit) {
   if (statements.length) await environment.DB.batch(statements);
 }
 
+function selectSecFact(facts, tags, acceptedUnits) {
+  for (const tag of tags) {
+    const fact = facts?.['us-gaap']?.[tag];
+    if (!fact?.units) continue;
+    for (const unit of acceptedUnits) {
+      if (Array.isArray(fact.units[unit])) return fact.units[unit];
+    }
+  }
+  return [];
+}
+
+function latestSecValues(entries, forms, minimumYear) {
+  const records = new Map();
+  for (const entry of entries) {
+    if (!entry.end || !forms.includes(entry.form) || Number(entry.fy) < minimumYear) continue;
+    const current = records.get(entry.end);
+    // 같은 회계기간 수정 공시가 있다면 가장 나중에 제출된 값으로 덮어쓴다.
+    if (!current || String(entry.filed || '') >= String(current.filed || '')) records.set(entry.end, entry);
+  }
+  return records;
+}
+
+function valueAt(values, end) {
+  return values.get(end)?.val ?? null;
+}
+
+async function syncFinancialsFromSec(environment, ticker) {
+  const company = await environment.DB.prepare('SELECT cik FROM companies WHERE ticker = ?').bind(ticker).first();
+  const cik = String(company?.cik || '').replace(/\D/g, '').padStart(10, '0');
+  if (cik.length !== 10) throw new Error('SEC CIK가 없어 재무 원문을 가져올 수 없습니다.');
+
+  const response = await fetch(`${SEC_FACTS_BASE_URL}/CIK${cik}.json`, {
+    headers: {
+      // SEC는 자동 수집 주체를 식별할 수 있는 User-Agent를 요구한다. 운영 시 Secret으로 교체할 수 있다.
+      'User-Agent': environment.SEC_USER_AGENT || 'US Stock Pro dashboard contact: https://github.com/71yoyo/us-stock-dashboard',
+      Accept: 'application/json'
+    }
+  });
+  if (!response.ok) throw new Error(`SEC EDGAR 요청 실패: HTTP ${response.status}`);
+  const payload = await response.json();
+  const facts = payload.facts;
+  const currentYear = new Date().getUTCFullYear();
+  const minAnnualYear = currentYear - 10;
+  const minQuarterYear = currentYear - 11;
+
+  const usd = tags => selectSecFact(facts, tags, ['USD']);
+  const perShare = tags => selectSecFact(facts, tags, ['USD/shares']);
+  const revenue = usd(['RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues', 'SalesRevenueNet']);
+  const operatingIncome = usd(['OperatingIncomeLoss']);
+  const netIncome = usd(['NetIncomeLoss', 'ProfitLoss']);
+  const operatingCashFlow = usd(['NetCashProvidedByUsedInOperatingActivities']);
+  const capitalExpenditure = usd(['PaymentsToAcquirePropertyPlantAndEquipment']);
+  const grossProfit = usd(['GrossProfit']);
+  const equity = usd(['StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest']);
+  const debt = usd(['LongTermDebtCurrent', 'LongTermDebtNoncurrent', 'LongTermDebtAndFinanceLeaseObligationsCurrent', 'LongTermDebtAndFinanceLeaseObligationsNoncurrent']);
+  const cash = usd(['CashAndCashEquivalentsAtCarryingValue']);
+  const eps = perShare(['EarningsPerShareDiluted', 'EarningsPerShareBasicAndDiluted']);
+  const dataSets = { revenue, operatingIncome, netIncome, operatingCashFlow, capitalExpenditure, grossProfit, equity, debt, cash, eps };
+
+  const writePeriod = async (periodType, forms, minimumYear, maximumRows) => {
+    const dateSets = Object.values(dataSets).map(entries => latestSecValues(entries, forms, minimumYear));
+    const dates = [...new Set(dateSets.flatMap(data => [...data.keys()]))].sort().slice(-maximumRows);
+    const statements = dates.map(end => {
+      const revenueValue = valueAt(dateSets[0], end);
+      const operatingIncomeValue = valueAt(dateSets[1], end);
+      const netIncomeValue = valueAt(dateSets[2], end);
+      const operatingCashFlowValue = valueAt(dateSets[3], end);
+      const capitalExpenditureValue = valueAt(dateSets[4], end);
+      const grossProfitValue = valueAt(dateSets[5], end);
+      const equityValue = valueAt(dateSets[6], end);
+      const debtValue = (valueAt(dateSets[7], end) || 0) + (valueAt(dateSets[8], end) || 0);
+      const cashValue = valueAt(dateSets[9], end) || 0;
+      const reportedDate = dateSets[0].get(end)?.filed || null;
+      const freeCashFlow = operatingCashFlowValue !== null && capitalExpenditureValue !== null
+        ? operatingCashFlowValue - Math.abs(capitalExpenditureValue) : null;
+      const grossMargin = grossProfitValue !== null && revenueValue ? (grossProfitValue / revenueValue) * 100 : null;
+      const operatingMargin = operatingIncomeValue !== null && revenueValue ? (operatingIncomeValue / revenueValue) * 100 : null;
+      const investedCapital = equityValue !== null ? equityValue + debtValue - cashValue : null;
+      const roic = operatingIncomeValue !== null && investedCapital ? (operatingIncomeValue / investedCapital) * 100 : null;
+      const roe = netIncomeValue !== null && equityValue ? (netIncomeValue / equityValue) * 100 : null;
+      return environment.DB.prepare(`INSERT INTO financial_metrics (ticker, period_type, fiscal_period_end, reported_date, currency, revenue, operating_income, net_income, eps, free_cash_flow, roe, roic, gross_margin, operating_margin, source, source_updated_at, cached_at)
+        VALUES (?, ?, ?, ?, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SEC EDGAR', ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(ticker, period_type, fiscal_period_end) DO UPDATE SET reported_date=excluded.reported_date, revenue=excluded.revenue,
+          operating_income=excluded.operating_income, net_income=excluded.net_income, eps=excluded.eps, free_cash_flow=excluded.free_cash_flow,
+          roe=excluded.roe, roic=excluded.roic, gross_margin=excluded.gross_margin, operating_margin=excluded.operating_margin,
+          source=excluded.source, source_updated_at=excluded.source_updated_at, cached_at=CURRENT_TIMESTAMP`
+      ).bind(ticker, periodType, end, reportedDate, revenueValue, operatingIncomeValue, netIncomeValue, valueAt(dateSets[10], end),
+        freeCashFlow, roe, roic, grossMargin, operatingMargin, reportedDate);
+    });
+    if (statements.length) await environment.DB.batch(statements);
+    return statements.length;
+  };
+
+  const annualCount = await writePeriod('annual', ['10-K', '10-K/A'], minAnnualYear, 10);
+  const quarterlyCount = await writePeriod('quarterly', ['10-Q', '10-Q/A'], minQuarterYear, 40);
+  if (!annualCount && !quarterlyCount) throw new Error('SEC EDGAR 재무 원문에서 저장할 기간을 찾지 못했습니다.');
+}
+
 export async function syncTickerFromFmp(environment, ticker) {
   // 기존 Worker 변수에 공급자명이 없던 배포도 FMP 키가 있으면 FMP를 기본값으로 사용한다.
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
@@ -205,7 +304,15 @@ export async function syncTickerFromFmp(environment, ticker) {
   const jobs = [
     ['profile', () => syncProfile(environment, ticker)], ['price', () => syncQuote(environment, ticker)], ['candles', () => syncCandles(environment, ticker)],
     ['dividends', () => syncDividends(environment, ticker)],
-    ['financials', async () => { await syncFinancials(environment, ticker, 'annual', 10); await syncFinancials(environment, ticker, 'quarterly', 40); }]
+    ['financials', async () => {
+      try {
+        await syncFinancials(environment, ticker, 'annual', 10);
+        await syncFinancials(environment, ticker, 'quarterly', 40);
+      } catch (fmpError) {
+        // FMP 무료 플랜이 장기 재무 요청을 제한하면 공식 SEC 원문으로 자동 보완한다.
+        await syncFinancialsFromSec(environment, ticker);
+      }
+    }]
   ];
   const result = {};
   for (const [dataType, task] of jobs) {
