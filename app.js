@@ -166,8 +166,8 @@ async function updateStockProfileFromCloudflare(ticker) {
 }
 
 /**
- * 신규 종목은 Worker가 FMP·SEC에서 최초 이력을 저장한 뒤 화면 프로필을 다시 읽는다.
- * API가 느리거나 실패해도 기존 목록 조작은 막지 않고 다음 Cron 갱신으로 재시도한다.
+ * 신규 종목은 Worker에 최초 수집을 요청한다. Worker는 한 번에 한 데이터 종류만 처리하고,
+ * 나머지는 Cron이 순차적으로 채운다. 이 방식은 무료 API의 호출 제한을 넘지 않기 위한 것이다.
  */
 async function synchronizeStockDataWithCloudflare(ticker) {
   const apiUrl = getCloudflareApiUrl('/api/sync');

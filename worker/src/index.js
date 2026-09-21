@@ -1,4 +1,4 @@
-import { syncTickerFromFmp, syncTickerIncrementally } from './fmp-sync.js';
+import { syncTickerIncrementally, syncTickerDataType } from './fmp-sync.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -180,9 +180,50 @@ async function getCompany(environment, ticker) {
   };
 }
 
+const syncIntervalsInMinutes = {
+  profile: 30 * 24 * 60,
+  price: 30,
+  candles: 24 * 60,
+  dividends: 24 * 60,
+  financials: 7 * 24 * 60
+};
+
+function isSyncDue(syncState, intervalMinutes) {
+  if (syncState?.nextRetryAt && new Date(syncState.nextRetryAt).getTime() > Date.now()) return false;
+  if (!syncState?.lastSuccessAt) return true;
+  const elapsed = Date.now() - new Date(syncState.lastSuccessAt).getTime();
+  return !Number.isFinite(elapsed) || elapsed >= intervalMinutes * 60_000;
+}
+
 /**
- * 무료 API의 일일 호출 한도를 지키기 위해 Cron 한 번에 관심종목 하나만 갱신한다.
- * 최초 수집은 화면의 동기화 요청으로 실행하고, 이후 Cron은 최신 데이터만 덮어쓴다.
+ * 관심종목 전체를 작은 작업 단위로 나눈 뒤, 가장 오래 기다린 작업 하나만 선택한다.
+ * 이 방식은 첫 적재에도 Cron 한 번당 외부 API 호출 묶음이 하나를 넘지 않게 한다.
+ */
+async function findNextSyncJob(environment) {
+  const [watchlistResult, statesResult] = await environment.DB.batch([
+    environment.DB.prepare('SELECT ticker FROM user_watchlist WHERE user_id = ? ORDER BY display_order ASC')
+      .bind(getWatchlistUserId()),
+    environment.DB.prepare(`SELECT ticker, data_type AS dataType, last_success_at AS lastSuccessAt,
+      last_attempt_at AS lastAttemptAt, next_retry_at AS nextRetryAt
+      FROM data_sync_state`)
+  ]);
+  const stateByKey = new Map(statesResult.results.map(state => [`${state.ticker}:${state.dataType}`, state]));
+  const jobs = [];
+  for (const { ticker } of watchlistResult.results) {
+    for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
+      const state = stateByKey.get(`${ticker}:${dataType}`);
+      if (isSyncDue(state, intervalMinutes)) {
+        jobs.push({ ticker, dataType, lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z' });
+      }
+    }
+  }
+  jobs.sort((left, right) => left.lastAttemptAt.localeCompare(right.lastAttemptAt));
+  return jobs[0] || null;
+}
+
+/**
+ * Cron 한 번에는 한 종목의 한 데이터 종류만 갱신한다.
+ * 장기 이력은 여러 번에 나누어 D1에 채우고, 이미 정상 저장된 값은 유지한다.
  */
 async function synchronizeMarketData(environment) {
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
@@ -192,22 +233,18 @@ async function synchronizeMarketData(environment) {
     return;
   }
 
-  const tickers = await environment.DB.prepare(`SELECT watchlist.ticker FROM user_watchlist AS watchlist
-    LEFT JOIN data_sync_state AS state ON state.ticker = watchlist.ticker AND state.data_type = 'price'
-    WHERE watchlist.user_id = ?
-    ORDER BY COALESCE(state.last_success_at, '1970-01-01') ASC LIMIT 1`).bind(getWatchlistUserId()).all();
-  const ticker = tickers.results[0]?.ticker;
-  if (!ticker) return;
+  const job = await findNextSyncJob(environment);
+  if (!job) return;
 
   await environment.DB.prepare(`
     INSERT INTO sync_runs (data_type, status, message, completed_at)
     VALUES ('scheduled_market_sync', 'running', ?, NULL)
-  `).bind(`${ticker} 최신 데이터 동기화 시작`).run();
+  `).bind(`${job.ticker} ${job.dataType} 데이터 동기화 시작`).run();
 
-  const result = await syncTickerIncrementally(environment, ticker);
+  const result = await syncTickerDataType(environment, job.ticker, job.dataType);
   await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
     VALUES ('scheduled_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
-    .bind(ticker, Object.values(result).every(value => value === 'ok') ? 'success' : 'partial', JSON.stringify(result)).run();
+    .bind(job.ticker, Object.values(result).every(value => value === 'ok') ? 'success' : 'partial', JSON.stringify({ ...job, result })).run();
 }
 
 export default {
@@ -292,7 +329,8 @@ export default {
       }
 
       try {
-        const result = await syncTickerFromFmp(environment, ticker);
+        // 화면에서 종목을 눌러도 모든 API를 즉시 호출하지 않고, 다음 한 작업만 처리한다.
+        const result = await syncTickerIncrementally(environment, ticker);
         const status = Object.values(result).every(value => value === 'ok') ? 'success' : 'partial';
         await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
           VALUES ('manual_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)

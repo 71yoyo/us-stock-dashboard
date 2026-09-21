@@ -49,14 +49,28 @@ async function markSyncState(environment, ticker, dataType, error = null) {
       ON CONFLICT(ticker, data_type) DO UPDATE SET last_success_at=excluded.last_success_at, last_attempt_at=excluded.last_attempt_at, next_retry_at=NULL, failure_count=0, last_error=NULL`
     ).bind(ticker, dataType, now, now).run();
   }
-  // 실패 횟수에 따라 최대 24시간까지 재시도 간격을 늘려 무료 API 제한을 존중한다.
+  const previousState = await environment.DB.prepare(`SELECT failure_count AS failureCount
+    FROM data_sync_state WHERE ticker = ? AND data_type = ?`).bind(ticker, dataType).first();
+  const failureCount = Number(previousState?.failureCount || 0) + 1;
+  const errorMessage = String(error).slice(0, 500);
+  const httpStatus = errorMessage.match(/HTTP\s+(\d{3})/)?.[1];
+  // 402·429는 플랜 또는 호출 제한일 수 있다. 짧은 간격으로 재시도하면 같은 실패를 반복하므로
+  // 하루 동안 보류한다. SEC의 403은 공정 사용 제한 가능성을 고려해 6시간 뒤 다시 시도한다.
+  const retryMinutes = ['402', '429'].includes(httpStatus)
+    ? 24 * 60
+    : httpStatus === '403'
+      ? 6 * 60
+      : Math.min(24 * 60, 15 * (2 ** Math.min(6, failureCount - 1)));
+  const nextRetryAt = new Date(Date.now() + retryMinutes * 60_000).toISOString();
+
+  // 오류 종류별 대기 시간을 명시적으로 저장해 Cron과 수동 동기화가 같은 API를 반복 호출하지 않게 한다.
   return environment.DB.prepare(`INSERT INTO data_sync_state (ticker, data_type, last_attempt_at, next_retry_at, failure_count, last_error)
-    VALUES (?, ?, ?, datetime(?, '+15 minutes'), 1, ?)
+    VALUES (?, ?, ?, ?, ?, ?)
     ON CONFLICT(ticker, data_type) DO UPDATE SET last_attempt_at=excluded.last_attempt_at,
-      failure_count=data_sync_state.failure_count + 1,
-      next_retry_at=datetime('now', '+' || MIN(1440, 15 * (1 << MIN(6, data_sync_state.failure_count))) || ' minutes'),
+      failure_count=excluded.failure_count,
+      next_retry_at=excluded.next_retry_at,
       last_error=excluded.last_error`
-  ).bind(ticker, dataType, now, now, String(error).slice(0, 500)).run();
+  ).bind(ticker, dataType, now, nextRetryAt, failureCount, errorMessage).run();
 }
 
 async function syncProfile(environment, ticker) {
@@ -397,7 +411,7 @@ function isStale(lastSuccessAt, minutes) {
   return !Number.isFinite(elapsed) || elapsed >= minutes * 60_000;
 }
 
-export async function syncTickerFromFmp(environment, ticker, requestedDataTypes = null) {
+export async function syncTickerFromFmp(environment, ticker, requestedDataTypes = null, options = {}) {
   // 기존 Worker 변수에 공급자명이 없던 배포도 FMP 키가 있으면 FMP를 기본값으로 사용한다.
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
   if (provider !== 'FMP' || !environment.MARKET_DATA_API_KEY) throw new Error('FMP API 설정이 필요합니다.');
@@ -427,10 +441,22 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
     }
     catch (error) { await markSyncState(environment, ticker, dataType, error); result[dataType] = String(error); }
   }
-  // 발표 일정은 재무 수집 실패와 별개로 갱신해 다음 Cron의 판단 재료로 쓴다.
-  try { await syncEarningsSchedule(environment, ticker); result.earningsSchedule = 'ok'; }
-  catch (error) { result.earningsSchedule = String(error); }
+  // 실적 일정은 재무 작업 때만 확인한다. 가격·차트 한 건을 갱신하면서 추가 API를 호출하지 않는다.
+  if (options.syncEarningsSchedule) {
+    try { await syncEarningsSchedule(environment, ticker); result.earningsSchedule = 'ok'; }
+    catch (error) { result.earningsSchedule = String(error); }
+  }
   return result;
+}
+
+/**
+ * 자동 수집 큐는 한 번에 한 데이터 종류만 처리한다.
+ * 초기 적재 중에도 API 호출이 폭주하지 않고, 실패한 항목은 data_sync_state의 재시도 시각까지 건너뛴다.
+ */
+export async function syncTickerDataType(environment, ticker, dataType) {
+  return syncTickerFromFmp(environment, ticker, [dataType], {
+    syncEarningsSchedule: dataType === 'financials'
+  });
 }
 
 /**
@@ -456,9 +482,7 @@ export async function syncTickerIncrementally(environment, ticker) {
       return retryIsAllowed && isStale(syncState?.lastSuccessAt, minutes);
     })
     .map(([dataType]) => dataType);
-  if (await shouldRefreshFinancialsAfterEarnings(environment, ticker)) {
-    requestedDataTypes.push('financials');
-  }
   if (!requestedDataTypes.length) return { skipped: '최신 데이터가 이미 저장되어 있습니다.' };
-  return syncTickerFromFmp(environment, ticker, requestedDataTypes);
+  // 수동 요청도 전체 묶음을 즉시 실행하지 않고, 가장 우선인 한 작업만 큐에 넣는 방식으로 처리한다.
+  return syncTickerDataType(environment, ticker, requestedDataTypes[0]);
 }
