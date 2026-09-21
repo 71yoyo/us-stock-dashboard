@@ -198,6 +198,17 @@ let candleSeries = null;
 let volumeSeries = null;
 let ma20Series = null;
 let ma60Series = null;
+// 상세 분석 모달은 가격·거래량·Williams %R을 각각 별도 차트로 관리한다.
+let detailPriceChart = null;
+let detailVolumeChart = null;
+let detailWilliamsChart = null;
+let detailCandleSeries = null;
+let detailVolumeSeries = null;
+let detailWilliamsSeries = null;
+let detailMa20Series = null;
+let detailMa60Series = null;
+let detailChartResizeObserver = null;
+let isDetailTimeScaleSyncing = false;
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -425,6 +436,138 @@ function calculateMovingAverage(candles, days) {
   });
 }
 
+/** D1 응답에서 차트에 필요한 값이 모두 있는 일봉만 골라, 주·보조 차트가 같은 시간축을 공유하게 한다. */
+function normalizeChartCandles(company) {
+  return (company?.candles || []).map(candle => ({
+    time: candle.candleDate,
+    open: Number(candle.open),
+    high: Number(candle.high),
+    low: Number(candle.low),
+    close: Number(candle.close),
+    volume: Number(candle.volume) || 0
+  })).filter(candle => candle.time && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
+}
+
+/** Williams %R = ((기간 최고가 - 종가) / (기간 최고가 - 기간 최저가)) × -100 */
+function calculateWilliamsR(candles, period = 14) {
+  return candles.flatMap((candle, index) => {
+    if (index < period - 1) return [];
+    const window = candles.slice(index - period + 1, index + 1);
+    const highestHigh = Math.max(...window.map(item => item.high));
+    const lowestLow = Math.min(...window.map(item => item.low));
+    const range = highestHigh - lowestLow;
+    const value = range === 0 ? -50 : ((highestHigh - candle.close) / range) * -100;
+    return [{ time: candle.time, value }];
+  });
+}
+
+function getWilliamsSummary(candles) {
+  const values = calculateWilliamsR(candles);
+  const latest = values.at(-1)?.value;
+  if (!Number.isFinite(latest)) return null;
+  const signal = getWilliamsSignal(latest);
+  return {
+    value: latest,
+    status: latest <= -80 ? '과매도 구간' : latest >= -20 ? '과매수 구간' : '중립 구간',
+    investmentSignal: signal.label
+  };
+}
+
+function createDetailChart(container, height) {
+  return LightweightCharts.createChart(container, {
+    width: Math.max(container.clientWidth, 1),
+    height,
+    layout: { background: { color: 'transparent' }, textColor: '#94a3b8', fontSize: 11, fontFamily: 'Inter, sans-serif' },
+    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.035)' }, horzLines: { color: 'rgba(255, 255, 255, 0.035)' } },
+    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' },
+    timeScale: { borderColor: 'rgba(255, 255, 255, 0.08)', timeVisible: true, secondsVisible: false },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
+    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
+  });
+}
+
+function resizeDetailCharts() {
+  const chartDefinitions = [
+    [detailPriceChart, document.getElementById('detailPriceChart')],
+    [detailVolumeChart, document.getElementById('detailVolumeChart')],
+    [detailWilliamsChart, document.getElementById('detailWilliamsChart')]
+  ];
+  chartDefinitions.forEach(([chart, container]) => {
+    if (chart && container && container.clientWidth > 0) {
+      chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    }
+  });
+}
+
+function synchronizeDetailTimeScales() {
+  const charts = [detailPriceChart, detailVolumeChart, detailWilliamsChart].filter(Boolean);
+  charts.forEach(sourceChart => {
+    sourceChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+      if (!range || isDetailTimeScaleSyncing) return;
+      isDetailTimeScaleSyncing = true;
+      charts.filter(chart => chart !== sourceChart).forEach(chart => chart.timeScale().setVisibleLogicalRange(range));
+      isDetailTimeScaleSyncing = false;
+    });
+  });
+}
+
+/** 상세 모달을 열 때만 차트 객체를 생성해, 숨겨진 요소의 너비가 0으로 계산되는 문제를 막는다. */
+function initDetailCharts() {
+  if (!window.LightweightCharts) return;
+  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
+  detailChartResizeObserver?.disconnect();
+
+  const priceContainer = document.getElementById('detailPriceChart');
+  const volumeContainer = document.getElementById('detailVolumeChart');
+  const williamsContainer = document.getElementById('detailWilliamsChart');
+  if (!priceContainer || !volumeContainer || !williamsContainer) return;
+
+  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285);
+  detailVolumeChart = createDetailChart(volumeContainer, volumeContainer.clientHeight || 95);
+  detailWilliamsChart = createDetailChart(williamsContainer, williamsContainer.clientHeight || 135);
+
+  detailCandleSeries = detailPriceChart.addCandlestickSeries({
+    upColor: '#10b981', downColor: '#f43f5e', borderUpColor: '#10b981', borderDownColor: '#f43f5e', wickUpColor: '#10b981', wickDownColor: '#f43f5e'
+  });
+  detailMa20Series = detailPriceChart.addLineSeries({ color: '#facc15', lineWidth: 1, title: 'MA20' });
+  detailMa60Series = detailPriceChart.addLineSeries({ color: '#a855f7', lineWidth: 1, title: 'MA60' });
+  detailVolumeSeries = detailVolumeChart.addHistogramSeries({ color: 'rgba(56, 189, 248, 0.45)', priceFormat: { type: 'volume' } });
+  detailWilliamsSeries = detailWilliamsChart.addLineSeries({ color: '#38bdf8', lineWidth: 2, title: 'Williams %R' });
+  detailWilliamsSeries.createPriceLine({ price: -20, color: 'rgba(244, 63, 94, 0.75)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '과매수' });
+  detailWilliamsSeries.createPriceLine({ price: -80, color: 'rgba(16, 185, 129, 0.75)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '과매도' });
+  detailWilliamsChart.priceScale('right').applyOptions({ scaleMargins: { top: 0.1, bottom: 0.1 } });
+  detailWilliamsSeries.applyOptions({ priceFormat: { type: 'price', precision: 0, minMove: 1 } });
+  synchronizeDetailTimeScales();
+
+  detailChartResizeObserver = new ResizeObserver(resizeDetailCharts);
+  detailChartResizeObserver.observe(priceContainer);
+  detailChartResizeObserver.observe(volumeContainer);
+  detailChartResizeObserver.observe(williamsContainer);
+}
+
+function renderDetailCharts(company) {
+  if (!detailCandleSeries || !detailVolumeSeries || !detailWilliamsSeries) return;
+  const candles = normalizeChartCandles(company);
+  const williamsValues = calculateWilliamsR(candles);
+  const emptyState = document.getElementById('detailChartEmptyState');
+  const hasChartData = candles.length >= 14 && williamsValues.length > 0;
+  emptyState?.classList.toggle('hidden', hasChartData);
+  if (!hasChartData) return;
+
+  detailCandleSeries.setData(candles);
+  detailMa20Series.setData(calculateMovingAverage(candles, 20));
+  detailMa60Series.setData(calculateMovingAverage(candles, 60));
+  detailVolumeSeries.setData(candles.map(candle => ({
+    time: candle.time,
+    value: candle.volume,
+    color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.55)' : 'rgba(244, 63, 94, 0.55)'
+  })));
+  detailWilliamsSeries.setData(williamsValues);
+  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart.timeScale().fitContent());
+  resizeDetailCharts();
+}
+
 async function fetchCompanyFromCloudflare(ticker) {
   const apiUrl = getCloudflareApiUrl(`/api/companies/${encodeURIComponent(ticker)}`);
   if (!apiUrl) return null;
@@ -452,6 +595,7 @@ async function loadStockChart(ticker) {
   if (Number.isFinite(company.changePercent)) stock.changePct = company.changePercent;
   stock.marketData = company;
   renderCompanyDetailData(company);
+  renderDetailCharts(company);
 
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
@@ -461,12 +605,10 @@ async function loadStockChart(ticker) {
   changeElem.className = `price-change ${isUp ? 'up' : 'down'}`;
   changeElem.textContent = `${isUp ? '+' : ''}${stock.change.toFixed(2)} (${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
 
-  const candles = (company.candles || []).map(candle => ({
-    time: candle.candleDate, open: candle.open, high: candle.high, low: candle.low, close: candle.close
-  })).filter(candle => candle.time && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
+  const candles = normalizeChartCandles(company);
   candleSeries.setData(candles);
-  volumeSeries.setData(candles.map((candle, index) => ({
-    time: candle.time, value: company.candles[index]?.volume || 0,
+  volumeSeries.setData(candles.map(candle => ({
+    time: candle.time, value: candle.volume,
     color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)'
   })));
   ma20Series.setData(calculateMovingAverage(candles, 20));
@@ -765,12 +907,11 @@ function updateCompanySummary() {
     if (element) element.className = isUp ? 'up' : 'down';
   });
 
-  const williams = getExampleWilliamsR(stock.ticker);
-  const signal = getWilliamsSignal(williams);
+  const williams = getWilliamsSummary(normalizeChartCandles(stock.marketData));
   const detailFields = {
-    detailWilliamsR: `예시 ${williams.toFixed(1)}`,
-    detailWilliamsSignal: `예시 ${williams <= -80 ? '과매도 구간' : williams >= -20 ? '과매수 구간' : '중립 구간'}`,
-    detailInvestmentSignal: `예시 ${signal.label}`
+    detailWilliamsR: williams ? williams.value.toFixed(1) : '데이터 수집 대기',
+    detailWilliamsSignal: williams ? williams.status : '14일 일봉 수집 대기',
+    detailInvestmentSignal: williams ? williams.investmentSignal : '판단 보류'
   };
   Object.entries(detailFields).forEach(([id, value]) => {
     const element = document.getElementById(id);
@@ -1337,6 +1478,7 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
+      if (selectedTab === 'chart') requestAnimationFrame(resizeDetailCharts);
     });
   });
 }
@@ -1345,11 +1487,27 @@ function openCompanyDetailModal() {
   updateCompanySummary();
   document.getElementById('companyDetailModal').classList.remove('hidden');
   document.body.classList.add('modal-open');
+  // 모달이 화면에 표시된 뒤 생성해야 차트 너비를 정상적으로 계산할 수 있다.
+  requestAnimationFrame(() => {
+    initDetailCharts();
+    const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
+    if (stock?.marketData) renderDetailCharts(stock.marketData);
+  });
 }
 
 function closeCompanyDetailModal() {
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
+  detailChartResizeObserver?.disconnect();
+  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
+  detailPriceChart = null;
+  detailVolumeChart = null;
+  detailWilliamsChart = null;
+  detailCandleSeries = null;
+  detailVolumeSeries = null;
+  detailWilliamsSeries = null;
+  detailMa20Series = null;
+  detailMa60Series = null;
 }
 
 // ========================================================

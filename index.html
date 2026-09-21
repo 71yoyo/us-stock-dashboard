@@ -177,7 +177,7 @@
         </div>
       </section>
 
-      <!-- 선택 회사 상세: API 연동 전에는 화면 구조와 예시 정보만 표시 -->
+      <!-- 선택 회사 상세: D1에 저장된 가격·재무·배당 데이터를 표시 -->
       <div class="modal-overlay company-detail-modal hidden" id="companyDetailModal" role="dialog" aria-modal="true" aria-label="회사 상세 분석">
       <section class="section-card company-detail-section">
         <div class="card-header company-detail-header">
@@ -200,11 +200,27 @@
         </div>
         <div class="company-detail-panel" data-detail-panel="chart">
           <div class="william-r-summary-grid">
-            <div class="company-metric"><span>현재 Williams %R</span><strong id="detailWilliamsR">예시 -48.3</strong></div>
-            <div class="company-metric"><span>14일 기준 상태</span><strong id="detailWilliamsSignal">예시 관찰</strong></div>
-            <div class="company-metric"><span>투자 신호</span><strong id="detailInvestmentSignal">예시 관찰</strong></div>
+            <div class="company-metric"><span>현재 Williams %R</span><strong id="detailWilliamsR">데이터 수집 대기</strong></div>
+            <div class="company-metric"><span>14일 기준 상태</span><strong id="detailWilliamsSignal">데이터 수집 대기</strong></div>
+            <div class="company-metric"><span>투자 신호</span><strong id="detailInvestmentSignal">데이터 수집 대기</strong></div>
           </div>
-          <div class="detail-chart-placeholder"><i class="fa-solid fa-chart-line"></i><strong>상세 차트 영역</strong><span>외부 시세 API 연결 후 기간별 캔들 차트와 Williams %R 추이를 표시합니다.</span></div>
+          <div class="detail-chart-stack" id="detailChartStack">
+            <section class="detail-chart-panel detail-price-chart-panel">
+              <div class="detail-chart-label"><strong>주가</strong><span>일봉 · MA20 · MA60</span></div>
+              <div class="detail-chart-canvas" id="detailPriceChart" aria-label="주가 캔들 차트"></div>
+            </section>
+            <section class="detail-chart-panel detail-volume-chart-panel">
+              <div class="detail-chart-label"><strong>거래량</strong><span>주가와 분리 표시</span></div>
+              <div class="detail-chart-canvas" id="detailVolumeChart" aria-label="거래량 차트"></div>
+            </section>
+            <section class="detail-chart-panel detail-williams-chart-panel">
+              <div class="detail-chart-label"><strong>Williams %R (14일)</strong><span>-80 과매도 · -20 과매수 기준</span></div>
+              <div class="detail-chart-canvas" id="detailWilliamsChart" aria-label="Williams 퍼센트 알 지표 차트"></div>
+            </section>
+            <div class="detail-chart-empty-state hidden" id="detailChartEmptyState">
+              <i class="fa-solid fa-clock-rotate-left"></i><strong>차트 데이터를 수집하고 있습니다.</strong><span>저장된 일봉 데이터가 14개 이상 쌓이면 가격·거래량·Williams %R 차트가 자동으로 표시됩니다.</span>
+            </div>
+          </div>
         </div>
         <div class="company-detail-panel hidden" data-detail-panel="financials">
           <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span id="detailFinancialSource">저장된 최신 재무 데이터를 불러오는 중입니다.</span></div>
