@@ -11,6 +11,9 @@ const state = {
   selectedTicker: 'NVDA',
   activePeriod: '1D',
   dashboardEventsBound: false,
+  // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
+  apiPin: '',
+  watchlistSyncStarted: false,
   
   // 기본 관심종목
   watchlist: JSON.parse(localStorage.getItem('stock_app_watchlist')) || [
@@ -36,6 +39,92 @@ const state = {
 function getCloudflareApiUrl(path) {
   const configuredBaseUrl = window.US_STOCK_PRO_CONFIG?.apiBaseUrl?.replace(/\/$/, '') || '';
   return configuredBaseUrl ? `${configuredBaseUrl}${path}` : '';
+}
+
+function getCloudflareRequestOptions(options = {}) {
+  const headers = new Headers(options.headers || {});
+  if (state.apiPin) headers.set('X-App-Pin', state.apiPin);
+  return { ...options, headers };
+}
+
+/**
+ * Worker PIN이 설정된 경우에는 서버가 PIN을 최종 검증한다.
+ * 아직 Worker PIN을 설정하지 않은 개발 단계에서는 null을 반환하여 기존 로컬 잠금 흐름을 유지한다.
+ */
+async function verifyPinWithCloudflare(pin) {
+  const apiUrl = getCloudflareApiUrl('/api/auth/verify');
+  if (!apiUrl) return null;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'X-App-Pin': pin }
+    });
+    if (response.status === 503) return null;
+    return response.ok;
+  } catch (error) {
+    console.warn('Cloudflare PIN 검증에 실패했습니다.', error);
+    return null;
+  }
+}
+
+function normalizeRemoteWatchlist(rawWatchlist) {
+  if (!Array.isArray(rawWatchlist)) return [];
+  return rawWatchlist.map(stock => ({
+    ticker: stock.ticker,
+    name: stock.name || getLocalCompanyProfile(stock.ticker).name,
+    sector: stock.sector || getLocalCompanyProfile(stock.ticker).sector,
+    strategy: stock.strategy === 'dividend' ? 'dividend' : 'price',
+    price: Number.isFinite(Number(stock.price)) ? Number(stock.price) : 0,
+    change: Number.isFinite(Number(stock.change)) ? Number(stock.change) : 0,
+    changePct: Number.isFinite(Number(stock.changePct)) ? Number(stock.changePct) : 0
+  }));
+}
+
+async function uploadWatchlistToCloudflare() {
+  const apiUrl = getCloudflareApiUrl('/api/watchlist');
+  if (!apiUrl || !state.apiPin) return false;
+
+  try {
+    const response = await fetch(apiUrl, getCloudflareRequestOptions({
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ watchlist: state.watchlist })
+    }));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return true;
+  } catch (error) {
+    // 네트워크 오류 시에도 로컬 저장본은 유지하여 사용자가 목록을 잃지 않게 한다.
+    console.warn('Cloudflare 관심종목 저장에 실패했습니다.', error);
+    return false;
+  }
+}
+
+async function synchronizeWatchlistWithCloudflare() {
+  const apiUrl = getCloudflareApiUrl('/api/watchlist');
+  if (!apiUrl || !state.apiPin || state.watchlistSyncStarted) return;
+  state.watchlistSyncStarted = true;
+
+  try {
+    const response = await fetch(apiUrl, getCloudflareRequestOptions());
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const { watchlist } = await response.json();
+
+    if (Array.isArray(watchlist) && watchlist.length > 0) {
+      // D1에 이미 저장된 목록이 있으면 그것이 모든 기기의 기준 데이터다.
+      state.watchlist = normalizeRemoteWatchlist(watchlist);
+      state.selectedTicker = state.watchlist[0]?.ticker || null;
+      saveWatchlist(false);
+      renderWatchlist();
+      renderPortfolio();
+      if (state.selectedTicker) loadStockChart(state.selectedTicker);
+    } else if (state.watchlist.length > 0) {
+      // 첫 동기화만 현재 브라우저의 기존 목록을 D1로 옮긴다.
+      await uploadWatchlistToCloudflare();
+    }
+  } catch (error) {
+    console.warn('Cloudflare 관심종목 동기화에 실패했습니다.', error);
+  }
 }
 
 async function updateStockProfileFromCloudflare(ticker) {
@@ -165,13 +254,23 @@ function updatePinDots() {
   pinError.textContent = '';
 }
 
-function validatePin() {
-  if (state.enteredPin === state.currentPin) {
+async function validatePin() {
+  const enteredPin = state.enteredPin;
+  const remotePinResult = await verifyPinWithCloudflare(enteredPin);
+  const isPinValid = remotePinResult === null
+    ? enteredPin === state.currentPin
+    : remotePinResult;
+
+  if (isPinValid) {
+    // 다른 브라우저에서는 Worker가 검증한 PIN을 로컬 잠금에도 사용한다.
+    state.currentPin = enteredPin;
+    state.apiPin = enteredPin;
+    localStorage.setItem('stock_app_pin', enteredPin);
     unlockApp();
   } else {
-    pinError.textContent = '잘못된 PIN 번호입니다. 다시 입력해 주세요.';
     state.enteredPin = '';
     updatePinDots();
+    pinError.textContent = '잘못된 PIN 번호입니다. 다시 입력해 주세요.';
   }
 }
 
@@ -187,6 +286,9 @@ function lockApp() {
   mainApp.classList.add('hidden');
   pinScreen.classList.remove('hidden');
   state.enteredPin = '';
+  // 잠금 후에는 메모리에만 있던 Worker PIN도 제거한다.
+  state.apiPin = '';
+  state.watchlistSyncStarted = false;
   updatePinDots();
 }
 
@@ -955,8 +1057,9 @@ function saveHoldings() {
   localStorage.setItem('stock_app_holdings', JSON.stringify(state.holdings));
 }
 
-function saveWatchlist() {
+function saveWatchlist(shouldSync = true) {
   localStorage.setItem('stock_app_watchlist', JSON.stringify(state.watchlist));
+  if (shouldSync) void uploadWatchlistToCloudflare();
 }
 
 // 화폐 포맷팅 함수 ($ 또는 ₩)
@@ -1211,6 +1314,7 @@ function initDashboard() {
   renderWatchlist();
   renderPortfolio();
   showDashboardView('overview');
+  void synchronizeWatchlistWithCloudflare();
 }
 
 // DOM 준비 완료 시 구동

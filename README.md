@@ -12,6 +12,8 @@
 
 1-4. 현재 가격·Williams %R·배당 정보는 화면 구조 검증을 위한 예시 데이터입니다. 실제 금융 API 연결 전에는 투자 판단에 사용하면 안 됩니다.
 
+1-5. 관심종목 목록은 PIN 인증 뒤 Cloudflare D1과 동기화합니다. 처음 동기화할 때만 현재 브라우저 목록을 D1에 옮기며, 이후에는 D1 목록이 모든 브라우저의 기준이 됩니다.
+
 ## 2. GitHub에 올리는 범위
 
 GitHub에는 코드, 화면 구조, D1 마이그레이션, 환경 변수의 **예시 파일**만 올립니다.
@@ -85,6 +87,12 @@ npx wrangler d1 migrations apply us-stock-pro --remote --config worker/wrangler.
 ```
 
 ### 5-3. Worker 배포와 Secret 등록
+
+관심종목 동기화용 PIN도 Worker Secret으로 등록해야 합니다. `APP_PIN`은 현재 화면 잠금에 사용할 4자리 숫자이며, GitHub에는 절대 저장하지 않습니다. PIN은 편의 잠금이므로 금융계좌 비밀번호처럼 중요한 비밀번호를 사용하면 안 됩니다.
+
+```powershell
+npx wrangler secret put APP_PIN --config worker/wrangler.jsonc
+```
 
 금융 API 공급자를 결정한 후에만 키를 Secret으로 등록합니다. Secret 값은 GitHub와 소스 코드에 저장되지 않습니다.
 

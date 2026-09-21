@@ -7,8 +7,8 @@ const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 function createHeaders(environment) {
   return {
     'Access-Control-Allow-Origin': environment.ALLOWED_ORIGIN || '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-App-Pin',
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store'
   };
@@ -24,6 +24,81 @@ function normalizeTicker(value) {
 
 function isTickerValid(ticker) {
   return tickerPattern.test(ticker);
+}
+
+/**
+ * 관심종목은 개인 설정이므로, Worker Secret에 저장한 PIN이 일치할 때만 읽고 쓸 수 있다.
+ * 4자리 PIN은 편의용 잠금이므로 금융계좌 비밀번호처럼 민감한 값은 이 앱에 저장하지 않는다.
+ */
+function isPinAuthorized(request, environment) {
+  const configuredPin = environment.APP_PIN;
+  const submittedPin = request.headers.get('X-App-Pin') || '';
+  return Boolean(configuredPin) && submittedPin === configuredPin;
+}
+
+function getWatchlistUserId() {
+  // 현재는 개인 대시보드 한 명만 사용하므로 고정 ID를 쓴다. 다중 사용자 로그인 도입 시 사용자 ID로 교체한다.
+  return 'primary';
+}
+
+function normalizeWatchlist(rawWatchlist) {
+  if (!Array.isArray(rawWatchlist) || rawWatchlist.length > 200) {
+    return null;
+  }
+
+  const usedTickers = new Set();
+  const toOptionalText = value => typeof value === 'string' ? value.trim().slice(0, 160) : null;
+  const toOptionalNumber = value => Number.isFinite(Number(value)) ? Number(value) : null;
+
+  const entries = [];
+  for (const [index, rawStock] of rawWatchlist.entries()) {
+    const ticker = normalizeTicker(rawStock?.ticker);
+    const strategy = rawStock?.strategy === 'dividend' ? 'dividend' : rawStock?.strategy === 'price' ? 'price' : null;
+    if (!isTickerValid(ticker) || !strategy || usedTickers.has(ticker)) {
+      return null;
+    }
+
+    usedTickers.add(ticker);
+    entries.push({
+      ticker,
+      strategy,
+      displayOrder: index,
+      name: toOptionalText(rawStock.name),
+      sector: toOptionalText(rawStock.sector),
+      price: toOptionalNumber(rawStock.price),
+      change: toOptionalNumber(rawStock.change),
+      changePct: toOptionalNumber(rawStock.changePct)
+    });
+  }
+  return entries;
+}
+
+async function listWatchlist(environment) {
+  const result = await environment.DB.prepare(`
+    SELECT ticker, strategy, display_name AS name, sector,
+      saved_price AS price, saved_change AS change, saved_change_percent AS changePct
+    FROM user_watchlist
+    WHERE user_id = ?
+    ORDER BY display_order ASC
+  `).bind(getWatchlistUserId()).all();
+  return result.results;
+}
+
+async function replaceWatchlist(environment, entries) {
+  const userId = getWatchlistUserId();
+  const statements = [
+    environment.DB.prepare('DELETE FROM user_watchlist WHERE user_id = ?').bind(userId),
+    ...entries.map(entry => environment.DB.prepare(`
+      INSERT INTO user_watchlist (
+        user_id, ticker, strategy, display_order, display_name, sector,
+        saved_price, saved_change, saved_change_percent, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `).bind(
+      userId, entry.ticker, entry.strategy, entry.displayOrder, entry.name, entry.sector,
+      entry.price, entry.change, entry.changePct
+    ))
+  ];
+  await environment.DB.batch(statements);
 }
 
 async function listCompanies(environment) {
@@ -119,11 +194,10 @@ export default {
       return new Response(null, { status: 204, headers: createHeaders(environment) });
     }
 
-    if (request.method !== 'GET') {
-      return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
-    }
-
     if (url.pathname === '/api/health') {
+      if (request.method !== 'GET') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
       return jsonResponse(environment, 200, {
         status: 'ok',
         database: 'connected',
@@ -131,12 +205,59 @@ export default {
       });
     }
 
+    if (url.pathname === '/api/auth/verify') {
+      if (request.method !== 'POST') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
+      if (!environment.APP_PIN) {
+        return jsonResponse(environment, 503, { error: 'Worker PIN이 아직 설정되지 않았습니다.' });
+      }
+      return isPinAuthorized(request, environment)
+        ? jsonResponse(environment, 200, { authenticated: true })
+        : jsonResponse(environment, 401, { error: 'PIN 번호가 올바르지 않습니다.' });
+    }
+
+    if (url.pathname === '/api/watchlist') {
+      if (!isPinAuthorized(request, environment)) {
+        return jsonResponse(environment, environment.APP_PIN ? 401 : 503, {
+          error: environment.APP_PIN ? 'PIN 인증이 필요합니다.' : 'Worker PIN이 아직 설정되지 않았습니다.'
+        });
+      }
+
+      if (request.method === 'GET') {
+        return jsonResponse(environment, 200, { watchlist: await listWatchlist(environment) });
+      }
+
+      if (request.method === 'PUT') {
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(environment, 400, { error: '목록 데이터 형식이 올바르지 않습니다.' });
+        }
+        const entries = normalizeWatchlist(body?.watchlist);
+        if (!entries) {
+          return jsonResponse(environment, 400, { error: '관심종목 목록을 확인해 주세요.' });
+        }
+        await replaceWatchlist(environment, entries);
+        return jsonResponse(environment, 200, { watchlist: entries });
+      }
+
+      return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+    }
+
     if (url.pathname === '/api/companies') {
+      if (request.method !== 'GET') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
       return jsonResponse(environment, 200, { companies: await listCompanies(environment) });
     }
 
     const companyMatch = url.pathname.match(/^\/api\/companies\/([^/]+)$/);
     if (companyMatch) {
+      if (request.method !== 'GET') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
       const ticker = normalizeTicker(decodeURIComponent(companyMatch[1]));
       if (!isTickerValid(ticker)) {
         return jsonResponse(environment, 400, { error: '티커 형식이 올바르지 않습니다.' });
