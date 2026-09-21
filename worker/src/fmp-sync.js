@@ -199,7 +199,9 @@ async function syncFinancials(environment, ticker, periodType, limit) {
 }
 
 export async function syncTickerFromFmp(environment, ticker) {
-  if (environment.MARKET_DATA_PROVIDER !== 'FMP' || !environment.MARKET_DATA_API_KEY) throw new Error('FMP API 설정이 필요합니다.');
+  // 기존 Worker 변수에 공급자명이 없던 배포도 FMP 키가 있으면 FMP를 기본값으로 사용한다.
+  const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
+  if (provider !== 'FMP' || !environment.MARKET_DATA_API_KEY) throw new Error('FMP API 설정이 필요합니다.');
   const jobs = [
     ['profile', () => syncProfile(environment, ticker)], ['price', () => syncQuote(environment, ticker)], ['candles', () => syncCandles(environment, ticker)],
     ['dividends', () => syncDividends(environment, ticker)],

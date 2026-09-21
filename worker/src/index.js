@@ -185,7 +185,8 @@ async function getCompany(environment, ticker) {
  * 최초 수집은 화면의 동기화 요청으로 실행하고, 이후 Cron은 최신 데이터만 덮어쓴다.
  */
 async function synchronizeMarketData(environment) {
-  if (environment.MARKET_DATA_PROVIDER !== 'FMP' || !environment.MARKET_DATA_API_KEY) {
+  const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
+  if (provider !== 'FMP' || !environment.MARKET_DATA_API_KEY) {
     await environment.DB.prepare(`INSERT INTO sync_runs (data_type, status, message, completed_at)
       VALUES ('scheduled_market_sync', 'skipped', '금융 API 공급자 또는 Secret이 설정되지 않아 동기화를 건너뜀', CURRENT_TIMESTAMP)`).run();
     return;
