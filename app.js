@@ -85,11 +85,17 @@ async function uploadWatchlistToCloudflare() {
   const apiUrl = getCloudflareApiUrl('/api/watchlist');
   if (!apiUrl || !state.apiPin) return false;
 
+  // 예전 localStorage에는 전략 값이 없는 종목이 있으므로, 기존 티커 기반 분류를 저장 직전에 명시값으로 바꾼다.
+  const watchlistForSync = state.watchlist.map(stock => ({
+    ...stock,
+    strategy: getInvestmentStrategy(stock)
+  }));
+
   try {
     const response = await fetch(apiUrl, getCloudflareRequestOptions({
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ watchlist: state.watchlist })
+      body: JSON.stringify({ watchlist: watchlistForSync })
     }));
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return true;

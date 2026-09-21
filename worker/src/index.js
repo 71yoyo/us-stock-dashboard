@@ -53,8 +53,9 @@ function normalizeWatchlist(rawWatchlist) {
   const entries = [];
   for (const [index, rawStock] of rawWatchlist.entries()) {
     const ticker = normalizeTicker(rawStock?.ticker);
-    const strategy = rawStock?.strategy === 'dividend' ? 'dividend' : rawStock?.strategy === 'price' ? 'price' : null;
-    if (!isTickerValid(ticker) || !strategy || usedTickers.has(ticker)) {
+    // 이전 화면이 저장한 전략 값이 없을 때는 주가 투자 기본값으로 읽어, 과거 목록을 잃지 않게 한다.
+    const strategy = rawStock?.strategy === 'dividend' ? 'dividend' : 'price';
+    if (!isTickerValid(ticker) || usedTickers.has(ticker)) {
       return null;
     }
 
