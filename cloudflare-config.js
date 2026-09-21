@@ -4,5 +4,5 @@
  * 빈 문자열이면 외부 API를 호출하지 않고 기존 화면의 예시·로컬 데이터만 유지한다.
  */
 window.US_STOCK_PRO_CONFIG = Object.freeze({
-  apiBaseUrl: ''
+  apiBaseUrl: 'https://us-stock-dashboard-api.771yoyo.workers.dev'
 });
