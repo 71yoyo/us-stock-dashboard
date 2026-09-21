@@ -1,4 +1,4 @@
-import { syncTickerFromFmp } from './fmp-sync.js';
+import { syncTickerFromFmp, syncTickerIncrementally } from './fmp-sync.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -204,7 +204,7 @@ async function synchronizeMarketData(environment) {
     VALUES ('scheduled_market_sync', 'running', ?, NULL)
   `).bind(`${ticker} 최신 데이터 동기화 시작`).run();
 
-  const result = await syncTickerFromFmp(environment, ticker);
+  const result = await syncTickerIncrementally(environment, ticker);
   await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
     VALUES ('scheduled_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
     .bind(ticker, Object.values(result).every(value => value === 'ok') ? 'success' : 'partial', JSON.stringify(result)).run();

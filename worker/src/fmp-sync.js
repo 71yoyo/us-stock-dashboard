@@ -301,11 +301,17 @@ async function syncFinancialsFromSec(environment, ticker) {
   if (!annualCount && !quarterlyCount) throw new Error('SEC EDGAR 재무 원문에서 저장할 기간을 찾지 못했습니다.');
 }
 
-export async function syncTickerFromFmp(environment, ticker) {
+function isStale(lastSuccessAt, minutes) {
+  if (!lastSuccessAt) return true;
+  const elapsed = Date.now() - new Date(lastSuccessAt).getTime();
+  return !Number.isFinite(elapsed) || elapsed >= minutes * 60_000;
+}
+
+export async function syncTickerFromFmp(environment, ticker, requestedDataTypes = null) {
   // 기존 Worker 변수에 공급자명이 없던 배포도 FMP 키가 있으면 FMP를 기본값으로 사용한다.
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
   if (provider !== 'FMP' || !environment.MARKET_DATA_API_KEY) throw new Error('FMP API 설정이 필요합니다.');
-  const jobs = [
+  const allJobs = [
     ['profile', () => syncProfile(environment, ticker)], ['price', () => syncQuote(environment, ticker)], ['candles', () => syncCandles(environment, ticker)],
     ['dividends', () => syncDividends(environment, ticker)],
     ['financials', async () => {
@@ -318,10 +324,35 @@ export async function syncTickerFromFmp(environment, ticker) {
       }
     }]
   ];
+  const jobs = requestedDataTypes
+    ? allJobs.filter(([dataType]) => requestedDataTypes.includes(dataType))
+    : allJobs;
   const result = {};
   for (const [dataType, task] of jobs) {
     try { await task(); await markSyncState(environment, ticker, dataType); result[dataType] = 'ok'; }
     catch (error) { await markSyncState(environment, ticker, dataType, error); result[dataType] = String(error); }
   }
   return result;
+}
+
+/**
+ * 장기 이력은 최초 한 번 저장한 뒤, 데이터 성격별 주기에 맞춰서만 덮어쓴다.
+ * FMP 무료 호출 한도와 SEC의 공정 사용 정책을 함께 지키기 위한 증분 갱신 규칙이다.
+ */
+export async function syncTickerIncrementally(environment, ticker) {
+  const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt
+    FROM data_sync_state WHERE ticker = ?`).bind(ticker).all();
+  const lastSuccessByType = new Map(states.results.map(state => [state.dataType, state.lastSuccessAt]));
+  const refreshRules = [
+    ['price', 30],
+    ['candles', 24 * 60],
+    ['dividends', 24 * 60],
+    ['financials', 7 * 24 * 60],
+    ['profile', 30 * 24 * 60]
+  ];
+  const requestedDataTypes = refreshRules
+    .filter(([dataType, minutes]) => isStale(lastSuccessByType.get(dataType), minutes))
+    .map(([dataType]) => dataType);
+  if (!requestedDataTypes.length) return { skipped: '최신 데이터가 이미 저장되어 있습니다.' };
+  return syncTickerFromFmp(environment, ticker, requestedDataTypes);
 }

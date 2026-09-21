@@ -165,6 +165,27 @@ async function updateStockProfileFromCloudflare(ticker) {
   }
 }
 
+/**
+ * 신규 종목은 Worker가 FMP·SEC에서 최초 이력을 저장한 뒤 화면 프로필을 다시 읽는다.
+ * API가 느리거나 실패해도 기존 목록 조작은 막지 않고 다음 Cron 갱신으로 재시도한다.
+ */
+async function synchronizeStockDataWithCloudflare(ticker) {
+  const apiUrl = getCloudflareApiUrl('/api/sync');
+  if (!apiUrl || !state.apiPin) return;
+
+  try {
+    const response = await fetch(apiUrl, getCloudflareRequestOptions({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticker })
+    }));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    await updateStockProfileFromCloudflare(ticker);
+  } catch (error) {
+    console.warn('Cloudflare 금융 데이터 최초 수집에 실패했습니다.', error);
+  }
+}
+
 // 2. DOM 요소 캐싱
 const pinScreen = document.getElementById('pinScreen');
 const mainApp = document.getElementById('mainApp');
@@ -507,7 +528,8 @@ function addNewStock(ticker, strategy = 'price') {
   state.watchlist.push(newStock);
   saveWatchlist();
   renderWatchlist();
-  void updateStockProfileFromCloudflare(ticker);
+  // 관심종목 저장을 먼저 요청한 뒤 최초 금융 이력을 수집한다.
+  void synchronizeStockDataWithCloudflare(ticker);
 
   // 첫 번째 종목이거나 현재 선택된 차트가 없으면 즉시 해당 종목 차트 로드
   if (!state.selectedTicker || state.watchlist.length === 1) {
