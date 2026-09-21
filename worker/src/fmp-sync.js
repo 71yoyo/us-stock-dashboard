@@ -23,6 +23,10 @@ function isoDateBefore(days) {
   return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
 }
 
+function isoDateAfter(days) {
+  return new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
+}
+
 async function fetchFmp(environment, path, params = {}) {
   const url = new URL(`${FMP_BASE_URL}/${path}`);
   url.searchParams.set('apikey', environment.MARKET_DATA_API_KEY);
@@ -193,6 +197,17 @@ async function syncEarningsSchedule(environment, ticker) {
     }))
     .filter(record => record.date && record.date >= today && !record.hasActualResult)
     .sort((left, right) => left.date.localeCompare(right.date))[0];
+  // 개별 이력 API에 미래 행이 없으면 시장 전체 실적 캘린더에서 해당 티커만 찾는다.
+  const calendar = upcoming ? [] : asRecords(await fetchFmp(environment, 'earnings-calendar', {
+    from: today,
+    to: isoDateAfter(365)
+  }));
+  const calendarEvent = calendar
+    .filter(record => String(record.symbol || record.ticker || '').toUpperCase() === ticker)
+    .map(record => ({ date: toIsoDate(record.date || record.earningsDate) }))
+    .filter(record => record.date && record.date >= today)
+    .sort((left, right) => left.date.localeCompare(right.date))[0];
+  const scheduledEvent = upcoming || calendarEvent;
 
   await environment.DB.prepare(`INSERT INTO earnings_schedule
     (ticker, next_earnings_date, is_confirmed, source, last_checked_at, last_error, updated_at)
@@ -200,7 +215,7 @@ async function syncEarningsSchedule(environment, ticker) {
     ON CONFLICT(ticker) DO UPDATE SET next_earnings_date=excluded.next_earnings_date,
       is_confirmed=excluded.is_confirmed, source='FMP', last_checked_at=CURRENT_TIMESTAMP,
       last_error=NULL, updated_at=CURRENT_TIMESTAMP`
-  ).bind(ticker, upcoming?.date || null, upcoming ? 1 : 0).run();
+  ).bind(ticker, scheduledEvent?.date || null, scheduledEvent ? 1 : 0).run();
 }
 
 async function getNextUsTradingDate(environment, isoDate) {
