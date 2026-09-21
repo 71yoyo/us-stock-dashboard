@@ -209,6 +209,7 @@ let detailMa20Series = null;
 let detailMa60Series = null;
 let detailChartResizeObserver = null;
 let isDetailTimeScaleSyncing = false;
+let detailChartResizeFrame = 0;
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -473,7 +474,7 @@ function getWilliamsSummary(candles) {
   };
 }
 
-function createDetailChart(container, height) {
+function createDetailChart(container, height, isInteractive = false) {
   return LightweightCharts.createChart(container, {
     width: Math.max(container.clientWidth, 1),
     height,
@@ -482,12 +483,14 @@ function createDetailChart(container, height) {
     rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' },
     timeScale: { borderColor: 'rgba(255, 255, 255, 0.08)', timeVisible: true, secondsVisible: false },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
-    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
+    // 확대·이동은 가격 차트만 받는다. 보조 차트까지 동시에 입력을 처리하지 않아 조작이 부드러워진다.
+    handleScroll: isInteractive ? { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true } : false,
+    handleScale: isInteractive ? { axisPressedMouseMove: true, mouseWheel: true, pinch: true } : false
   });
 }
 
 function resizeDetailCharts() {
+  detailChartResizeFrame = 0;
   const chartDefinitions = [
     [detailPriceChart, document.getElementById('detailPriceChart')],
     [detailVolumeChart, document.getElementById('detailVolumeChart')],
@@ -500,15 +503,21 @@ function resizeDetailCharts() {
   });
 }
 
+/** 레이아웃 변경이 연속 발생해도 브라우저 프레임당 한 번만 차트 크기를 다시 계산한다. */
+function scheduleDetailChartResize() {
+  if (detailChartResizeFrame) return;
+  detailChartResizeFrame = requestAnimationFrame(resizeDetailCharts);
+}
+
 function synchronizeDetailTimeScales() {
-  const charts = [detailPriceChart, detailVolumeChart, detailWilliamsChart].filter(Boolean);
-  charts.forEach(sourceChart => {
-    sourceChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
-      if (!range || isDetailTimeScaleSyncing) return;
-      isDetailTimeScaleSyncing = true;
-      charts.filter(chart => chart !== sourceChart).forEach(chart => chart.timeScale().setVisibleLogicalRange(range));
-      isDetailTimeScaleSyncing = false;
-    });
+  if (!detailPriceChart) return;
+  const targetCharts = [detailVolumeChart, detailWilliamsChart].filter(Boolean);
+  // 날짜 범위를 동기화하면 Williams 계산 전 13일 구간도 시간 기준으로 자연스럽게 맞는다.
+  detailPriceChart.timeScale().subscribeVisibleTimeRangeChange(range => {
+    if (!range || isDetailTimeScaleSyncing) return;
+    isDetailTimeScaleSyncing = true;
+    targetCharts.forEach(chart => chart.timeScale().setVisibleRange(range));
+    isDetailTimeScaleSyncing = false;
   });
 }
 
@@ -523,7 +532,7 @@ function initDetailCharts() {
   const williamsContainer = document.getElementById('detailWilliamsChart');
   if (!priceContainer || !volumeContainer || !williamsContainer) return;
 
-  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285);
+  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285, true);
   detailVolumeChart = createDetailChart(volumeContainer, volumeContainer.clientHeight || 95);
   detailWilliamsChart = createDetailChart(williamsContainer, williamsContainer.clientHeight || 135);
 
@@ -540,7 +549,7 @@ function initDetailCharts() {
   detailWilliamsSeries.applyOptions({ priceFormat: { type: 'price', precision: 0, minMove: 1 } });
   synchronizeDetailTimeScales();
 
-  detailChartResizeObserver = new ResizeObserver(resizeDetailCharts);
+  detailChartResizeObserver = new ResizeObserver(scheduleDetailChartResize);
   detailChartResizeObserver.observe(priceContainer);
   detailChartResizeObserver.observe(volumeContainer);
   detailChartResizeObserver.observe(williamsContainer);
@@ -564,8 +573,9 @@ function renderDetailCharts(company) {
     color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.55)' : 'rgba(244, 63, 94, 0.55)'
   })));
   detailWilliamsSeries.setData(williamsValues);
-  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart.timeScale().fitContent());
-  resizeDetailCharts();
+  // 가격 차트의 시간축만 기준으로 삼아 보조 차트에 전달한다. 세 번의 동시 fitContent를 피한다.
+  detailPriceChart.timeScale().fitContent();
+  scheduleDetailChartResize();
 }
 
 async function fetchCompanyFromCloudflare(ticker) {
@@ -1478,7 +1488,7 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
-      if (selectedTab === 'chart') requestAnimationFrame(resizeDetailCharts);
+      if (selectedTab === 'chart') requestAnimationFrame(scheduleDetailChartResize);
     });
   });
 }
@@ -1499,6 +1509,8 @@ function closeCompanyDetailModal() {
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
   detailChartResizeObserver?.disconnect();
+  if (detailChartResizeFrame) cancelAnimationFrame(detailChartResizeFrame);
+  detailChartResizeFrame = 0;
   [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
   detailPriceChart = null;
   detailVolumeChart = null;

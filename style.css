@@ -548,14 +548,20 @@ body.modal-open {
 .company-detail-price strong { display: block; font-family: var(--font-display); font-size: 1.3rem; }
 
 .company-detail-modal { padding: 5vh 5vw; }
-.company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow-y: auto; }
+.company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow: hidden; }
 .company-detail-modal .modal-card { max-width: none; }
+.company-detail-header { flex: 0 0 auto; margin-bottom: 10px; }
 
 .company-detail-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); }
-.company-detail-tab { padding: 10px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; }
+.company-detail-tab { padding: 8px 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-muted); font-size: 0.82rem; font-weight: 700; cursor: pointer; }
 .company-detail-tab.active { border-bottom-color: var(--accent-cyan); color: var(--accent-cyan); }
-.company-detail-panel { min-height: 420px; padding-top: 18px; }
-.william-r-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.company-detail-panel { min-height: 0; flex: 1 1 auto; padding-top: 12px; }
+.company-detail-panel[data-detail-panel="chart"] { display: flex; flex-direction: column; overflow: hidden; }
+.company-detail-panel:not([data-detail-panel="chart"]) { overflow-y: auto; }
+.william-r-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); flex: 0 0 auto; gap: 8px; margin-bottom: 10px; }
+.william-r-summary-grid .company-metric { padding: 8px 10px; }
+.william-r-summary-grid .company-metric span { font-size: 0.68rem; }
+.william-r-summary-grid .company-metric strong { margin-top: 3px; font-size: 0.8rem; }
 .detail-section-intro { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--text-muted); font-size: 0.84rem; }
 .detail-section-intro i { color: var(--accent-cyan); }
 .detail-data-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -563,14 +569,11 @@ body.modal-open {
 .detail-data-placeholder { min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); color: var(--text-muted); text-align: center; }
 .detail-data-placeholder i { color: var(--accent-cyan); font-size: 2.2rem; }
 .detail-data-placeholder strong { color: var(--text-primary); }
-.detail-chart-stack { position: relative; display: grid; gap: 10px; min-height: 540px; }
-.detail-chart-panel { border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(4, 11, 24, 0.42); overflow: hidden; }
+.detail-chart-stack { position: relative; display: grid; grid-template-rows: minmax(0, 2.2fr) minmax(0, 0.65fr) minmax(0, 0.9fr); flex: 1 1 auto; min-height: 0; gap: 8px; }
+.detail-chart-panel { display: flex; min-height: 0; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(4, 11, 24, 0.42); overflow: hidden; }
 .detail-chart-label { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-primary); font-size: 0.78rem; }
 .detail-chart-label span { color: var(--text-muted); font-size: 0.7rem; }
-.detail-chart-canvas { width: 100%; }
-.detail-price-chart-panel .detail-chart-canvas { height: 285px; }
-.detail-volume-chart-panel .detail-chart-canvas { height: 95px; }
-.detail-williams-chart-panel .detail-chart-canvas { height: 135px; }
+.detail-chart-canvas { width: 100%; min-height: 0; flex: 1 1 auto; }
 .detail-chart-empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); background: rgba(11, 15, 25, 0.92); color: var(--text-muted); text-align: center; }
 .detail-chart-empty-state i { color: var(--accent-cyan); font-size: 2rem; }
 .detail-chart-empty-state strong { color: var(--text-primary); }
@@ -1374,11 +1377,10 @@ body.modal-open {
   .overview-stock-row .overview-dividend-day-cell { display: block; }
   .company-detail-modal { padding: 3vh 3vw; }
   .company-detail-modal .company-detail-section { width: 94vw; height: 94vh; padding: 14px; }
-  .william-r-summary-grid { grid-template-columns: 1fr; }
+  .william-r-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+  .william-r-summary-grid .company-metric { padding: 7px; }
+  .william-r-summary-grid .company-metric strong { font-size: 0.72rem; }
   .detail-data-grid, .detail-dividend-grid { grid-template-columns: 1fr 1fr; }
-  .detail-price-chart-panel .detail-chart-canvas { height: 240px; }
-  .detail-volume-chart-panel .detail-chart-canvas { height: 80px; }
-  .detail-williams-chart-panel .detail-chart-canvas { height: 120px; }
   .strategy-management-grid { grid-template-columns: 1fr; }
   .strategy-watchlist-container { max-height: none; }
 }
