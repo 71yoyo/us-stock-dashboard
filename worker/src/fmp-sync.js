@@ -270,7 +270,7 @@ async function syncFinancialsFromSec(environment, ticker) {
       const grossProfitValue = valueAt(dateSets[5], end);
       const equityValue = valueAt(dateSets[6], end);
       const debtValue = (valueAt(dateSets[7], end) || 0) + (valueAt(dateSets[8], end) || 0);
-      const cashValue = valueAt(dateSets[9], end) || 0;
+      const cashValue = valueAt(dateSets[8], end) || 0;
       const reportedDate = dateSets[0].get(end)?.filed || null;
       const freeCashFlow = operatingCashFlowValue !== null && capitalExpenditureValue !== null
         ? operatingCashFlowValue - Math.abs(capitalExpenditureValue) : null;
@@ -285,7 +285,7 @@ async function syncFinancialsFromSec(environment, ticker) {
           operating_income=excluded.operating_income, net_income=excluded.net_income, eps=excluded.eps, free_cash_flow=excluded.free_cash_flow,
           roe=excluded.roe, roic=excluded.roic, gross_margin=excluded.gross_margin, operating_margin=excluded.operating_margin,
           source=excluded.source, source_updated_at=excluded.source_updated_at, cached_at=CURRENT_TIMESTAMP`
-      ).bind(ticker, periodType, end, reportedDate, revenueValue, operatingIncomeValue, netIncomeValue, valueAt(dateSets[10], end),
+      ).bind(ticker, periodType, end, reportedDate, revenueValue, operatingIncomeValue, netIncomeValue, valueAt(dateSets[9], end),
         freeCashFlow, roe, roic, grossMargin, operatingMargin, reportedDate);
     });
     if (statements.length) await environment.DB.batch(statements);
