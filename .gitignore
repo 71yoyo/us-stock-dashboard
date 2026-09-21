@@ -1,0 +1,20 @@
+# 의존성 및 운영 중 생성되는 파일은 GitHub에 올리지 않습니다.
+node_modules/
+
+# API 키와 서버별 환경값은 반드시 로컬에만 둡니다.
+.env
+.env.*
+!.env.example
+
+# 금융 데이터 캐시와 개인 백업 파일은 저장소가 아닌 서버 디스크에 보관합니다.
+data/*.db
+data/*.db-*
+data/*.sqlite
+data/*.sqlite-*
+data/*.json
+backups/
+
+# 운영체제와 편집기별 파일
+.DS_Store
+Thumbs.db
+.vscode/

@@ -51,6 +51,10 @@ body {
   min-height: 100vh;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 /* 유틸리티 */
 .hidden { display: none !important; }
 .text-gradient {
@@ -292,15 +296,97 @@ body {
   color: var(--color-down);
 }
 
+/* 🧭 메인 메뉴 네비게이션 바 (1, 2, 3, 4 번호 체계) */
+.main-menu-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  max-width: 1700px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(11, 15, 25, 0.45);
+  backdrop-filter: var(--glass-blur);
+}
+.main-menu-nav::-webkit-scrollbar { display: none; }
+
+.main-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.main-menu-btn .menu-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+  transition: all 0.2s;
+}
+
+.main-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.main-menu-btn.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(37, 99, 235, 0.3));
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+.main-menu-btn.active .menu-num {
+  background: var(--accent-cyan);
+  color: #07090e;
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
 /* 대시보드 그리드 레이아웃 */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 320px 1fr 340px;
+  grid-template-columns: 340px 1fr 340px;
   gap: 20px;
   padding: 20px;
   max-width: 1700px;
   margin: 0 auto;
   width: 100%;
+}
+
+/* 메인메뉴 2~5번은 하나의 기능 화면만 넓게 보여 줍니다. */
+.dashboard-grid.single-view {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dashboard-grid.single-view .section-card {
+  grid-column: 1;
+  width: 100%;
+}
+
+.section-hidden {
+  display: none !important;
 }
 
 .section-card {
@@ -314,22 +400,220 @@ body {
   flex-direction: column;
 }
 
+/* 1번 종합: 회사 탐색과 API 연동 전용 정보 골격 */
+.company-overview-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.6fr);
+  gap: 18px;
+}
+
+.company-explorer-panel,
+.company-summary-panel {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px;
+}
+
+.company-explorer-heading,
+.company-summary-top,
+.company-price-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.company-explorer-help,
+.company-api-notice span {
+  display: block;
+  margin: 8px 0 12px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.company-explorer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.company-explorer-item {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.company-explorer-item:hover,
+.company-explorer-item.active {
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.company-explorer-item-top,
+.company-explorer-item-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.company-explorer-item-top { font-weight: 700; }
+.company-explorer-item-bottom { margin-top: 4px; color: var(--text-muted); font-size: 0.75rem; }
+
+.company-summary-ticker { font-family: var(--font-display); font-size: 2rem; font-weight: 800; }
+.company-summary-name { margin-left: 8px; color: var(--text-secondary); }
+.summary-label, .company-metric span { display: block; color: var(--text-muted); font-size: 0.75rem; }
+.company-price-summary { margin: 28px 0 18px; }
+.company-price-summary strong { font-family: var(--font-display); font-size: 2rem; }
+
+.company-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.company-metric { padding: 12px; border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.04); }
+.company-metric strong { display: block; margin-top: 6px; font-size: 0.86rem; }
+
+.company-api-notice {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px dashed rgba(56, 189, 248, 0.45);
+  border-radius: var(--radius-sm);
+  color: var(--accent-cyan);
+}
+.company-api-notice span { margin: 4px 0 0; }
+
+/* 1번 종합의 압축 종목 목록: API 연동 시 한 행의 데이터만 교체합니다. */
+.overview-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.overview-list-toolbar > div { display: flex; align-items: center; gap: 8px; }
+.overview-data-notice { color: var(--text-muted); font-size: 0.75rem; }
+.overview-stock-list { display: flex; flex-direction: column; gap: 8px; }
+.investment-list-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+.overview-section-note { margin-left: 10px; color: var(--text-muted); font-size: 0.75rem; }
+.overview-stock-row {
+  display: grid;
+  grid-template-columns: minmax(125px, 0.85fr) minmax(92px, 0.55fr) 110px 115px minmax(95px, 0.62fr) minmax(92px, 0.65fr) minmax(78px, 0.5fr) minmax(84px, 0.5fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.overview-stock-row:hover { border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.08); transform: translateX(2px); }
+.overview-stock-row.active { border-left: 3px solid var(--accent-cyan); }
+.overview-stock-row.price-stock-row {
+  grid-template-columns: minmax(150px, 1fr) minmax(110px, 0.6fr) 130px 130px minmax(110px, 0.7fr);
+}
+.overview-company-cell strong, .overview-price-cell strong { display: block; }
+.overview-company-cell span, .overview-price-cell span, .overview-value-label { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.72rem; }
+.overview-company-cell span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.overview-sparkline { width: 110px; height: 35px; }
+.overview-sparkline polyline { fill: none; stroke: var(--accent-cyan); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.overview-williams-value { display: block; font-weight: 800; }
+.overview-signal { display: inline-flex; width: fit-content; padding: 4px 7px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; }
+.overview-signal.buy { color: #34d399; background: rgba(16, 185, 129, 0.14); }
+.overview-signal.hold { color: #fbbf24; background: rgba(251, 191, 36, 0.12); }
+.overview-signal.sell { color: #fb7185; background: rgba(244, 63, 94, 0.14); }
+.overview-dividend-cell strong { display: block; }
+.overview-dividend-cell span { color: var(--text-muted); font-size: 0.75rem; }
+.overview-next-dividend-cell strong, .overview-dividend-day-cell strong { display: block; }
+.overview-next-dividend-cell span, .overview-dividend-day-cell span { display: block; margin-top: 3px; font-size: 0.7rem; }
+.overview-next-dividend-cell.confirmed, .overview-dividend-day-cell.confirmed { color: var(--color-up); }
+.overview-next-dividend-cell.estimated, .overview-dividend-day-cell.estimated { color: #fb923c; }
+
+.company-back-btn { width: 32px; height: 32px; }
+.company-detail-price { text-align: right; }
+.company-detail-price strong { display: block; font-family: var(--font-display); font-size: 1.3rem; }
+
+.company-detail-modal { padding: 5vh 5vw; }
+.company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow-y: auto; }
+.company-detail-modal .modal-card { max-width: none; }
+
+.company-detail-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); }
+.company-detail-tab { padding: 10px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; cursor: pointer; }
+.company-detail-tab.active { border-bottom-color: var(--accent-cyan); color: var(--accent-cyan); }
+.company-detail-panel { min-height: 420px; padding-top: 18px; }
+.william-r-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.detail-section-intro { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--text-muted); font-size: 0.84rem; }
+.detail-section-intro i { color: var(--accent-cyan); }
+.detail-data-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.detail-dividend-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.detail-chart-placeholder, .detail-data-placeholder { min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); color: var(--text-muted); text-align: center; }
+.detail-chart-placeholder i, .detail-data-placeholder i { color: var(--accent-cyan); font-size: 2.2rem; }
+.detail-chart-placeholder strong, .detail-data-placeholder strong { color: var(--text-primary); }
+
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .header-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: white;
+  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+  flex-shrink: 0;
 }
 
 .header-title h3 {
   font-family: var(--font-display);
   font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.section-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+.btn-outline:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.08);
 }
 
 /* 버튼 스타일 */
@@ -356,62 +640,360 @@ body {
   transform: translateY(-1px);
 }
 
-/* 📋 3. 관심종목 리스트 */
+/* [서브메뉴 1-1] 빠른 종목 추가 패널 */
+.quick-add-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.panel-sublabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.quick-add-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ticker-input-wrap {
+  flex: 1.2;
+}
+
+.input-wrap i {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.quick-add-form input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-wrap input {
+  padding-left: 28px;
+}
+
+.quick-add-form .name-input {
+  flex: 1.5;
+}
+
+.strategy-select {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.strategy-select:focus { border-color: var(--border-focus); }
+
+.quick-add-help {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.strategy-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.strategy-management-panel {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dividend-panel { border-top: 2px solid rgba(16, 185, 129, 0.65); }
+.price-panel { border-top: 2px solid rgba(56, 189, 248, 0.7); }
+.strategy-management-panel .panel-sublabel { margin-bottom: 10px; }
+.strategy-management-panel .watchlist-sub-header { margin: 14px 0 8px; }
+.strategy-watchlist-container { max-height: calc(100vh - 360px); }
+.compact-empty { min-height: 170px; padding: 32px 16px; }
+
+.quick-add-form input:focus {
+  border-color: var(--border-focus);
+  background: rgba(17, 24, 39, 0.9);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+}
+
+/* [서브메뉴 1-2 & 1-3] 목록 헤더 및 드래그 안내 */
+.watchlist-sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.list-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.submenu-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.badge-count {
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.drag-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 📋 1-2. 관심종목 리스트 & 1-3 드래그 앤 드롭 */
 .watchlist-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   overflow-y: auto;
-  max-height: calc(100vh - 180px);
+  max-height: calc(100vh - 255px);
   padding-right: 4px;
+  min-height: 120px;
 }
 
 .stock-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
 }
 
 .stock-item:hover, .stock-item.active {
   background: var(--bg-card-hover);
   border-color: rgba(56, 189, 248, 0.4);
-  transform: translateX(3px);
+  transform: translateX(2px);
+}
+
+.stock-item.active {
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.15);
+  border-left: 3px solid var(--accent-cyan);
+}
+
+/* 1-3. 드래그 핸들 */
+.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  padding: 4px 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  touch-action: none;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.drag-handle:hover {
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* 1-2. 순번 뱃지 */
+.stock-order-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 6px;
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--font-display);
+  flex-shrink: 0;
 }
 
 .stock-item-left {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .stock-item-ticker {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
 
 .stock-item-name {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+.stock-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.strategy-badge {
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.64rem;
+}
+
+.strategy-badge.dividend { color: #34d399; background: rgba(16, 185, 129, 0.12); }
+.strategy-badge.price { color: var(--accent-cyan); background: rgba(56, 189, 248, 0.12); }
 
 .stock-item-right {
   text-align: right;
+  flex-shrink: 0;
 }
 
 .stock-item-price {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .stock-item-change {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
+}
+
+/* 1-4. 삭제 버튼 */
+.btn-delete-stock {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.stock-item:hover .btn-delete-stock {
+  opacity: 1;
+}
+
+.btn-delete-stock:hover {
+  color: var(--color-down);
+  background: rgba(244, 63, 94, 0.15);
+  transform: scale(1.1);
+}
+
+/* 1-3. 드래그 중 시각 피드백 */
+.stock-item.dragging {
+  opacity: 0.35;
+  transform: scale(0.97);
+  border: 1px dashed var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.stock-item.drag-over {
+  border-top: 2px solid var(--accent-cyan);
+  box-shadow: 0 -4px 10px rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+.stock-item.touch-dragging {
+  transform: scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  border-color: var(--accent-cyan);
+  background: var(--bg-card-hover);
+  z-index: 50;
+}
+
+.watchlist-empty {
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--text-muted);
+}
+.watchlist-empty i {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  opacity: 0.4;
+  color: var(--accent-cyan);
+}
+.watchlist-empty p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+/* 데스크톱 메인메뉴 클릭 시 섹션 강조 효과 */
+@keyframes sectionPulse {
+  0% {
+    border-color: rgba(56, 189, 248, 0.8);
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+  }
+  100% {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-card);
+  }
+}
+.section-highlight {
+  animation: sectionPulse 1.2s ease-out;
 }
 
 /* 📊 4. TradingView 캔들 차트 섹션 */
@@ -600,40 +1182,6 @@ body {
 }
 .btn-delete-holding:hover { color: var(--color-down); }
 
-/* 📱 6. 모바일 탭 네비게이션 */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 64px;
-  background: rgba(11, 15, 25, 0.95);
-  backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--border-color);
-  z-index: 1000;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.nav-item {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.nav-item i { font-size: 1.1rem; }
-.nav-item.active {
-  color: var(--accent-cyan);
-}
-
 /* 🪟 모달창 */
 .modal-overlay {
   position: fixed;
@@ -743,6 +1291,26 @@ body {
   cursor: pointer;
 }
 
+.settings-section {
+  min-height: 420px;
+}
+
+.settings-content {
+  max-width: 680px;
+}
+
+.settings-content h4 {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.subtext {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 /* 📱 반응형 미디어 쿼리 (모바일 & 태블릿) */
 @media (max-width: 1100px) {
   .dashboard-grid {
@@ -759,6 +1327,10 @@ body {
   .stock-item {
     min-width: 200px;
   }
+  .company-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .overview-stock-row { grid-template-columns: minmax(130px, 1fr) 110px 110px minmax(90px, 0.7fr) minmax(85px, 0.6fr); }
+  .overview-stock-row.price-stock-row { grid-template-columns: minmax(140px, 1fr) 110px 120px minmax(90px, 0.7fr); }
+  .overview-stock-row .overview-price-cell, .overview-stock-row .overview-dividend-cell, .overview-stock-row .overview-dividend-day-cell { display: none; }
 }
 
 @media (max-width: 768px) {
@@ -766,9 +1338,6 @@ body {
     grid-template-columns: 1fr;
     padding: 12px;
     gap: 14px;
-  }
-  .mobile-nav {
-    display: flex;
   }
   .index-ticker-bar {
     display: none; /* 모바일 헤더 단순화 */
@@ -779,14 +1348,25 @@ body {
   .chart-canvas-container {
     height: 320px;
   }
-  
-  /* 모바일 탭 전환 */
-  .section-card {
-    display: none;
-  }
-  .section-card.mobile-active {
-    display: flex !important;
-  }
+  .company-overview-layout { grid-template-columns: 1fr; }
+  .company-summary-top, .company-price-summary { align-items: flex-start; flex-direction: column; }
+  .company-summary-name { display: block; margin: 4px 0 0; }
+  .company-metrics-grid { grid-template-columns: 1fr 1fr; }
+  .overview-list-toolbar { align-items: flex-start; flex-direction: column; }
+  .overview-stock-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .overview-stock-row.price-stock-row { grid-template-columns: 1fr 1fr; }
+  .overview-stock-row .overview-company-cell { grid-column: 1 / -1; }
+  .overview-stock-row .overview-sparkline { display: none; }
+  .overview-stock-row .overview-price-cell,
+  .overview-stock-row .overview-dividend-cell,
+  .overview-stock-row .overview-next-dividend-cell,
+  .overview-stock-row .overview-dividend-day-cell { display: block; }
+  .company-detail-modal { padding: 3vh 3vw; }
+  .company-detail-modal .company-detail-section { width: 94vw; height: 94vh; padding: 14px; }
+  .william-r-summary-grid { grid-template-columns: 1fr; }
+  .detail-data-grid, .detail-dividend-grid { grid-template-columns: 1fr 1fr; }
+  .strategy-management-grid { grid-template-columns: 1fr; }
+  .strategy-watchlist-container { max-height: none; }
 }
 
 @keyframes fadeIn {

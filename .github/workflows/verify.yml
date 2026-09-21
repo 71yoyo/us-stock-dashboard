@@ -1,0 +1,21 @@
+name: 코드 기본 검사
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  javascript-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 내려받기
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 현재는 빌드 도구가 없는 정적 앱이므로 JavaScript 문법만 빠르게 확인합니다.
+      - name: app.js 문법 검사
+        run: node --check app.js

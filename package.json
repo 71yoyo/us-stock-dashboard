@@ -1,0 +1,14 @@
+{
+  "name": "us-stock-pro",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "node --watch server/app.js",
+    "check": "node --check app.js && node --check server/app.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

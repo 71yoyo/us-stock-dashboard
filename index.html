@@ -114,41 +114,188 @@
       </div>
     </header>
 
-    <!-- 대시보드 본문 -->
-    <main class="dashboard-grid">
-      
-      <!-- [좌측/상단] 관심종목 섹션 -->
-      <section class="section-card watchlist-section" id="watchlistTabSection">
+    <!-- 🧭 메인메뉴 네비게이션 바 (1~5번 번호 체계) -->
+    <nav class="main-menu-nav" id="mainMenuNav">
+      <button class="main-menu-btn active" data-view="overview">
+        <span class="menu-num">1</span>
+        <span class="menu-label">종합</span>
+      </button>
+      <button class="main-menu-btn" data-view="chart">
+        <span class="menu-num">2</span>
+        <span class="menu-label">실시간 차트 분석</span>
+      </button>
+      <button class="main-menu-btn" data-view="portfolio">
+        <span class="menu-num">3</span>
+        <span class="menu-label">내 포트폴리오</span>
+      </button>
+      <button class="main-menu-btn" data-view="watchlist">
+        <span class="menu-num">4</span>
+        <span class="menu-label">주식 목록 관리</span>
+      </button>
+      <button class="main-menu-btn" data-view="settings">
+        <span class="menu-num">5</span>
+        <span class="menu-label">데이터 백업 & 설정</span>
+      </button>
+    </nav>
+
+    <!-- =========================================================
+         📄 페이지 뷰 컨테이너: 메뉴 클릭 시 해당 view만 표시됨
+         ========================================================= -->
+
+    <!-- [1번 종합] 모든 섹션을 순서대로 한 화면에 나열 -->
+    <main class="page-view dashboard-grid" id="view-overview">
+
+      <!-- 1번 종합: 회사 탐색과 핵심 정보 요약 -->
+      <section class="section-card company-overview-section" id="section-overview">
         <div class="card-header">
           <div class="header-title">
-            <i class="fa-solid fa-star text-accent"></i>
-            <h3>관심 종목 (Watchlist)</h3>
+            <span class="section-badge">1</span>
+            <div>
+              <h3>종합 · 회사 탐색</h3>
+              <p class="section-desc">관심 회사를 선택하고 핵심 투자 정보를 한눈에 확인하세요</p>
+            </div>
           </div>
-          <button class="btn-sm btn-primary" id="openAddStockModalBtn">
-            <i class="fa-solid fa-plus"></i> 종목 추가
-          </button>
+        </div>
+        <div class="overview-list-toolbar">
+          <div><strong>1-1. 오늘의 우선 확인 종목</strong><span class="badge-count" id="overviewCompanyCount">0종목</span></div>
+          <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 API 연동 전 예시입니다.</span>
+        </div>
+        <div class="overview-stock-list priority-stock-list" id="priorityCompanyList"></div>
+
+        <div class="investment-list-section">
+          <div class="overview-list-toolbar">
+            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">배당일·D-day는 확정 여부에 따라 색상으로 구분</span></div>
+          </div>
+          <div class="overview-stock-list" id="dividendCompanyList"></div>
         </div>
 
-        <div class="watchlist-container" id="watchlistContainer">
-          <!-- 동적으로 렌더링될 종목 카드들 -->
+        <div class="investment-list-section">
+          <div class="overview-list-toolbar">
+            <div><strong>1-3. 주가 투자 중심</strong><span class="overview-section-note">Williams %R과 투자 신호 중심</span></div>
+          </div>
+          <div class="overview-stock-list" id="priceCompanyList"></div>
         </div>
       </section>
 
-      <!-- [중앙/상단] TradingView 인터랙티브 캔들 차트 섹션 -->
-      <section class="section-card chart-section" id="chartTabSection">
-        <div class="chart-header">
-          <div class="selected-stock-info">
-            <div class="stock-title-wrap">
-              <span class="stock-ticker" id="chartTicker">NVDA</span>
-              <span class="stock-company" id="chartCompanyName">NVIDIA Corporation</span>
-            </div>
-            <div class="stock-price-wrap">
-              <span class="current-price" id="chartPrice">$124.58</span>
-              <span class="price-change up" id="chartChange">+4.25 (+3.53%)</span>
+      <!-- 선택 회사 상세: API 연동 전에는 화면 구조와 예시 정보만 표시 -->
+      <div class="modal-overlay company-detail-modal hidden" id="companyDetailModal" role="dialog" aria-modal="true" aria-label="회사 상세 분석">
+      <section class="section-card company-detail-section">
+        <div class="card-header company-detail-header">
+          <div class="header-title">
+            <button class="btn-icon company-back-btn" id="closeCompanyDetailBtn" title="상세 분석 닫기"><i class="fa-solid fa-xmark"></i></button>
+            <div>
+              <h3><span id="detailTicker">NVDA</span> 상세 분석</h3>
+              <p class="section-desc" id="detailCompanyName">NVIDIA Corporation</p>
             </div>
           </div>
+          <div class="company-detail-price">
+            <strong id="detailPrice">$124.58</strong>
+            <span class="up" id="detailChange">+3.53%</span>
+          </div>
+        </div>
+        <div class="company-detail-tabs" role="tablist">
+          <button class="company-detail-tab active" data-detail-tab="chart" role="tab">1-1. 차트</button>
+          <button class="company-detail-tab" data-detail-tab="financials" role="tab">1-2. 재무</button>
+          <button class="company-detail-tab" data-detail-tab="dividend" role="tab">1-3. 배당</button>
+        </div>
+        <div class="company-detail-panel" data-detail-panel="chart">
+          <div class="william-r-summary-grid">
+            <div class="company-metric"><span>현재 Williams %R</span><strong id="detailWilliamsR">예시 -48.3</strong></div>
+            <div class="company-metric"><span>14일 기준 상태</span><strong id="detailWilliamsSignal">예시 관찰</strong></div>
+            <div class="company-metric"><span>투자 신호</span><strong id="detailInvestmentSignal">예시 관찰</strong></div>
+          </div>
+          <div class="detail-chart-placeholder"><i class="fa-solid fa-chart-line"></i><strong>상세 차트 영역</strong><span>외부 시세 API 연결 후 기간별 캔들 차트와 Williams %R 추이를 표시합니다.</span></div>
+        </div>
+        <div class="company-detail-panel hidden" data-detail-panel="financials">
+          <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span>외부 재무 API 연결 후 최근 분기와 연간 기준으로 갱신됩니다.</span></div>
+          <div class="detail-data-grid">
+            <div class="company-metric"><span>매출</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>영업이익</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>순이익</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>EPS</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>잉여현금흐름</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>PER</span><strong>API 연결 예정</strong></div>
+          </div>
+        </div>
+        <div class="company-detail-panel hidden" data-detail-panel="dividend">
+          <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span>배당 API 연결 후 분할·증배 이력을 반영한 실제 수치로 갱신됩니다.</span></div>
+          <div class="detail-data-grid detail-dividend-grid">
+            <div class="company-metric"><span>배당수익률</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>연 배당금</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>분기 배당수익률</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>분기 배당금</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>배당 성장 연수</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>배당 성장률</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>다음 배당일</span><strong>API 연결 예정</strong></div>
+            <div class="company-metric"><span>다음 배당 남은 일수</span><strong>API 연결 예정</strong></div>
+          </div>
+        </div>
+      </section>
+      </div>
 
-          <!-- 차트 컨트롤러: 봉 주기 및 기간 -->
+      <!-- 1번 종합 > 1. 주식 목록 관리 (순서대로 나열) -->
+      <section class="section-card watchlist-section" id="section-watchlist">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="section-badge">4</span>
+            <div>
+              <h3>주식 목록 관리</h3>
+              <p class="section-desc">등록한 순서대로 유지 • 드래그로 순서 변경</p>
+            </div>
+          </div>
+          <button class="btn-sm btn-outline open-add-stock-btn" title="모달에서 종목 상세 추가">
+            <i class="fa-solid fa-layer-group"></i> 상세 모달
+          </button>
+        </div>
+        <div class="strategy-management-grid">
+          <section class="strategy-management-panel dividend-panel">
+            <div class="panel-sublabel">
+              <i class="fa-solid fa-coins text-accent"></i>
+              <span>4-1. 배당 투자 목록</span>
+              <span class="badge-count" id="dividendWatchlistCount">0종목</span>
+            </div>
+            <form class="quick-add-form strategy-quick-add" data-strategy="dividend" onsubmit="return false;">
+              <div class="input-wrap ticker-input-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="strategy-ticker" placeholder="티커 (예: O, KO)" maxlength="10" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
+              </div>
+              <button type="submit" class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> 배당 목록 추가</button>
+            </form>
+            <p class="quick-add-help">회사명·섹터는 자동 조회하며, 배당 전략으로 저장됩니다.</p>
+            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서 드래그로 순서 조정</span></div>
+            <div class="watchlist-container strategy-watchlist-container" id="dividendWatchlistContainer"></div>
+          </section>
+
+          <section class="strategy-management-panel price-panel">
+            <div class="panel-sublabel">
+              <i class="fa-solid fa-chart-line text-accent"></i>
+              <span>4-2. 주가 투자 목록</span>
+              <span class="badge-count" id="priceWatchlistCount">0종목</span>
+            </div>
+            <form class="quick-add-form strategy-quick-add" data-strategy="price" onsubmit="return false;">
+              <div class="input-wrap ticker-input-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="strategy-ticker" placeholder="티커 (예: NVDA, AAPL)" maxlength="10" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
+              </div>
+              <button type="submit" class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> 주가 목록 추가</button>
+            </form>
+            <p class="quick-add-help">회사명·섹터는 자동 조회하며, 주가 전략으로 저장됩니다.</p>
+            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서 드래그로 순서 조정</span></div>
+            <div class="watchlist-container strategy-watchlist-container" id="priceWatchlistContainer"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- 1번 종합 > 2. 차트 분석 -->
+      <section class="section-card chart-section" id="section-chart">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="section-badge">2</span>
+            <div>
+              <h3>실시간 차트 분석</h3>
+              <p class="section-desc">TradingView 캔들 차트 및 보조지표</p>
+            </div>
+          </div>
           <div class="chart-controls">
             <div class="btn-group" id="timeframeGroup">
               <button class="btn-pill active" data-period="1D">일봉</button>
@@ -161,11 +308,19 @@
             </div>
           </div>
         </div>
-
-        <!-- TradingView 차트 캔버스 마운트 지점 -->
+        <div class="chart-header-info">
+          <div class="selected-stock-info">
+            <div class="stock-title-wrap">
+              <span class="stock-ticker" id="chartTicker">NVDA</span>
+              <span class="stock-company" id="chartCompanyName">NVIDIA Corporation</span>
+            </div>
+            <div class="stock-price-wrap">
+              <span class="current-price" id="chartPrice">$124.58</span>
+              <span class="price-change up" id="chartChange">+4.25 (+3.53%)</span>
+            </div>
+          </div>
+        </div>
         <div class="chart-canvas-container" id="tvChartContainer"></div>
-        
-        <!-- 차트 하단 OHLCV 툴팁 바 -->
         <div class="chart-ohlc-bar" id="chartOhlcBar">
           <span>시가(O): <strong id="ohlcOpen">-</strong></span>
           <span>고가(H): <strong id="ohlcHigh">-</strong></span>
@@ -175,19 +330,20 @@
         </div>
       </section>
 
-      <!-- [우측/하단] 내 포트폴리오 섹션 -->
-      <section class="section-card portfolio-section" id="portfolioTabSection">
+      <!-- 1번 종합 > 3. 내 포트폴리오 -->
+      <section class="section-card portfolio-section" id="section-portfolio">
         <div class="card-header">
           <div class="header-title">
-            <i class="fa-solid fa-wallet text-accent"></i>
-            <h3>내 포트폴리오 (Portfolio)</h3>
+            <span class="section-badge">3</span>
+            <div>
+              <h3>내 포트폴리오</h3>
+              <p class="section-desc">보유 수량 및 실시간 평가 손익 관리</p>
+            </div>
           </div>
-          <button class="btn-sm btn-primary" id="openAddHoldingModalBtn">
+          <button class="btn-sm btn-primary open-add-holding-btn">
             <i class="fa-solid fa-plus"></i> 매수 기록 추가
           </button>
         </div>
-
-        <!-- 포트폴리오 자산 요약 배너 -->
         <div class="portfolio-summary-card">
           <div class="summary-item">
             <span class="label">총 평가 금액</span>
@@ -201,48 +357,52 @@
             <span class="sub-krw" id="totalProfitLossKRW">≈ 0원</span>
           </div>
         </div>
-
-        <!-- 보유 종목 리스트 테이블 -->
         <div class="holdings-table-wrap">
           <table class="holdings-table">
             <thead>
               <tr>
-                <th>종목</th>
-                <th>보유수량</th>
-                <th>매수단가</th>
-                <th>현재가</th>
-                <th>평가손익(수익률)</th>
-                <th>관리</th>
+                <th>종목</th><th>보유수량</th><th>매수단가</th><th>현재가</th><th>평가손익(수익률)</th><th>관리</th>
               </tr>
             </thead>
-            <tbody id="holdingsTableBody">
-              <!-- 동적 생성 -->
-            </tbody>
+            <tbody id="holdingsTableBody"></tbody>
           </table>
         </div>
       </section>
 
-    </main>
+      <!-- 5번 데이터 백업 및 설정 -->
+      <section class="section-card settings-section" id="section-settings">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="section-badge">5</span>
+            <div>
+              <h3>데이터 백업 & 설정</h3>
+              <p class="section-desc">보안 PIN과 포트폴리오 데이터를 관리합니다</p>
+            </div>
+          </div>
+        </div>
+        <div class="settings-content">
+          <h4>🔒 5-1. 보안 PIN 번호 변경</h4>
+          <p class="subtext">대시보드 접속에 사용하는 4자리 비밀번호를 변경합니다.</p>
+          <div class="pin-change-row">
+            <input type="password" id="newPinInput" maxlength="4" placeholder="새 PIN 4자리">
+            <button class="btn btn-primary" id="saveNewPinBtn">변경</button>
+          </div>
 
-    <!-- 📱 모바일 전용 하단 탭바 (Mobile Navigation) -->
-    <nav class="mobile-nav">
-      <button class="nav-item active" data-tab="watchlist">
-        <i class="fa-solid fa-list-check"></i>
-        <span>관심종목</span>
-      </button>
-      <button class="nav-item" data-tab="chart">
-        <i class="fa-solid fa-chart-candlestick"></i>
-        <span>캔들차트</span>
-      </button>
-      <button class="nav-item" data-tab="portfolio">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>포트폴리오</span>
-      </button>
-      <button class="nav-item" data-tab="settings">
-        <i class="fa-solid fa-gear"></i>
-        <span>설정</span>
-      </button>
-    </nav>
+          <hr class="modal-divider">
+
+          <h4>💾 5-2. 포트폴리오 데이터 백업</h4>
+          <p class="subtext">관심종목과 포트폴리오 데이터를 JSON 파일로 안전하게 보관하거나 복원합니다.</p>
+          <div class="backup-actions">
+            <button class="btn btn-secondary" id="exportDataBtn"><i class="fa-solid fa-download"></i> JSON 백업 다운로드</button>
+            <label class="btn btn-secondary file-upload-btn">
+              <i class="fa-solid fa-upload"></i> 백업 파일 불러오기
+              <input type="file" id="importDataInput" accept=".json" style="display:none;">
+            </label>
+          </div>
+        </div>
+      </section>
+
+    </main>
 
   </div>
 
@@ -256,8 +416,12 @@
       <div class="modal-body">
         <label for="stockTickerInput">미국 주식 티커 (예: AAPL, TSLA, NVDA)</label>
         <input type="text" id="stockTickerInput" placeholder="티커 심볼 입력" style="text-transform: uppercase;">
-        <label for="stockNameInput">종목명 (선택사항)</label>
-        <input type="text" id="stockNameInput" placeholder="예: 애플 (Apple Inc.)">
+        <label for="stockStrategyInput">투자 전략</label>
+        <select id="stockStrategyInput" class="strategy-select">
+          <option value="price">주가 투자</option>
+          <option value="dividend">배당 투자</option>
+        </select>
+        <p class="quick-add-help">회사명과 섹터는 티커 기준으로 자동 조회됩니다.</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-close="addStockModal">취소</button>
@@ -284,39 +448,6 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" data-close="addHoldingModal">취소</button>
         <button class="btn btn-primary" id="confirmAddHoldingBtn">저장하기</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 🪟 모달: 백업 및 복구 -->
-  <div id="backupModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>데이터 백업 & PIN 설정</h3>
-        <button class="modal-close" data-close="backupModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <h4>🔒 보안 PIN 번호 변경</h4>
-        <p class="subtext">대시보드 접속 4자리 비밀번호를 변경합니다.</p>
-        <div class="pin-change-row">
-          <input type="password" id="newPinInput" maxlength="4" placeholder="새 PIN 4자리">
-          <button class="btn btn-primary" id="saveNewPinBtn">변경</button>
-        </div>
-
-        <hr class="modal-divider">
-
-        <h4>💾 포트폴리오 데이터 백업</h4>
-        <p class="subtext">내 관심종목과 포트폴리오 데이터를 안전하게 파일로 보관하세요.</p>
-        <div class="backup-actions">
-          <button class="btn btn-secondary" id="exportDataBtn"><i class="fa-solid fa-download"></i> JSON 백업 다운로드</button>
-          <label class="btn btn-secondary file-upload-btn">
-            <i class="fa-solid fa-upload"></i> 백업 파일 불러오기
-            <input type="file" id="importDataInput" accept=".json" style="display:none;">
-          </label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" data-close="backupModal">확인</button>
       </div>
     </div>
   </div>
