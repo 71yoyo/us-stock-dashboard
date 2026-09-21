@@ -1,3 +1,5 @@
+import { syncTickerFromFmp } from './fmp-sync.js';
+
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
 /**
@@ -138,7 +140,7 @@ async function getCompany(environment, ticker) {
     return null;
   }
 
-  const [dividends, financials, candles] = await environment.DB.batch([
+  const [dividends, dividendMetrics, financials, candles] = await environment.DB.batch([
     environment.DB.prepare(`
       SELECT declaration_date AS declarationDate, ex_dividend_date AS exDividendDate,
         record_date AS recordDate, payment_date AS paymentDate, amount, frequency,
@@ -147,11 +149,19 @@ async function getCompany(environment, ticker) {
       ORDER BY COALESCE(ex_dividend_date, payment_date) DESC LIMIT 20
     `).bind(ticker),
     environment.DB.prepare(`
-      SELECT fiscal_period_end AS fiscalPeriodEnd, revenue, operating_income AS operatingIncome,
-        net_income AS netIncome, eps, free_cash_flow AS freeCashFlow,
-        total_debt AS totalDebt, cash_and_equivalents AS cashAndEquivalents, cached_at AS cachedAt
-      FROM financial_snapshots WHERE ticker = ?
-      ORDER BY fiscal_period_end DESC LIMIT 12
+      SELECT annual_dividend AS annualDividend, quarterly_dividend AS quarterlyDividend,
+        dividend_yield AS dividendYield, dividend_growth_years AS dividendGrowthYears,
+        dividend_growth_cagr_10y AS dividendGrowthCagr10y, next_ex_dividend_date AS nextExDividendDate,
+        next_date_status AS nextDateStatus, next_payment_date AS nextPaymentDate, calculated_at AS calculatedAt
+      FROM dividend_metrics WHERE ticker = ?
+    `).bind(ticker),
+    environment.DB.prepare(`
+      SELECT period_type AS periodType, fiscal_period_end AS fiscalPeriodEnd, reported_date AS reportedDate,
+        revenue, operating_income AS operatingIncome, net_income AS netIncome, eps,
+        peg_ratio AS pegRatio, pe_ratio AS peRatio, ps_ratio AS psRatio, free_cash_flow AS freeCashFlow,
+        roe, roic, gross_margin AS grossMargin, operating_margin AS operatingMargin, source, cached_at AS cachedAt
+      FROM financial_metrics WHERE ticker = ?
+      ORDER BY fiscal_period_end DESC LIMIT 50
     `).bind(ticker),
     environment.DB.prepare(`
       SELECT candle_date AS candleDate, open_price AS open, high_price AS high,
@@ -164,27 +174,39 @@ async function getCompany(environment, ticker) {
   return {
     ...company,
     dividends: dividends.results,
+    dividendMetrics: dividendMetrics.results[0] || null,
     financials: financials.results,
     candles: candles.results.reverse()
   };
 }
 
 /**
- * 공급자를 정하기 전에는 임의의 시세를 만들지 않는다.
- * Cron은 실행 이력을 남겨 배포와 스케줄 연결 여부를 확인할 수 있게 하고, API 키가 설정된 뒤 실제 동기화 로직을 추가한다.
+ * 무료 API의 일일 호출 한도를 지키기 위해 Cron 한 번에 관심종목 하나만 갱신한다.
+ * 최초 수집은 화면의 동기화 요청으로 실행하고, 이후 Cron은 최신 데이터만 덮어쓴다.
  */
 async function synchronizeMarketData(environment) {
-  const provider = environment.MARKET_DATA_PROVIDER;
-  const apiKey = environment.MARKET_DATA_API_KEY;
-  const message = provider && apiKey
-    ? '금융 API 동기화 공급자 구현 대기'
-    : '금융 API 공급자 또는 Secret이 설정되지 않아 동기화를 건너뜀';
-  const status = provider && apiKey ? 'pending_implementation' : 'skipped';
+  if (environment.MARKET_DATA_PROVIDER !== 'FMP' || !environment.MARKET_DATA_API_KEY) {
+    await environment.DB.prepare(`INSERT INTO sync_runs (data_type, status, message, completed_at)
+      VALUES ('scheduled_market_sync', 'skipped', '금융 API 공급자 또는 Secret이 설정되지 않아 동기화를 건너뜀', CURRENT_TIMESTAMP)`).run();
+    return;
+  }
+
+  const tickers = await environment.DB.prepare(`SELECT watchlist.ticker FROM user_watchlist AS watchlist
+    LEFT JOIN data_sync_state AS state ON state.ticker = watchlist.ticker AND state.data_type = 'price'
+    WHERE watchlist.user_id = ?
+    ORDER BY COALESCE(state.last_success_at, '1970-01-01') ASC LIMIT 1`).bind(getWatchlistUserId()).all();
+  const ticker = tickers.results[0]?.ticker;
+  if (!ticker) return;
 
   await environment.DB.prepare(`
     INSERT INTO sync_runs (data_type, status, message, completed_at)
-    VALUES ('scheduled_market_sync', ?, ?, CURRENT_TIMESTAMP)
-  `).bind(status, message).run();
+    VALUES ('scheduled_market_sync', 'running', ?, NULL)
+  `).bind(`${ticker} 최신 데이터 동기화 시작`).run();
+
+  const result = await syncTickerFromFmp(environment, ticker);
+  await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
+    VALUES ('scheduled_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
+    .bind(ticker, Object.values(result).every(value => value === 'ok') ? 'success' : 'partial', JSON.stringify(result)).run();
 }
 
 export default {
@@ -245,6 +267,39 @@ export default {
       }
 
       return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+    }
+
+    if (url.pathname === '/api/sync') {
+      if (request.method !== 'POST') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
+      if (!isPinAuthorized(request, environment)) {
+        return jsonResponse(environment, environment.APP_PIN ? 401 : 503, {
+          error: environment.APP_PIN ? 'PIN 인증이 필요합니다.' : 'Worker PIN이 아직 설정되지 않았습니다.'
+        });
+      }
+
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return jsonResponse(environment, 400, { error: '동기화할 티커를 입력해 주세요.' });
+      }
+      const ticker = normalizeTicker(body?.ticker);
+      if (!isTickerValid(ticker)) {
+        return jsonResponse(environment, 400, { error: '티커 형식이 올바르지 않습니다.' });
+      }
+
+      try {
+        const result = await syncTickerFromFmp(environment, ticker);
+        const status = Object.values(result).every(value => value === 'ok') ? 'success' : 'partial';
+        await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
+          VALUES ('manual_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
+          .bind(ticker, status, JSON.stringify(result)).run();
+        return jsonResponse(environment, 200, { ticker, status, result });
+      } catch (error) {
+        return jsonResponse(environment, 502, { error: `동기화에 실패했습니다: ${String(error.message || error)}` });
+      }
     }
 
     if (url.pathname === '/api/companies') {
