@@ -29,6 +29,47 @@ const state = {
   ]
 };
 
+/**
+ * Cloudflare Worker 주소는 배포 환경마다 달라질 수 있어 별도 설정 파일에서 읽는다.
+ * 주소가 비어 있거나 Worker가 아직 준비되지 않은 경우에도 기존 로컬 화면은 멈추지 않는다.
+ */
+function getCloudflareApiUrl(path) {
+  const configuredBaseUrl = window.US_STOCK_PRO_CONFIG?.apiBaseUrl?.replace(/\/$/, '') || '';
+  return configuredBaseUrl ? `${configuredBaseUrl}${path}` : '';
+}
+
+async function updateStockProfileFromCloudflare(ticker) {
+  const apiUrl = getCloudflareApiUrl(`/api/companies/${encodeURIComponent(ticker)}`);
+  if (!apiUrl) {
+    return;
+  }
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      return;
+    }
+
+    const { company } = await response.json();
+    const stock = state.watchlist.find(item => item.ticker === ticker);
+    if (!company || !stock) {
+      return;
+    }
+
+    // API 값이 있을 때만 덮어써, 동기화 전 화면의 사용자 데이터가 사라지지 않게 한다.
+    stock.name = company.name || stock.name;
+    stock.sector = company.sector || stock.sector;
+    stock.price = Number.isFinite(company.currentPrice) ? company.currentPrice : stock.price;
+    stock.change = Number.isFinite(company.changeAmount) ? company.changeAmount : stock.change;
+    stock.changePct = Number.isFinite(company.changePercent) ? company.changePercent : stock.changePct;
+    saveWatchlist();
+    renderWatchlist();
+  } catch (error) {
+    // 네트워크 실패는 화면 사용을 막지 않는다. 다음 동기화 또는 새로고침에서 다시 시도한다.
+    console.warn('Cloudflare 회사 프로필을 불러오지 못했습니다.', error);
+  }
+}
+
 // 2. DOM 요소 캐싱
 const pinScreen = document.getElementById('pinScreen');
 const mainApp = document.getElementById('mainApp');
@@ -358,6 +399,7 @@ function addNewStock(ticker, strategy = 'price') {
   state.watchlist.push(newStock);
   saveWatchlist();
   renderWatchlist();
+  void updateStockProfileFromCloudflare(ticker);
 
   // 첫 번째 종목이거나 현재 선택된 차트가 없으면 즉시 해당 종목 차트 로드
   if (!state.selectedTicker || state.watchlist.length === 1) {

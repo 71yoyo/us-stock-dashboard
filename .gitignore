@@ -6,7 +6,8 @@ node_modules/
 .env.*
 !.env.example
 
-# 금융 데이터 캐시와 개인 백업 파일은 저장소가 아닌 서버 디스크에 보관합니다.
+# 로컬 D1 에뮬레이터와 개인 백업 파일은 GitHub에 보관하지 않습니다.
+.wrangler/
 data/*.db
 data/*.db-*
 data/*.sqlite

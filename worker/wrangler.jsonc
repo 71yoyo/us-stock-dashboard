@@ -1,0 +1,17 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "us-stock-dashboard-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-21",
+  "triggers": {
+    "crons": ["*/5 13-20 * * 1-5", "20 21 * * 1-5"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "us-stock-pro",
+      "database_id": "__CREATE_D1_DATABASE_AND_REPLACE_THIS_VALUE__",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

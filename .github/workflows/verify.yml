@@ -17,5 +17,5 @@ jobs:
           node-version: 22
 
       # 현재는 빌드 도구가 없는 정적 앱이므로 JavaScript 문법만 빠르게 확인합니다.
-      - name: app.js 문법 검사
-        run: node --check app.js
+      - name: 프런트엔드와 Worker 문법 검사
+        run: npm run check
