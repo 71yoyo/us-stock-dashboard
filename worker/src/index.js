@@ -195,24 +195,48 @@ function isSyncDue(syncState, intervalMinutes) {
   return !Number.isFinite(elapsed) || elapsed >= intervalMinutes * 60_000;
 }
 
+function isFinancialRefreshDue(syncState, schedule, nyseHolidayDates) {
+  if (isSyncDue(syncState, syncIntervalsInMinutes.financials)) return true;
+  if (!schedule?.nextEarningsDate) return false;
+
+  // 발표일 다음 거래일부터 재무를 다시 읽는다. 주말과 D1에 저장된 NYSE 휴장일은 건너뛴다.
+  const refreshDate = new Date(`${schedule.nextEarningsDate}T00:00:00Z`);
+  refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
+  while ([0, 6].includes(refreshDate.getUTCDay()) || nyseHolidayDates.has(refreshDate.toISOString().slice(0, 10))) {
+    refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
+  }
+  const refreshDateText = refreshDate.toISOString().slice(0, 10);
+  return new Date().toISOString().slice(0, 10) >= refreshDateText
+    && String(syncState?.lastSuccessAt || '') < refreshDateText;
+}
+
 /**
  * 관심종목 전체를 작은 작업 단위로 나눈 뒤, 가장 오래 기다린 작업 하나만 선택한다.
  * 이 방식은 첫 적재에도 Cron 한 번당 외부 API 호출 묶음이 하나를 넘지 않게 한다.
  */
 async function findNextSyncJob(environment) {
-  const [watchlistResult, statesResult] = await environment.DB.batch([
+  const [watchlistResult, statesResult, schedulesResult, holidaysResult] = await environment.DB.batch([
     environment.DB.prepare('SELECT ticker FROM user_watchlist WHERE user_id = ? ORDER BY display_order ASC')
       .bind(getWatchlistUserId()),
     environment.DB.prepare(`SELECT ticker, data_type AS dataType, last_success_at AS lastSuccessAt,
       last_attempt_at AS lastAttemptAt, next_retry_at AS nextRetryAt
-      FROM data_sync_state`)
+      FROM data_sync_state`),
+    environment.DB.prepare(`SELECT ticker, next_earnings_date AS nextEarningsDate
+      FROM earnings_schedule`),
+    environment.DB.prepare(`SELECT holiday_date AS holidayDate FROM market_holidays
+      WHERE market = 'NYSE' AND is_full_close = 1`)
   ]);
   const stateByKey = new Map(statesResult.results.map(state => [`${state.ticker}:${state.dataType}`, state]));
+  const scheduleByTicker = new Map(schedulesResult.results.map(schedule => [schedule.ticker, schedule]));
+  const nyseHolidayDates = new Set(holidaysResult.results.map(holiday => holiday.holidayDate));
   const jobs = [];
   for (const { ticker } of watchlistResult.results) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
       const state = stateByKey.get(`${ticker}:${dataType}`);
-      if (isSyncDue(state, intervalMinutes)) {
+      const isDue = dataType === 'financials'
+        ? isFinancialRefreshDue(state, scheduleByTicker.get(ticker), nyseHolidayDates)
+        : isSyncDue(state, intervalMinutes);
+      if (isDue) {
         jobs.push({ ticker, dataType, lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z' });
       }
     }
