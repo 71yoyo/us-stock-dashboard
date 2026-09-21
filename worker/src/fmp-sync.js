@@ -438,9 +438,10 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
  * FMP 무료 호출 한도와 SEC의 공정 사용 정책을 함께 지키기 위한 증분 갱신 규칙이다.
  */
 export async function syncTickerIncrementally(environment, ticker) {
-  const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt
+  const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,
+    next_retry_at AS nextRetryAt
     FROM data_sync_state WHERE ticker = ?`).bind(ticker).all();
-  const lastSuccessByType = new Map(states.results.map(state => [state.dataType, state.lastSuccessAt]));
+  const stateByType = new Map(states.results.map(state => [state.dataType, state]));
   const refreshRules = [
     ['price', 30],
     ['candles', 24 * 60],
@@ -449,7 +450,11 @@ export async function syncTickerIncrementally(environment, ticker) {
     ['profile', 30 * 24 * 60]
   ];
   const requestedDataTypes = refreshRules
-    .filter(([dataType, minutes]) => isStale(lastSuccessByType.get(dataType), minutes))
+    .filter(([dataType, minutes]) => {
+      const syncState = stateByType.get(dataType);
+      const retryIsAllowed = !syncState?.nextRetryAt || new Date(syncState.nextRetryAt).getTime() <= Date.now();
+      return retryIsAllowed && isStale(syncState?.lastSuccessAt, minutes);
+    })
     .map(([dataType]) => dataType);
   if (await shouldRefreshFinancialsAfterEarnings(environment, ticker)) {
     requestedDataTypes.push('financials');
