@@ -210,10 +210,14 @@ function selectSecFact(facts, tags, acceptedUnits) {
   return [];
 }
 
-function latestSecValues(entries, forms, minimumYear) {
+function latestSecValues(entries, forms, minimumYear, periodType) {
   const records = new Map();
   for (const entry of entries) {
     if (!entry.end || !forms.includes(entry.form) || Number(entry.fy) < minimumYear) continue;
+    const isRequestedPeriod = periodType === 'annual'
+      ? entry.fp === 'FY'
+      : ['Q1', 'Q2', 'Q3'].includes(entry.fp);
+    if (!isRequestedPeriod) continue;
     const current = records.get(entry.end);
     // 같은 회계기간 수정 공시가 있다면 가장 나중에 제출된 값으로 덮어쓴다.
     if (!current || String(entry.filed || '') >= String(current.filed || '')) records.set(entry.end, entry);
@@ -259,7 +263,7 @@ async function syncFinancialsFromSec(environment, ticker) {
   const dataSets = { revenue, operatingIncome, netIncome, operatingCashFlow, capitalExpenditure, grossProfit, equity, debt, cash, eps };
 
   const writePeriod = async (periodType, forms, minimumYear, maximumRows) => {
-    const dateSets = Object.values(dataSets).map(entries => latestSecValues(entries, forms, minimumYear));
+    const dateSets = Object.values(dataSets).map(entries => latestSecValues(entries, forms, minimumYear, periodType));
     const dates = [...new Set(dateSets.flatMap(data => [...data.keys()]))].sort().slice(-maximumRows);
     const statements = dates.map(end => {
       const revenueValue = valueAt(dateSets[0], end);
@@ -271,7 +275,7 @@ async function syncFinancialsFromSec(environment, ticker) {
       const equityValue = valueAt(dateSets[6], end);
       const debtValue = (valueAt(dateSets[7], end) || 0) + (valueAt(dateSets[8], end) || 0);
       const cashValue = valueAt(dateSets[8], end) || 0;
-      const reportedDate = dateSets[0].get(end)?.filed || null;
+      const reportedDate = dateSets.map(values => values.get(end)?.filed).find(Boolean) || null;
       const freeCashFlow = operatingCashFlowValue !== null && capitalExpenditureValue !== null
         ? operatingCashFlowValue - Math.abs(capitalExpenditureValue) : null;
       const grossMargin = grossProfitValue !== null && revenueValue ? (grossProfitValue / revenueValue) * 100 : null;
