@@ -135,33 +135,39 @@ async function uploadWatchlistToCloudflare() {
 }
 
 async function synchronizeWatchlistWithCloudflare() {
-  const apiUrl = getCloudflareApiUrl('/api/watchlist');
-  if (!apiUrl || !state.apiPin || state.watchlistSyncStarted) return;
+  if (!getCloudflareApiUrl('/api/dashboard') || !state.apiPin || state.watchlistSyncStarted) return;
   state.watchlistSyncStarted = true;
 
   try {
-    const response = await fetch(apiUrl, getCloudflareRequestOptions());
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const { watchlist } = await response.json();
+    let dashboard = await fetchDashboardSummaryFromCloudflare();
+    const watchlist = dashboard?.watchlist;
 
     if (Array.isArray(watchlist) && watchlist.length > 0) {
-      // D1에 이미 저장된 목록이 있으면 그것이 모든 기기의 기준 데이터다.
+      // D1 요약 응답 하나로 목록·현재가·일봉·배당 집계를 함께 반영한다.
+      // 재무 10년 원본은 상세 분석을 열 때만 별도로 읽는다.
       state.watchlist = normalizeRemoteWatchlist(watchlist);
+      const summaryByTicker = new Map((dashboard.stocks || []).map(stock => [stock.ticker, stock]));
+      state.watchlist.forEach(stock => applyStoredCompanyToStock(stock, summaryByTicker.get(stock.ticker)));
       state.selectedTicker = state.watchlist[0]?.ticker || null;
       saveWatchlist(false);
       renderWatchlist();
       renderPortfolio();
       setStoredDataConnectionState(true);
-      // 5-3 상태 표시는 상세 원본을 모두 읽기 전에 시작한다. 네트워크가 느려도
-      // "잠금 해제 후"라는 초기 문구에 멈춰 보이지 않게 한다.
-      window.FundamentalProgress?.start();
-      // 종합 목록의 Williams %R·스파크라인·배당도 D1 원본을 써야 하므로 작은 묶음으로 채운다.
-      await hydrateStoredCompanies();
-      if (state.selectedTicker) loadStockChart(state.selectedTicker);
     } else if (state.watchlist.length > 0) {
       // 첫 동기화만 현재 브라우저의 기존 목록을 D1로 옮긴다.
-      await uploadWatchlistToCloudflare();
-      setStoredDataConnectionState(true, '관심종목 최초 저장 후 데이터 수집 대기');
+      const uploaded = await uploadWatchlistToCloudflare();
+      // 업로드 직후에도 한 번만 요약을 다시 읽어, 기존 D1 데이터가 있으면 즉시 사용한다.
+      dashboard = uploaded ? await fetchDashboardSummaryFromCloudflare() : null;
+      if (dashboard?.watchlist?.length) {
+        state.watchlist = normalizeRemoteWatchlist(dashboard.watchlist);
+        const summaryByTicker = new Map((dashboard.stocks || []).map(stock => [stock.ticker, stock]));
+        state.watchlist.forEach(stock => applyStoredCompanyToStock(stock, summaryByTicker.get(stock.ticker)));
+        state.selectedTicker = state.watchlist[0]?.ticker || null;
+        saveWatchlist(false);
+        renderWatchlist();
+        renderPortfolio();
+      }
+      setStoredDataConnectionState(true, '관심종목 저장 완료 · 상세 데이터 수집 대기');
     } else {
       setStoredDataConnectionState(true, '등록된 관심종목이 없습니다.');
     }
@@ -169,7 +175,15 @@ async function synchronizeWatchlistWithCloudflare() {
     console.warn('Cloudflare 관심종목 동기화에 실패했습니다.', error);
     setStoredDataConnectionState(false);
   }
-  window.FundamentalProgress?.start();
+}
+
+/** 초기 화면 전용 D1 요약. 종목별 상세 요청을 반복하지 않아 시작 속도를 유지한다. */
+async function fetchDashboardSummaryFromCloudflare() {
+  const apiUrl = getCloudflareApiUrl('/api/dashboard');
+  if (!apiUrl || !state.apiPin) return null;
+  const response = await fetch(apiUrl, getCloudflareRequestOptions());
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
 }
 
 function applyStoredCompanyToStock(stock, company) {
@@ -191,21 +205,6 @@ function applyStoredCompanyToStock(stock, company) {
       : stock.changePct);
   // 재무·배당·일봉 원본은 localStorage에 저장하지 않고, 현재 세션에서만 사용한다.
   stock.marketData = company;
-}
-
-/** D1 읽기 요청은 외부 금융 API를 호출하지 않는다. 많은 종목에서도 브라우저 부담을 줄이기 위해 4개씩 읽는다. */
-async function hydrateStoredCompanies() {
-  const stocks = [...state.watchlist];
-  for (let index = 0; index < stocks.length; index += 4) {
-    const batch = stocks.slice(index, index + 4);
-    const companies = await Promise.all(batch.map(stock => fetchCompanyFromCloudflare(stock.ticker)));
-    companies.forEach((company, companyIndex) => applyStoredCompanyToStock(batch[companyIndex], company));
-    // 큰 목록도 첫 묶음부터 즉시 반영해 사용자가 전체 요청이 끝날 때까지 기다리지 않게 한다.
-    saveWatchlist(false);
-    renderWatchlist();
-    renderPortfolio();
-  }
-  updateCompanySummary();
 }
 
 function setStoredDataConnectionState(isConnected, message = '') {
@@ -880,7 +879,11 @@ function updateCompanySummary() {
     detailTicker: stock.ticker,
     detailCompanyName: stock.name,
     detailPrice: formatCurrency(stock.price),
-    detailChange: formatPercent(stock.changePct)
+    detailChange: formatPercent(stock.changePct),
+    chartTicker: stock.ticker,
+    chartCompanyName: stock.name,
+    chartPrice: formatCurrency(stock.price),
+    chartChange: changeText
   };
 
   Object.entries(summaryFields).forEach(([id, value]) => {
@@ -891,6 +894,8 @@ function updateCompanySummary() {
     const element = document.getElementById(id);
     if (element) element.className = directionClass;
   });
+  const chartChange = document.getElementById('chartChange');
+  if (chartChange) chartChange.className = `price-change ${directionClass}`;
 
   const williams = getStoredWilliams(stock);
   const detailFields = {
@@ -1466,10 +1471,15 @@ function showDashboardView(viewName) {
   state.currentView = viewName;
   // 메뉴 2를 볼 때만 위젯을 만들고 다른 메뉴로 이동하면 iframe을 해제한다.
   if (viewName === 'chart') {
-    requestAnimationFrame(() => renderActiveTradingViewChart());
+    const stock = getSelectedStock();
+    requestAnimationFrame(() => renderActiveTradingViewChart(stock));
+    // 2번 차트를 처음 열 때만 선택 종목의 OHLC·상세 원본을 읽는다.
+    if (stock) void loadStockChart(stock.ticker);
   } else {
     destroyMainChart();
   }
+  // 무거운 저장 현황은 5번을 볼 때만 요청한다. 잠금 해제 직후의 네트워크 경합을 없앤다.
+  if (viewName === 'settings') window.FundamentalProgress?.start();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

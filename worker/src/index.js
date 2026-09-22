@@ -104,6 +104,60 @@ async function listWatchlist(environment) {
   return result.results;
 }
 
+/**
+ * 잠금 해제 직후 필요한 화면 요약만 한 번에 반환한다.
+ * 재무 10년 원본은 상세 분석 탭을 열 때만 가져와, 초기 화면에서 종목 수만큼
+ * HTTP 요청이 늘어나는 문제를 막는다.
+ */
+async function getDashboardSummary(environment) {
+  const watchlist = await listWatchlist(environment);
+  if (watchlist.length === 0) return { watchlist, stocks: [] };
+
+  const tickers = watchlist.map(item => item.ticker);
+  const placeholders = tickers.map(() => '?').join(', ');
+  const [candleResult, dividendResult] = await environment.DB.batch([
+    environment.DB.prepare(`
+      SELECT ticker, candle_date AS candleDate, open_price AS open, high_price AS high,
+        low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
+      FROM price_candles
+      WHERE ticker IN (${placeholders})
+        AND candle_date >= date('now', '-120 days')
+      ORDER BY ticker ASC, candle_date ASC
+    `).bind(...tickers),
+    environment.DB.prepare(`
+      SELECT ticker, annual_dividend AS annualDividend, quarterly_dividend AS quarterlyDividend,
+        dividend_yield AS dividendYield, dividend_growth_years AS dividendGrowthYears,
+        dividend_growth_cagr_10y AS dividendGrowthCagr10y, next_ex_dividend_date AS nextExDividendDate,
+        next_date_status AS nextDateStatus, next_payment_date AS nextPaymentDate, calculated_at AS calculatedAt
+      FROM dividend_metrics
+      WHERE ticker IN (${placeholders})
+    `).bind(...tickers)
+  ]);
+
+  const candlesByTicker = new Map();
+  for (const candle of candleResult.results) {
+    const candles = candlesByTicker.get(candle.ticker) || [];
+    candles.push(candle);
+    candlesByTicker.set(candle.ticker, candles);
+  }
+  const dividendsByTicker = new Map(dividendResult.results.map(item => [item.ticker, item]));
+
+  return {
+    watchlist,
+    stocks: watchlist.map(stock => ({
+      ticker: stock.ticker,
+      name: stock.name,
+      sector: stock.sector,
+      exchange: stock.exchange,
+      currentPrice: stock.price,
+      changeAmount: stock.change,
+      changePercent: stock.changePct,
+      candles: candlesByTicker.get(stock.ticker) || [],
+      dividendMetrics: dividendsByTicker.get(stock.ticker) || null
+    }))
+  };
+}
+
 async function replaceWatchlist(environment, entries) {
   const userId = getWatchlistUserId();
   const statements = [
@@ -390,6 +444,18 @@ export default {
       }
 
       return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+    }
+
+    if (url.pathname === '/api/dashboard') {
+      if (request.method !== 'GET') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
+      if (!isPinAuthorized(request, environment)) {
+        return jsonResponse(environment, environment.APP_PIN ? 401 : 503, {
+          error: environment.APP_PIN ? 'PIN 인증이 필요합니다.' : 'Worker PIN이 아직 설정되지 않았습니다.'
+        });
+      }
+      return jsonResponse(environment, 200, await getDashboardSummary(environment));
     }
 
     if (url.pathname === '/api/fundamentals/status' || url.pathname === '/api/fundamentals/run') {
