@@ -4,6 +4,9 @@
 
 (function initializeTradingViewWidgetModule() {
   const EMBED_WIDGET_URL = 'https://www.tradingview-widget.com/embed-widget/advanced-chart/';
+  // 사용자 브라우저에 남은 TradingView 라이트 테마 저장값을 읽지 못하게 하는 격리 정책이다.
+  // allow-same-origin을 일부러 제외해 외부 위젯의 localStorage가 현재 차트 설정을 덮어쓰지 못한다.
+  const IFRAME_SANDBOX_POLICY = 'allow-scripts allow-forms allow-popups allow-presentation';
 
   /**
    * FMP가 반환하는 거래소 표기를 TradingView 심볼 접두사로 변환한다.
@@ -138,6 +141,7 @@
     iframe.setAttribute('allowtransparency', 'true');
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('sandbox', IFRAME_SANDBOX_POLICY);
     iframe.src = buildWidgetUrl(stock, chartSettings, frameId);
 
     const copyright = document.createElement('div');
@@ -166,6 +170,7 @@
     buildSymbol,
     buildOptions: buildWidgetOptions,
     buildUrl: buildWidgetUrl,
+    sandboxPolicy: IFRAME_SANDBOX_POLICY,
     normalizeSettings: normalizeChartSettings,
     mount,
     unmount

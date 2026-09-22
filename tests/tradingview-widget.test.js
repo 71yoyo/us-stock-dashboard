@@ -66,4 +66,5 @@ test('위젯 주소는 브라우저 저장값보다 다크 테마를 우선하�
   assert.equal(widgetUrl.searchParams.get('backgroundColor'), 'rgba(17, 26, 34, 1)');
   assert.equal(settings.theme, 'dark');
   assert.equal(settings.frameElementId, 'tv-nvda-D-3M');
+  assert.equal(charts.sandboxPolicy.includes('allow-same-origin'), false);
 });
