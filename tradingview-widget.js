@@ -58,8 +58,8 @@
       theme: 'dark',
       style: '1',
       locale: 'kr',
-      // 바깥 조작 막대와 같은 계열의 어두운 색을 사용해 흰 위젯처럼 보이지 않게 한다.
-      backgroundColor: '#111a22',
+      // TradingView 공식 예제와 같은 RGBA 형식으로 전달해야 iframe 차트 배경에 확실히 적용된다.
+      backgroundColor: 'rgba(17, 26, 34, 1)',
       gridColor: 'rgba(148, 163, 184, 0.08)',
       allow_symbol_change: false,
       calendar: false,

@@ -29,6 +29,8 @@ test('기본 위젯은 3개월 일봉·MA20·Williams %R로 구성', () => {
   assert.equal(options.range, '3M');
   assert.equal(options.hide_volume, false);
   assert.equal(options.hide_top_toolbar, true);
+  assert.equal(options.theme, 'dark');
+  assert.equal(options.backgroundColor, 'rgba(17, 26, 34, 1)');
   assert.deepEqual(Array.from(options.studies), [
     'MASimple@tv-basicstudies',
     'WilliamsR@tv-basicstudies'
