@@ -575,7 +575,7 @@ export async function syncTickerDataType(environment, ticker, dataType) {
 export async function syncTickerIncrementally(environment, ticker) {
   const [states, coverage] = await environment.DB.batch([
     environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,
-      next_retry_at AS nextRetryAt
+      last_attempt_at AS lastAttemptAt, next_retry_at AS nextRetryAt
       FROM data_sync_state WHERE ticker = ?`).bind(ticker),
     environment.DB.prepare(`SELECT
       CASE WHEN EXISTS (
@@ -594,7 +594,9 @@ export async function syncTickerIncrementally(environment, ticker) {
   ].filter(dataType => {
     if (!dataType) return false;
     const syncState = stateByType.get(dataType);
-    return !syncState?.nextRetryAt || new Date(syncState.nextRetryAt).getTime() <= Date.now();
+    const lastAttemptTime = new Date(syncState?.lastAttemptAt || 0).getTime();
+    // 실제 저장값이 없으면 과거 FMP 장기 보류보다 사용자의 재시도를 우선하되, 연속 클릭은 1분간 막는다.
+    return !Number.isFinite(lastAttemptTime) || Date.now() - lastAttemptTime >= 60_000;
   });
   if (missingDataTypes.length) {
     // 사용자가 상세창을 연 경우 비어 있는 핵심 데이터 두 종류는 한 번의 요청에서 즉시 복구한다.
