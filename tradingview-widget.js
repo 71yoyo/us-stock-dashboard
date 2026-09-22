@@ -29,12 +29,22 @@
   }
 
   const DEFAULT_CHART_SETTINGS = Object.freeze({
-    interval: 'D',
-    range: '3M'
+    interval: 'D'
   });
 
   const ALLOWED_INTERVALS = new Set(['1', '5', '15', '60', 'D', 'W', 'M']);
-  const ALLOWED_RANGES = new Set(['1D', '5D', '1M', '3M', '6M', '12M', '60M']);
+
+  // 화면 버튼의 명칭과 위젯의 실제 봉 단위를 반드시 일치시킨다.
+  // `range` 옵션은 TradingView 삽입 위젯에서 캔들 단위를 다시 덮어쓸 수 있으므로 전달하지 않는다.
+  const CONTROL_PRESET_SETTINGS = Object.freeze({
+    '1': { interval: '1' },
+    '5': { interval: '5' },
+    '15': { interval: '15' },
+    '60': { interval: '60' },
+    D: { interval: 'D' },
+    W: { interval: 'W' },
+    M: { interval: 'M' }
+  });
 
   /**
    * 외부 위젯에는 허용된 값만 전달한다. URL/DOM 값이 그대로 설정으로 들어가도
@@ -42,9 +52,18 @@
    */
   function normalizeChartSettings(settings = {}) {
     return {
-      interval: ALLOWED_INTERVALS.has(settings.interval) ? settings.interval : DEFAULT_CHART_SETTINGS.interval,
-      range: ALLOWED_RANGES.has(settings.range) ? settings.range : DEFAULT_CHART_SETTINGS.range
+      interval: ALLOWED_INTERVALS.has(settings.interval) ? settings.interval : DEFAULT_CHART_SETTINGS.interval
     };
+  }
+
+  /**
+   * 앱의 시간 기준 버튼을 고르면 같은 실제 캔들 단위로 맞춘다.
+   * 외부 iframe은 앱에서 선택한 상태를 다시 알려 주지 않으므로 이 단계가 없으면
+   * 버튼의 활성 표시와 차트 내부의 실제 단위가 달라질 수 있다.
+   */
+  function resolveSettingsForInterval(controlPreset) {
+    const preset = CONTROL_PRESET_SETTINGS[controlPreset];
+    return preset ? { ...preset } : { ...DEFAULT_CHART_SETTINGS };
   }
 
   function buildWidgetOptions(stock, settings) {
@@ -53,7 +72,6 @@
       autosize: true,
       symbol: buildSymbol(stock?.ticker, stock?.exchange),
       interval: chartSettings.interval,
-      range: chartSettings.range,
       timezone: 'exchange',
       theme: 'dark',
       style: '1',
@@ -112,7 +130,7 @@
 
     const symbol = buildSymbol(stock.ticker, stock.exchange);
     const chartSettings = normalizeChartSettings(settings);
-    const settingsKey = `${chartSettings.interval}:${chartSettings.range}`;
+    const settingsKey = chartSettings.interval;
     if (container.dataset.tradingViewSymbol === symbol
       && container.dataset.tradingViewSettings === settingsKey
       && container.querySelector('iframe')) return;
@@ -129,7 +147,7 @@
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'tradingview-widget-container';
 
-    const frameId = `tv-${sanitizeTicker(stock.ticker).toLowerCase()}-${chartSettings.interval}-${chartSettings.range}`;
+    const frameId = `tv-${sanitizeTicker(stock.ticker).toLowerCase()}-${chartSettings.interval}`;
     const iframe = document.createElement('iframe');
     iframe.id = frameId;
     iframe.className = 'tradingview-widget-container__widget';
@@ -172,6 +190,7 @@
     buildUrl: buildWidgetUrl,
     usesCredentialless: true,
     normalizeSettings: normalizeChartSettings,
+    resolveForInterval: resolveSettingsForInterval,
     mount,
     unmount
   };

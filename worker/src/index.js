@@ -275,15 +275,15 @@ function isSyncDue(syncState, intervalMinutes) {
   return !Number.isFinite(elapsed) || elapsed >= intervalMinutes * 60_000;
 }
 
-function isFinancialRefreshDue(syncState, schedule, nyseHolidayDates) {
+function isFinancialRefreshDue(syncState, schedule) {
   if (syncState?.nextRetryAt && new Date(syncState.nextRetryAt).getTime() > Date.now()) return false;
   if (isSyncDue(syncState, syncIntervalsInMinutes.financials)) return true;
   if (!schedule?.nextEarningsDate) return false;
 
-  // 발표일 다음 거래일부터 재무를 다시 읽는다. 주말과 D1에 저장된 NYSE 휴장일은 건너뛴다.
+  // 발표일 다음 평일부터 재무를 다시 읽는다.
   const refreshDate = new Date(`${schedule.nextEarningsDate}T00:00:00Z`);
   refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
-  while ([0, 6].includes(refreshDate.getUTCDay()) || nyseHolidayDates.has(refreshDate.toISOString().slice(0, 10))) {
+  while ([0, 6].includes(refreshDate.getUTCDay())) {
     refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
   }
   const refreshDateText = refreshDate.toISOString().slice(0, 10);
@@ -296,7 +296,7 @@ function isFinancialRefreshDue(syncState, schedule, nyseHolidayDates) {
  * 이 방식은 첫 적재에도 Cron 한 번당 외부 API 호출 묶음이 하나를 넘지 않게 한다.
  */
 async function findNextSyncJob(environment) {
-  const [watchlistResult, statesResult, schedulesResult, holidaysResult, coverageResult] = await environment.DB.batch([
+  const [watchlistResult, statesResult, schedulesResult, coverageResult] = await environment.DB.batch([
     environment.DB.prepare('SELECT ticker FROM user_watchlist WHERE user_id = ? ORDER BY display_order ASC')
       .bind(getWatchlistUserId()),
     environment.DB.prepare(`SELECT ticker, data_type AS dataType, last_success_at AS lastSuccessAt,
@@ -304,8 +304,6 @@ async function findNextSyncJob(environment) {
       FROM data_sync_state`),
     environment.DB.prepare(`SELECT ticker, next_earnings_date AS nextEarningsDate
       FROM earnings_schedule`),
-    environment.DB.prepare(`SELECT holiday_date AS holidayDate FROM market_holidays
-      WHERE market = 'NYSE' AND is_full_close = 1`),
     environment.DB.prepare(`SELECT user_watchlist.ticker,
       CASE WHEN EXISTS (
         SELECT 1 FROM financial_metrics
@@ -325,7 +323,6 @@ async function findNextSyncJob(environment) {
   const stateByKey = new Map(statesResult.results.map(state => [`${state.ticker}:${state.dataType}`, state]));
   const scheduleByTicker = new Map(schedulesResult.results.map(schedule => [schedule.ticker, schedule]));
   const coverageByTicker = new Map(coverageResult.results.map(coverage => [coverage.ticker, coverage]));
-  const nyseHolidayDates = new Set(holidaysResult.results.map(holiday => holiday.holidayDate));
   const jobs = [];
   for (const { ticker } of watchlistResult.results) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
@@ -337,7 +334,7 @@ async function findNextSyncJob(environment) {
         || (dataType === 'dividends' && Number(coverage?.hasDividendMetrics) !== 1);
       const retryAllowed = !state?.nextRetryAt || new Date(state.nextRetryAt).getTime() <= Date.now();
       const isNormallyDue = dataType === 'financials'
-        ? isFinancialRefreshDue(state, scheduleByTicker.get(ticker), nyseHolidayDates)
+        ? isFinancialRefreshDue(state, scheduleByTicker.get(ticker))
         : isSyncDue(state, intervalMinutes);
       // 과거 코드가 빈 응답을 성공으로 기록했어도, 실제 핵심 값이 없으면 한 작업씩 자동 복구한다.
       const isDue = retryAllowed && (needsRepair || isNormallyDue);

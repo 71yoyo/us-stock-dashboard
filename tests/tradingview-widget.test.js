@@ -20,13 +20,13 @@ test('FMP 거래소 표기를 TradingView 심볼로 안전하게 변환', () => 
   assert.equal(charts.buildSymbol('AAPL<script>', 'NASDAQ'), 'NASDAQ:AAPLSCRIPT');
 });
 
-test('기본 위젯은 3개월 일봉·MA20·Williams %R로 구성', () => {
+test('기본 위젯은 일봉·MA20·Williams %R로 구성', () => {
   const charts = loadTradingViewModule();
   const options = charts.buildOptions({ ticker: 'AAPL', exchange: 'NASDAQ' });
 
   assert.equal(options.symbol, 'NASDAQ:AAPL');
   assert.equal(options.interval, 'D');
-  assert.equal(options.range, '3M');
+  assert.equal('range' in options, false);
   assert.equal(options.hide_volume, false);
   assert.equal(options.hide_top_toolbar, true);
   assert.equal(options.theme, 'dark');
@@ -38,18 +38,39 @@ test('기본 위젯은 3개월 일봉·MA20·Williams %R로 구성', () => {
   assert.equal(options.studies_overrides['moving average.length'], 20);
 });
 
-test('차트 조작 막대의 허용 시간 단위와 기간만 위젯 설정에 반영', () => {
+test('차트 버튼은 이름과 같은 실제 캔들 단위로 변환한다', () => {
   const charts = loadTradingViewModule();
-  const options = charts.buildOptions(
-    { ticker: 'NVDA', exchange: 'NASDAQ' },
-    { interval: '15', range: '12M' }
-  );
-
-  assert.equal(options.interval, '15');
-  assert.equal(options.range, '12M');
   assert.deepEqual(
-    { ...charts.normalizeSettings({ interval: '잘못된값', range: '99Y' }) },
-    { interval: 'D', range: '3M' }
+    { ...charts.resolveForInterval('1') },
+    { interval: '1' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('5') },
+    { interval: '5' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('15') },
+    { interval: '15' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('60') },
+    { interval: '60' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('D') },
+    { interval: 'D' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('W') },
+    { interval: 'W' }
+  );
+  assert.deepEqual(
+    { ...charts.resolveForInterval('M') },
+    { interval: 'M' }
+  );
+  assert.deepEqual(
+    { ...charts.normalizeSettings({ interval: '잘못된값' }) },
+    { interval: 'D' }
   );
 });
 
@@ -57,14 +78,14 @@ test('위젯 주소는 브라우저 저장값보다 다크 테마를 우선하�
   const charts = loadTradingViewModule();
   const widgetUrl = new URL(charts.buildUrl(
     { ticker: 'NVDA', exchange: 'NASDAQ' },
-    { interval: 'D', range: '3M' },
-    'tv-nvda-D-3M'
+    { interval: 'D' },
+    'tv-nvda-D'
   ));
   const settings = JSON.parse(decodeURIComponent(widgetUrl.hash.slice(1)));
 
   assert.equal(widgetUrl.searchParams.get('theme'), 'dark');
   assert.equal(widgetUrl.searchParams.get('backgroundColor'), 'rgba(17, 26, 34, 1)');
   assert.equal(settings.theme, 'dark');
-  assert.equal(settings.frameElementId, 'tv-nvda-D-3M');
+  assert.equal(settings.frameElementId, 'tv-nvda-D');
   assert.equal(charts.usesCredentialless, true);
 });

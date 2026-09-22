@@ -153,57 +153,18 @@ function toIsoDate(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
 }
 
-/** FMP의 표기와 과거 지급 간격을 같은 배당 주기 값으로 정규화한다. */
-function normalizeDividendFrequency(value) {
-  const text = String(value || '').trim().toLowerCase();
-  if (!text) return null;
-  if (text.includes('month')) return 'monthly';
-  if (text.includes('quarter')) return 'quarterly';
-  if (text.includes('semi') || text.includes('half')) return 'semiannual';
-  if (text.includes('annual') || text.includes('year')) return 'annual';
-  return null;
-}
-
-function median(values) {
-  if (!values.length) return null;
-  const sorted = [...values].sort((left, right) => left - right);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
-}
-
-/**
- * FMP가 주기를 주면 그 값을 우선한다. 누락된 경우에만 과거 배당락일 간격을 사용한다.
- * 불규칙 특별배당을 월배당으로 오판하지 않도록, 충분한 간격 기록이 없으면 null을 반환한다.
- */
-function detectDividendFrequency(events) {
-  const explicitFrequencies = events
-    .map(event => normalizeDividendFrequency(event.frequency))
-    .filter(Boolean);
-  if (explicitFrequencies.length) {
-    const counts = new Map();
-    for (const frequency of explicitFrequencies) counts.set(frequency, (counts.get(frequency) || 0) + 1);
-    return [...counts.entries()].sort((left, right) => right[1] - left[1])[0][0];
-  }
-
-  const dates = events.map(event => event.exDividendDate).filter(Boolean).sort();
-  if (dates.length < 4) return null;
-  const gaps = [];
-  for (let index = 1; index < dates.length; index += 1) {
-    const previous = Date.parse(`${dates[index - 1]}T00:00:00Z`);
-    const current = Date.parse(`${dates[index]}T00:00:00Z`);
-    if (Number.isFinite(previous) && Number.isFinite(current)) gaps.push((current - previous) / 86_400_000);
-  }
-  const typicalGap = median(gaps);
-  if (typicalGap === null) return null;
-  if (typicalGap >= 20 && typicalGap <= 45) return 'monthly';
-  if (typicalGap >= 70 && typicalGap <= 120) return 'quarterly';
-  if (typicalGap >= 150 && typicalGap <= 210) return 'semiannual';
-  if (typicalGap >= 300 && typicalGap <= 400) return 'annual';
-  return null;
-}
-
-function payoutCountPerYear(frequency) {
-  return { monthly: 12, quarterly: 4, semiannual: 2, annual: 1 }[frequency] || null;
+/** 달력상 정확히 1년·3개월 전을 구해 월 길이와 윤년 차이로 인한 오차를 막는다. */
+function shiftCalendarMonths(isoDate, monthOffset) {
+  const match = String(isoDate || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const monthIndex = Number(monthText) - 1 + monthOffset;
+  const day = Number(dayText);
+  const targetYear = year + Math.floor(monthIndex / 12);
+  const targetMonth = ((monthIndex % 12) + 12) % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(Math.min(day, lastDay)).padStart(2, '0')}`;
 }
 
 function receivedDate(event) {
@@ -215,17 +176,16 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
   const datedEvents = events.map(event => ({ ...event, amount: toFiniteNumber(event.amount) }))
     .filter(event => event.exDividendDate && event.amount !== null)
     .sort((a, b) => a.exDividendDate.localeCompare(b.exDividendDate));
-  const frequency = detectDividendFrequency(datedEvents);
-  const payoutsPerYear = payoutCountPerYear(frequency);
   const receivedEvents = datedEvents
     .filter(event => receivedDate(event) && receivedDate(event) <= today)
     .sort((left, right) => receivedDate(right).localeCompare(receivedDate(left)));
 
-  // 분기배당은 최근 4회, 월배당은 최근 12회를 합산한다. 지급 횟수가 모자라면
-  // 일부 기간을 1년치처럼 연환산하지 않고 수익률을 비워 실제 값으로 오해하지 않게 한다.
-  const trailingPayouts = payoutsPerYear ? receivedEvents.slice(0, payoutsPerYear) : [];
-  const annualDividend = payoutsPerYear && trailingPayouts.length === payoutsPerYear
-    ? trailingPayouts.reduce((total, event) => total + event.amount, 0) : null;
+  // 주기 표기나 간격을 판별하지 않는다. 최근 실제 지급일 1년 구간만 합산하면
+  // 분기배당은 보통 4회, 월배당은 보통 12회가 자연스럽게 포함된다.
+  const trailingYearStart = shiftCalendarMonths(today, -12);
+  const trailingYearPayouts = receivedEvents.filter(event => receivedDate(event) > trailingYearStart);
+  const annualDividend = trailingYearPayouts.length
+    ? trailingYearPayouts.reduce((total, event) => total + event.amount, 0) : null;
 
   const currentYear = Number(today.slice(0, 4));
   const annualAmounts = new Map();
@@ -237,10 +197,10 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
   const years = [...annualAmounts.keys()].sort();
   const latestYear = years.at(-1);
   const latestCompletedAnnualDividend = latestYear ? annualAmounts.get(latestYear) : null;
-  // 카드의 "최근 3개월"은 월배당은 3회 합계, 분기배당은 최근 1회 지급액만 보인다.
-  const quarterPayoutCount = frequency === 'monthly' ? 3 : frequency === 'quarterly' ? 1 : null;
-  const quarterlyDividend = quarterPayoutCount && receivedEvents.length >= quarterPayoutCount
-    ? receivedEvents.slice(0, quarterPayoutCount).reduce((total, event) => total + event.amount, 0) : null;
+  const trailingQuarterStart = shiftCalendarMonths(today, -3);
+  const trailingQuarterPayouts = receivedEvents.filter(event => receivedDate(event) > trailingQuarterStart);
+  const quarterlyDividend = trailingQuarterPayouts.length
+    ? trailingQuarterPayouts.reduce((total, event) => total + event.amount, 0) : null;
 
   let growthYears = 0;
   for (let index = years.length - 1; index > 0; index -= 1) {
@@ -262,9 +222,7 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
     annualDividend,
     quarterlyDividend,
     dividendYield: annualDividend && currentPrice ? (annualDividend / currentPrice) * 100 : null,
-    frequency,
-    trailingPayoutCount: trailingPayouts.length,
-    requiredPayoutCount: payoutsPerYear,
+    trailingPayoutCount: trailingYearPayouts.length,
     growthYears,
     growthCagr,
     nextExDate,
@@ -333,9 +291,7 @@ export async function recalculateStoredDividendMetrics(environment, ticker) {
   return {
     ticker,
     status: calculated.dividendYield === null ? 'partial' : 'updated',
-    frequency: calculated.frequency,
-    receivedPayouts: calculated.trailingPayoutCount,
-    requiredPayouts: calculated.requiredPayoutCount
+    receivedPayouts: calculated.trailingPayoutCount
   };
 }
 
@@ -433,52 +389,6 @@ async function syncEarningsSchedule(environment, ticker) {
       is_confirmed=excluded.is_confirmed, source='FMP', last_checked_at=CURRENT_TIMESTAMP,
       last_error=NULL, updated_at=CURRENT_TIMESTAMP`
   ).bind(ticker, scheduledEvent?.date || null, scheduledEvent ? 1 : 0).run();
-}
-
-async function getNextUsTradingDate(environment, isoDate) {
-  const cursor = new Date(`${isoDate}T00:00:00Z`);
-  cursor.setUTCDate(cursor.getUTCDate() + 1);
-  for (let attempts = 0; attempts < 10; attempts += 1) {
-    const candidate = cursor.toISOString().slice(0, 10);
-    const day = cursor.getUTCDay();
-    const holiday = await environment.DB.prepare(`SELECT 1 FROM market_holidays
-      WHERE market = 'NYSE' AND holiday_date = ? AND is_full_close = 1`).bind(candidate).first();
-    if (day !== 0 && day !== 6 && !holiday) return candidate;
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
-  return null;
-}
-
-async function shouldRefreshFinancialsAfterEarnings(environment, ticker) {
-  const schedule = await environment.DB.prepare(`SELECT next_earnings_date AS nextEarningsDate,
-    last_checked_at AS lastCheckedAt, last_financial_refresh_at AS lastFinancialRefreshAt
-    FROM earnings_schedule WHERE ticker = ?`).bind(ticker).first();
-  const today = new Date().toISOString().slice(0, 10);
-  const scheduleIsStale = !schedule?.lastCheckedAt || isStale(schedule.lastCheckedAt, 24 * 60);
-
-  if (scheduleIsStale) {
-    try {
-      await syncEarningsSchedule(environment, ticker);
-    } catch (error) {
-      await environment.DB.prepare(`INSERT INTO earnings_schedule (ticker, source, last_checked_at, last_error, updated_at)
-        VALUES (?, 'FMP', CURRENT_TIMESTAMP, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(ticker) DO UPDATE SET last_checked_at=CURRENT_TIMESTAMP, last_error=excluded.last_error, updated_at=CURRENT_TIMESTAMP`
-      ).bind(ticker, String(error).slice(0, 500)).run();
-    }
-  }
-
-  const refreshedSchedule = await environment.DB.prepare(`SELECT next_earnings_date AS nextEarningsDate,
-    last_financial_refresh_at AS lastFinancialRefreshAt FROM earnings_schedule WHERE ticker = ?`).bind(ticker).first();
-  if (refreshedSchedule?.nextEarningsDate) {
-    const refreshDate = await getNextUsTradingDate(environment, refreshedSchedule.nextEarningsDate);
-    if (refreshDate && today >= refreshDate && String(refreshedSchedule.lastFinancialRefreshAt || '') < refreshDate) {
-      return true;
-    }
-    return false;
-  }
-
-  // 발표일이 없는 종목·ETF는 새 공시를 놓치지 않도록 기존 주 1회 확인을 안전망으로 둔다.
-  return isStale(refreshedSchedule?.lastFinancialRefreshAt, 7 * 24 * 60);
 }
 
 async function markFinancialsRefreshed(environment, ticker) {

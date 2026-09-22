@@ -167,7 +167,7 @@
 
         <div class="investment-list-section">
           <div class="overview-list-toolbar">
-            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">배당일·D-day는 확정 여부에 따라 색상으로 구분</span>
+            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">배당일·D-day는 확정 여부와 주말 제외 기준으로 표시</span>
             </div>
           </div>
           <div class="overview-stock-list" id="dividendCompanyList"></div>
@@ -228,15 +228,6 @@
                   <div class="tv-study-tags" aria-label="적용 지표"><span>MA20</span><span>Williams %R(14)</span></div>
                 </div>
                 <div class="detail-chart-canvas" id="detailPriceChart" aria-label="TradingView 주가 차트"></div>
-                <div class="tv-range-bar" role="group" aria-label="차트 기간" data-tradingview-controls>
-                  <button type="button" class="tv-range-btn" data-chart-range="1D">오늘</button>
-                  <button type="button" class="tv-range-btn" data-chart-range="5D">1주</button>
-                  <button type="button" class="tv-range-btn" data-chart-range="1M">1개월</button>
-                  <button type="button" class="tv-range-btn active" data-chart-range="3M">3개월</button>
-                  <button type="button" class="tv-range-btn" data-chart-range="6M">6개월</button>
-                  <button type="button" class="tv-range-btn" data-chart-range="12M">1년</button>
-                  <button type="button" class="tv-range-btn" data-chart-range="60M">5년</button>
-                </div>
               </section>
               <div class="detail-chart-empty-state hidden" id="detailChartEmptyState">
                 <i class="fa-solid fa-clock-rotate-left"></i><strong>차트 데이터를 수집하고 있습니다.</strong><span>저장된 일봉 데이터가 쌓이면
@@ -351,15 +342,6 @@
           <div class="tv-study-tags" aria-label="적용 지표"><span>MA20</span><span>Williams %R(14)</span></div>
         </div>
         <div class="chart-canvas-container" id="tvChartContainer" aria-label="TradingView 실시간 차트"></div>
-        <div class="tv-range-bar main-chart-range-bar" role="group" aria-label="차트 기간" data-tradingview-controls>
-          <button type="button" class="tv-range-btn" data-chart-range="1D">오늘</button>
-          <button type="button" class="tv-range-btn" data-chart-range="5D">1주</button>
-          <button type="button" class="tv-range-btn" data-chart-range="1M">1개월</button>
-          <button type="button" class="tv-range-btn active" data-chart-range="3M">3개월</button>
-          <button type="button" class="tv-range-btn" data-chart-range="6M">6개월</button>
-          <button type="button" class="tv-range-btn" data-chart-range="12M">1년</button>
-          <button type="button" class="tv-range-btn" data-chart-range="60M">5년</button>
-        </div>
         <div class="chart-ohlc-bar" id="chartOhlcBar" aria-label="FMP에 저장된 최신 일봉">
           <span class="chart-data-source">FMP 최신 저장 일봉</span>
           <span>시가(O): <strong id="ohlcOpen">-</strong></span>

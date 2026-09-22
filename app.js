@@ -45,12 +45,15 @@ const state = {
   usdKrwRate: null,
   isKrwView: false,
   selectedTicker: null,
-  // TradingView는 iframe 내부 UI를 앱 CSS로 바꿀 수 없어, 시간·기간 선택 상태를 앱에서 관리한다.
-  chartSettings: { interval: 'D', range: '3M' },
+  // 버튼명과 실제 캔들 단위를 일치시킨다. iframe 내부 UI를 앱 CSS로 바꿀 수 없으므로
+  // 선택한 버튼(chartPreset)과 위젯 설정(chartSettings)을 함께 보관해야 활성 표시가 어긋나지 않는다.
+  chartPreset: 'D',
+  chartSettings: { interval: 'D' },
   dashboardEventsBound: false,
   // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
   apiPin: '',
   watchlistSyncStarted: false,
+  dividendYieldRefreshStarted: false,
   
   // 관심종목은 D1 동기화가 기준이며, 로컬에는 오프라인용 목록 설정만 남긴다.
   watchlist: readLocalArray('stock_app_watchlist').map(normalizeLocalStock),
@@ -151,8 +154,11 @@ async function synchronizeWatchlistWithCloudflare() {
       state.selectedTicker = state.watchlist[0]?.ticker || null;
       saveWatchlist(false);
       renderWatchlist();
+      renderCompanyOverview();
       renderPortfolio();
       setStoredDataConnectionState(true);
+      // 서버 집계가 이전 계산식으로 남아 있어도, 배당 종목만 백그라운드에서 D1 이벤트를 읽어 화면값을 보정한다.
+      void refreshDividendYieldSummaries();
     } else if (state.watchlist.length > 0) {
       // 첫 동기화만 현재 브라우저의 기존 목록을 D1로 옮긴다.
       const uploaded = await uploadWatchlistToCloudflare();
@@ -165,7 +171,9 @@ async function synchronizeWatchlistWithCloudflare() {
         state.selectedTicker = state.watchlist[0]?.ticker || null;
         saveWatchlist(false);
         renderWatchlist();
+        renderCompanyOverview();
         renderPortfolio();
+        void refreshDividendYieldSummaries();
       }
       setStoredDataConnectionState(true, '관심종목 저장 완료 · 상세 데이터 수집 대기');
     } else {
@@ -204,6 +212,7 @@ function applyStoredCompanyToStock(stock, company) {
       ? ((currentPrice - previousClose) / previousClose) * 100
       : stock.changePct);
   // 재무·배당·일봉 원본은 localStorage에 저장하지 않고, 현재 세션에서만 사용한다.
+  applyTrailingDividendMetrics(company);
   stock.marketData = company;
 }
 
@@ -243,6 +252,71 @@ async function updateStockProfileFromCloudflare(ticker) {
   } catch (error) {
     // 네트워크 실패는 화면 사용을 막지 않는다. 다음 동기화 또는 새로고침에서 다시 시도한다.
     console.warn('Cloudflare 회사 프로필을 불러오지 못했습니다.', error);
+  }
+}
+
+/** 지급일(없으면 배당락일) 기준 최근 12개월 실제 지급분만 합산해 수익률을 만든다. */
+function calculateTrailingDividendMetrics(events, currentPrice) {
+  const today = new Date().toISOString().slice(0, 10);
+  const yearStart = addCalendarMonths(today, -12);
+  const quarterStart = addCalendarMonths(today, -3);
+  const payouts = (events || []).map(event => {
+    const paymentDate = normalizeIsoDate(event.paymentDate) || normalizeIsoDate(event.exDividendDate);
+    return { date: paymentDate, amount: toNullableNumber(event.amount) };
+  }).filter(event => event.date && event.amount !== null && event.date <= today);
+  const yearPayouts = payouts.filter(event => event.date > yearStart);
+  if (!yearPayouts.length) return null;
+
+  const annualDividend = yearPayouts.reduce((total, event) => total + event.amount, 0);
+  const quarterlyDividend = payouts.filter(event => event.date > quarterStart)
+    .reduce((total, event) => total + event.amount, 0);
+  const price = toNullableNumber(currentPrice);
+  return {
+    annualDividend,
+    quarterlyDividend: quarterlyDividend || null,
+    dividendYield: price && price > 0 ? (annualDividend / price) * 100 : null,
+    trailingPayoutCount: yearPayouts.length
+  };
+}
+
+/**
+ * 구 Worker가 예전 집계값을 반환해도, 상세 응답에 포함된 D1 배당 이벤트로 현재 세션의 표시값을 보정한다.
+ * 이 읽기 작업은 FMP를 호출하지 않으며, Worker 배포가 완료된 뒤에는 서버 집계값과 동일한 결과를 낸다.
+ */
+function applyTrailingDividendMetrics(company) {
+  if (!company || !Array.isArray(company.dividends) || !company.dividends.length) return false;
+  const calculated = calculateTrailingDividendMetrics(company.dividends, company.currentPrice);
+  if (!calculated) return false;
+  company.dividendMetrics = {
+    ...(company.dividendMetrics || {}),
+    ...calculated,
+    calculationBasis: '최근 실제 지급 12개월 합계 ÷ 저장 현재가'
+  };
+  return true;
+}
+
+/** 종합 목록은 빠른 요약을 먼저 그린 뒤, 배당 종목만 별도 읽기로 수익률을 정확히 보정한다. */
+async function refreshDividendYieldSummaries() {
+  if (state.dividendYieldRefreshStarted) return;
+  state.dividendYieldRefreshStarted = true;
+  const dividendStocks = state.watchlist.filter(stock => getInvestmentStrategy(stock) === 'dividend');
+  try {
+    const companies = await Promise.all(dividendStocks.map(stock => fetchCompanyFromCloudflare(stock.ticker)));
+    let updated = false;
+    for (const company of companies) {
+      const stock = state.watchlist.find(item => item.ticker === company?.ticker);
+      if (!stock || !company || !applyTrailingDividendMetrics(company)) continue;
+      applyStoredCompanyToStock(stock, company);
+      updated = true;
+    }
+    if (updated) {
+      renderWatchlist();
+      renderCompanyOverview();
+      updateCompanySummary();
+    }
+  } catch (error) {
+    // 집계 보정 실패는 기존 D1 요약 화면을 유지하며, 종목 상세를 열면 다시 시도할 수 있다.
+    console.warn('저장 배당 이벤트 재계산에 실패했습니다.', error);
   }
 }
 
@@ -415,14 +489,9 @@ function isDetailChartTabActive() {
 
 /** 앱의 한글 조작 막대가 가리키는 설정을 모든 차트 위치에 동일하게 표시한다. */
 function syncTradingViewControlState() {
-  const { interval, range } = state.chartSettings;
+  const { interval } = state.chartSettings;
   document.querySelectorAll('[data-chart-interval]').forEach(button => {
-    const isActive = button.dataset.chartInterval === interval;
-    button.classList.toggle('active', isActive);
-    button.setAttribute('aria-pressed', String(isActive));
-  });
-  document.querySelectorAll('[data-chart-range]').forEach(button => {
-    const isActive = button.dataset.chartRange === range;
+    const isActive = button.dataset.chartInterval === state.chartPreset;
     button.classList.toggle('active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
@@ -432,27 +501,39 @@ function syncTradingViewControlState() {
   if (ohlcBar) ohlcBar.classList.toggle('hidden', interval !== 'D');
 }
 
+/**
+ * TradingView 무료 위젯은 모든 분봉/기간 조합을 제공하지 않는다.
+ * 위젯 모듈이 정한 호환 조합만 적용해, 버튼 표시와 iframe 내부 캔들 단위가 어긋나지 않게 한다.
+ */
+function applyTradingViewChartSettings(nextSettings, preset = state.chartPreset) {
+  const normalizeSettings = window.TradingViewCharts?.normalizeSettings;
+  const normalizedSettings = normalizeSettings
+    ? normalizeSettings(nextSettings)
+    : nextSettings;
+
+  if (state.chartSettings.interval === normalizedSettings.interval
+    && state.chartPreset === preset) return;
+
+  state.chartSettings = normalizedSettings;
+  state.chartPreset = preset;
+  syncTradingViewControlState();
+  renderActiveTradingViewChart();
+}
+
 /** 조작 버튼은 최초 한 번만 연결하고, 설정 변경 시 보이는 iframe만 다시 만든다. */
 function setupTradingViewControls() {
   document.querySelectorAll('[data-chart-interval]').forEach(button => {
     button.addEventListener('click', () => {
       const nextInterval = button.dataset.chartInterval;
-      if (!nextInterval || state.chartSettings.interval === nextInterval) return;
-      state.chartSettings.interval = nextInterval;
-      syncTradingViewControlState();
-      renderActiveTradingViewChart();
+      if (!nextInterval) return;
+
+      // 버튼명과 같은 실제 봉 단위만 위젯에 전달한다.
+      const nextSettings = window.TradingViewCharts?.resolveForInterval?.(nextInterval)
+        || { interval: nextInterval };
+      applyTradingViewChartSettings(nextSettings, nextInterval);
     });
   });
 
-  document.querySelectorAll('[data-chart-range]').forEach(button => {
-    button.addEventListener('click', () => {
-      const nextRange = button.dataset.chartRange;
-      if (!nextRange || state.chartSettings.range === nextRange) return;
-      state.chartSettings.range = nextRange;
-      syncTradingViewControlState();
-      renderActiveTradingViewChart();
-    });
-  });
   syncTradingViewControlState();
 }
 
@@ -784,7 +865,7 @@ function renderOverviewStockRows(container, stocks, emptyMessage, showDividendDe
       <span class="overview-signal-cell"><span class="overview-signal ${signal.className}">${signal.label}</span><span class="overview-value-label">저장 일봉 기준</span></span>
       ${shouldShowDividendDetails ? `
         <span class="overview-next-dividend-cell ${dividend.status}"><strong>${dividend.nextDate}</strong><span>${dividend.statusLabel}</span></span>
-        <span class="overview-dividend-day-cell ${dividend.status}"><strong>${dividend.daysLeft}</strong><span>미국 영업일 기준</span></span>
+        <span class="overview-dividend-day-cell ${dividend.status}"><strong>${dividend.daysLeft}</strong><span>주말 제외 기준</span></span>
         <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>최근 지급 1년 배당수익률</span></span>
       ` : ''}
     `;
@@ -810,40 +891,43 @@ function getWilliamsSignal(williamsR) {
   return { label: '관찰', className: 'hold' };
 }
 
-/** 배당 화면용으로 D1 집계값만 변환한다. 영업일 D-day가 저장되지 않았으면 추정하지 않는다. */
+/** 배당 화면은 D1 집계값 또는 저장 이벤트로 보정한 현재 세션 값을 변환한다. */
 function getStoredDividendInfo(stock) {
   const dividend = stock.marketData?.dividendMetrics;
   const isConfirmed = dividend?.nextDateStatus === 'confirmed';
   const isEstimated = dividend?.nextDateStatus === 'estimated';
+  const nextDate = normalizeIsoDate(dividend?.nextExDividendDate);
+  const remainingWeekdays = nextDate
+    ? calculateWeekdayDays(new Date().toISOString().slice(0, 10), nextDate)
+    : null;
   return {
     yieldRate: formatPercent(dividend?.dividendYield),
-    nextDate: formatMonthDay(dividend?.nextExDividendDate),
-    daysLeft: '계산 대기',
+    nextDate: formatMonthDay(nextDate),
+    daysLeft: remainingWeekdays === null ? '—' : `D-${remainingWeekdays}`,
     status: isConfirmed ? 'confirmed' : isEstimated ? 'estimated' : 'unknown',
     statusLabel: isConfirmed ? '확정일' : isEstimated ? '예정일' : '다음 배당일 미정'
   };
 }
 
 /**
- * 미국 거래소 휴장일 목록을 받아 다음 배당일까지의 영업일 수를 계산합니다.
- * 주말만 제외하면 미국 공휴일·임시 휴장을 놓치므로, 실제 API 연동 시에는 거래소 캘린더 값을 반드시 전달해야 합니다.
+ * 다음 배당 기준일까지 토·일요일만 제외한 남은 날짜를 계산한다.
+ * 외부 거래소 달력 없이 계산하므로, 데이터 수집 상태와 무관하게 즉시 표시할 수 있다.
  */
-function calculateUsTradingDays(fromDate, targetDate, marketClosedDates = []) {
-  const start = new Date(fromDate);
-  const end = new Date(targetDate);
-  const closedDates = new Set(marketClosedDates);
-  let businessDays = 0;
+function calculateWeekdayDays(fromDate, targetDate) {
+  const start = normalizeIsoDate(fromDate);
+  const end = normalizeIsoDate(targetDate);
+  if (!start || !end || end < start) return null;
 
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return null;
-
-  const cursor = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
-  while (cursor <= end) {
-    const day = cursor.getDay();
-    const dateKey = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
-    if (day !== 0 && day !== 6 && !closedDates.has(dateKey)) businessDays += 1;
-    cursor.setDate(cursor.getDate() + 1);
+  const cursor = new Date(`${start}T00:00:00Z`);
+  const target = new Date(`${end}T00:00:00Z`);
+  let weekdays = 0;
+  cursor.setUTCDate(cursor.getUTCDate() + 1);
+  while (cursor <= target) {
+    const day = cursor.getUTCDay();
+    if (day !== 0 && day !== 6) weekdays += 1;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
-  return businessDays;
+  return weekdays;
 }
 
 /** 저장된 종가로만 스파크라인을 그린다. 데이터가 부족하면 빈 상태를 보여 준다. */
@@ -955,7 +1039,7 @@ function median(values) {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-/** 저장된 FMP 주기명이 우선이며, 없을 때만 실제 배당 기준일 간격으로 주기를 판별한다. */
+/** 다음 배당일을 추정할 때만 저장된 이벤트 간격을 사용한다. 수익률 계산에는 사용하지 않는다. */
 function detectDividendFrequency(events) {
   const explicitFrequency = events.map(event => String(event.frequency || '').toLowerCase()).find(Boolean) || '';
   if (explicitFrequency.includes('month')) return { key: 'monthly', label: '월배당', basis: '저장된 배당 주기' };
@@ -997,7 +1081,7 @@ function estimateNextDividendDate(events, frequency, today) {
   return candidates[0] ? { date: candidates[0], basis: '전년 동일 배당 시점' } : null;
 }
 
-/** 상세 1-3에 표시할 확정·예상 날짜와 배당 주기를 모두 저장된 이벤트만으로 만든다. */
+/** 상세 1-3에 표시할 확정·예상 날짜를 저장된 이벤트만으로 만든다. */
 function getDividendSchedule(company) {
   const events = (company.dividends || []).filter(event => normalizeIsoDate(event.exDividendDate));
   const frequency = detectDividendFrequency(events);
@@ -1055,14 +1139,9 @@ function renderCompanyDetailData(company) {
 
   const dividend = company.dividendMetrics;
   const schedule = getDividendSchedule(company);
-  const perPayoutLabel = schedule.frequency.key === 'monthly' ? '최근 월 배당금'
-    : schedule.frequency.key === 'quarterly' ? '최근 분기 배당금'
-      : schedule.frequency.key === 'semiannual' ? '최근 반기 배당금'
-        : schedule.frequency.key === 'annual' ? '최근 연 배당금' : '최근 1회 배당금';
   const dividendEntries = [
-    ['배당 주기', schedule.frequency.label, schedule.frequency.basis],
     ['최근 지급 1년 배당수익률', dividend?.dividendYield, '%'], ['최근 지급 1년 배당금', dividend?.annualDividend, '$'],
-    [perPayoutLabel, schedule.latestPayout?.amount, '$'], ['최근 3개월 배당금', dividend?.quarterlyDividend, '$'],
+    ['마지막 실제 지급 배당금', schedule.latestPayout?.amount, '$'], ['최근 지급 3개월 배당금', dividend?.quarterlyDividend, '$'],
     ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'], ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'],
     ['다음 배당 기준일', schedule.nextDate || '미정', schedule.estimateBasis, schedule.nextStatus],
     ['날짜 상태', schedule.statusLabel, schedule.nextStatus === 'confirmed' ? '저장된 확정 일정' : schedule.estimateBasis, schedule.nextStatus]
@@ -1078,7 +1157,7 @@ function renderCompanyDetailData(company) {
       ? '저장된 과거 배당 이력 예상값'
       : '저장된 이벤트 부족으로 계산하지 않음';
   document.getElementById('detailDividendSource').textContent = dividend || company.dividends?.length
-    ? `계산 시각 ${dividend?.calculatedAt || '알 수 없음'} · ${dividend?.source || '저장 배당 이벤트'} 기반 · ${schedule.frequency.label} · 다음 날짜는 ${nextDateDescription}입니다.`
+    ? `계산 시각 ${dividend?.calculatedAt || '알 수 없음'} · ${dividend?.source || '저장 배당 이벤트'} 기반 · 수익률은 최근 실제 지급 1년 합계와 저장 현재가로 계산합니다. 다음 날짜는 ${nextDateDescription}입니다.`
     : '배당 이력이 아직 저장되지 않았습니다.';
 }
 
