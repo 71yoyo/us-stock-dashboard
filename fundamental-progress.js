@@ -55,34 +55,24 @@
       details.annualCount != null ? `연간 ${details.annualCount}개` : '',
       details.quarterlyCount != null ? `분기 ${details.quarterlyCount}개` : '',
       details.eventCount != null ? `이벤트 ${details.eventCount}개` : '',
-      job.error || details.note || ''
+      // 화면을 종목별 한 줄로 유지하기 위해 일반 안내문은 생략하고, 재시도 원인만 표시한다.
+      job.error || ''
     ].filter(Boolean).join(' · ');
     cell.appendChild(createStatusBadge(job.status));
     appendDetail(cell, range || '최초 수집 대기');
     return cell;
   }
 
-  function formatPrice(value) {
-    return Number.isFinite(Number(value))
-      ? `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : '현재가 미저장';
-  }
-
   function createMarketCell(stock) {
     const cell = document.createElement('td');
     cell.className = 'fundamental-data-cell fundamental-market-cell';
-    const price = stock.price || {};
     const candles = stock.candles || {};
-    cell.appendChild(createStatusBadge(stock.marketStatus || 'pending'));
-
-    const change = Number.isFinite(Number(price.changePercent))
-      ? ` · ${Number(price.changePercent) >= 0 ? '+' : ''}${Number(price.changePercent).toFixed(2)}%`
-      : '';
-    appendDetail(cell, `현재가 ${formatPrice(price.currentPrice)}${change}`, 'fundamental-price-value');
+    // 현재가는 목록·포트폴리오에만 표시한다. 이 표는 긴 저장 상태를 압축하는 용도다.
+    cell.appendChild(createStatusBadge(candles.status || 'pending'));
     appendDetail(cell, `3개월 일봉 ${Number(candles.count || 0)}개`);
-    appendDetail(cell, `시세 ${formatDateTime(price.updatedAt)} · 일봉 ${formatDateTime(candles.updatedAt)}`, 'fundamental-cell-time');
-    if (price.status === 'error' || candles.status === 'error') {
-      appendDetail(cell, price.error || candles.error || '자동 재시도 대기', 'fundamental-cell-error');
+    appendDetail(cell, `갱신 ${formatDateTime(candles.updatedAt)}`, 'fundamental-cell-time');
+    if (candles.status === 'error') {
+      appendDetail(cell, candles.error || '자동 재시도 대기', 'fundamental-cell-error');
     }
     return cell;
   }
@@ -118,15 +108,14 @@
 
   function render(status) {
     const summary = status.summary || {};
-    const categories = ['price', 'candles', 'profile', 'financials', 'dividends'];
+    const categories = ['candles', 'profile', 'financials', 'dividends'];
     const processed = categories.reduce((sum, key) => sum + getSummary(summary, key).processed, 0);
     const total = categories.reduce((sum, key) => sum + getSummary(summary, key).total, 0);
-    const price = getSummary(summary, 'price');
     const candles = getSummary(summary, 'candles');
     const profile = getSummary(summary, 'profile');
     const financials = getSummary(summary, 'financials');
     const dividends = getSummary(summary, 'dividends');
-    const text = `저장 확인 ${processed}/${total} · 현재가 ${price.stored}/${price.total} · 3개월 일봉 ${candles.stored}/${candles.total} · 회사 ${profile.stored}/${profile.total} · 재무 ${financials.stored}/${financials.total} · 배당 ${dividends.stored}/${dividends.total}`;
+    const text = `저장 확인 ${processed}/${total} · 3개월 일봉 ${candles.stored}/${candles.total} · 회사 ${profile.stored}/${profile.total} · 재무 ${financials.stored}/${financials.total} · 배당 ${dividends.stored}/${dividends.total}`;
     document.getElementById('fundamentalSummary').textContent = `${text} · 자세한 내용: 5-3 메뉴`;
     message.textContent = running ? `${text} — 회사·재무·배당 수집 중` : text;
     const progress = document.getElementById('fundamentalProgress');

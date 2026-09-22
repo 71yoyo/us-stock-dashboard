@@ -1407,7 +1407,9 @@ body.modal-open {
 }
 
 .settings-content {
-  max-width: 680px;
+  /* 5-3 저장 현황은 가로 비교가 핵심이므로 설정 카드의 기존 좁은 폭 제한을 적용하지 않는다. */
+  max-width: none;
+  width: 100%;
 }
 
 .settings-content h4 {
