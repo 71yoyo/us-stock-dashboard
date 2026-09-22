@@ -887,7 +887,13 @@ function renderCompanyDetailData(company) {
   const dividendContainer = document.getElementById('detailDividendMetrics');
   if (!financialContainer || !dividendContainer) return;
 
-  const financial = (company.financials || []).find(item => item.periodType === 'quarterly') || company.financials?.[0];
+  const quarterlyFinancials = (company.financials || []).filter(item => item.periodType === 'quarterly');
+  const completenessScore = item => [item?.revenue, item?.operatingIncome, item?.netIncome, item?.eps, item?.freeCashFlow]
+    .filter(Number.isFinite).length;
+  // 최신 행이 EPS 하나뿐인 공시라면, 바로 앞의 더 완전한 분기 데이터를 우선 보여준다.
+  const financial = quarterlyFinancials.find(item => completenessScore(item) >= 3)
+    || quarterlyFinancials[0]
+    || company.financials?.[0];
   const financialEntries = [
     ['매출', financial?.revenue, '$'], ['영업이익', financial?.operatingIncome, '$'],
     ['순이익', financial?.netIncome, '$'], ['EPS', financial?.eps, '$'],
@@ -911,7 +917,7 @@ function renderCompanyDetailData(company) {
   dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix]) =>
     `<div class="company-metric"><span>${label}</span><strong>${typeof value === 'string' ? value : formatMetricValue(value, suffix)}</strong></div>`).join('');
   document.getElementById('detailDividendSource').textContent = dividend
-    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · FMP 배당 이력 기반`
+    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · ${dividend.source || '저장 데이터'} 기반`
     : '배당 이력이 아직 저장되지 않았습니다.';
 }
 

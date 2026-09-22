@@ -174,7 +174,13 @@ async function getCompany(environment, ticker) {
   return {
     ...company,
     dividends: dividends.results,
-    dividendMetrics: dividendMetrics.results[0] || null,
+    dividendMetrics: dividendMetrics.results[0]
+      ? {
+          ...dividendMetrics.results[0],
+          // 이벤트가 있으면 FMP 원본, 집계만 있으면 SEC 공식 공시에서 계산한 값이다.
+          source: dividends.results.length ? 'FMP' : 'SEC EDGAR'
+        }
+      : null,
     financials: financials.results,
     candles: candles.results.reverse()
   };
