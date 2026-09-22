@@ -81,11 +81,11 @@ async function listWatchlist(environment) {
   const result = await environment.DB.prepare(`
     SELECT user_watchlist.ticker, user_watchlist.strategy, user_watchlist.display_name AS name,
       user_watchlist.sector, companies.exchange,
-      -- 목록의 임시 저장값보다 D1에 최신 저장된 현재가를 우선한다.
-      -- 이 덕분에 다른 브라우저에서도 마지막으로 저장된 시세가 즉시 보인다.
-      COALESCE(price_quotes.current_price, user_watchlist.saved_price) AS price,
-      COALESCE(price_quotes.change_amount, user_watchlist.saved_change) AS change,
-      COALESCE(price_quotes.change_percent, user_watchlist.saved_change_percent) AS changePct
+      -- 시세가 아직 없을 때 과거 브라우저의 예시값을 되살리지 않는다.
+      -- D1에 실제로 저장된 현재가만 모든 기기의 공통 기준으로 반환한다.
+      price_quotes.current_price AS price,
+      price_quotes.change_amount AS change,
+      price_quotes.change_percent AS changePct
     FROM user_watchlist
     LEFT JOIN companies ON companies.ticker = user_watchlist.ticker
     LEFT JOIN price_quotes ON price_quotes.ticker = user_watchlist.ticker

@@ -3,12 +3,48 @@
 // ========================================================
 
 // 1. 상태(State) 관리
+// 과거 화면에 남아 있던 고정 예시 시세는 D1 값이 도착하기 전에도 표시하지 않는다.
+const legacyDemoQuotes = Object.freeze({ NVDA: 124.58, AAPL: 228.20, TSLA: 243.90, MSFT: 432.10, AMZN: 186.40 });
+
+function toNullableNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function readLocalArray(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch {
+    // 손상된 브라우저 저장값은 금융 데이터를 만들어 내지 않고 빈 목록으로 안전하게 시작한다.
+    return [];
+  }
+}
+
+function normalizeLocalStock(rawStock) {
+  const stock = { ...rawStock };
+  const legacyPrice = legacyDemoQuotes[stock.ticker];
+  // 초기 샘플과 정확히 일치하는 값만 제거해, 사용자가 입력한 실제 값은 건드리지 않는다.
+  if (legacyPrice !== undefined && Number(stock.price) === legacyPrice) {
+    stock.price = null;
+    stock.change = null;
+    stock.changePct = null;
+  } else {
+    stock.price = toNullableNumber(stock.price);
+    stock.change = toNullableNumber(stock.change);
+    stock.changePct = toNullableNumber(stock.changePct);
+  }
+  return stock;
+}
+
 const state = {
   currentPin: (localStorage.getItem('stock_app_pin') === '1234' ? '5260' : (localStorage.getItem('stock_app_pin') || '5260')),
   enteredPin: '',
-  usdKrwRate: 1342.50,
+  // 환율 API가 아직 연결되지 않았으므로 임의 환산값을 사용하지 않는다.
+  usdKrwRate: null,
   isKrwView: false,
-  selectedTicker: 'NVDA',
+  selectedTicker: null,
   // TradingView는 iframe 내부 UI를 앱 CSS로 바꿀 수 없어, 시간·기간 선택 상태를 앱에서 관리한다.
   chartSettings: { interval: 'D', range: '3M' },
   dashboardEventsBound: false,
@@ -16,21 +52,11 @@ const state = {
   apiPin: '',
   watchlistSyncStarted: false,
   
-  // 기본 관심종목
-  watchlist: JSON.parse(localStorage.getItem('stock_app_watchlist')) || [
-    { ticker: 'NVDA', name: 'NVIDIA Corporation', price: 124.58, change: 4.25, changePct: 3.53 },
-    { ticker: 'AAPL', name: 'Apple Inc.', price: 228.20, change: 1.15, changePct: 0.51 },
-    { ticker: 'TSLA', name: 'Tesla, Inc.', price: 243.90, change: -3.80, changePct: -1.53 },
-    { ticker: 'MSFT', name: 'Microsoft Corp.', price: 432.10, change: 2.40, changePct: 0.56 },
-    { ticker: 'AMZN', name: 'Amazon.com Inc.', price: 186.40, change: -0.90, changePct: -0.48 }
-  ],
+  // 관심종목은 D1 동기화가 기준이며, 로컬에는 오프라인용 목록 설정만 남긴다.
+  watchlist: readLocalArray('stock_app_watchlist').map(normalizeLocalStock),
 
-  // 내 보유 포트폴리오
-  holdings: JSON.parse(localStorage.getItem('stock_app_holdings')) || [
-    { id: '1', ticker: 'NVDA', qty: 25, buyPrice: 112.50 },
-    { id: '2', ticker: 'AAPL', qty: 15, buyPrice: 215.00 },
-    { id: '3', ticker: 'TSLA', qty: 10, buyPrice: 230.00 }
-  ]
+  // 보유 수량과 매수 단가는 예시를 만들지 않는다. 사용자가 직접 저장한 값만 사용한다.
+  holdings: readLocalArray('stock_app_holdings')
 };
 
 /**
@@ -77,9 +103,9 @@ function normalizeRemoteWatchlist(rawWatchlist) {
     sector: stock.sector || getLocalCompanyProfile(stock.ticker).sector,
     exchange: stock.exchange || '',
     strategy: stock.strategy === 'dividend' ? 'dividend' : 'price',
-    price: Number.isFinite(Number(stock.price)) ? Number(stock.price) : 0,
-    change: Number.isFinite(Number(stock.change)) ? Number(stock.change) : 0,
-    changePct: Number.isFinite(Number(stock.changePct)) ? Number(stock.changePct) : 0
+    price: toNullableNumber(stock.price),
+    change: toNullableNumber(stock.change),
+    changePct: toNullableNumber(stock.changePct)
   }));
 }
 
@@ -125,15 +151,55 @@ async function synchronizeWatchlistWithCloudflare() {
       saveWatchlist(false);
       renderWatchlist();
       renderPortfolio();
+      setStoredDataConnectionState(true);
+      // 종합 목록의 Williams %R·스파크라인·배당도 D1 원본을 써야 하므로 작은 묶음으로 채운다.
+      await hydrateStoredCompanies();
       if (state.selectedTicker) loadStockChart(state.selectedTicker);
     } else if (state.watchlist.length > 0) {
       // 첫 동기화만 현재 브라우저의 기존 목록을 D1로 옮긴다.
       await uploadWatchlistToCloudflare();
+      setStoredDataConnectionState(true, '관심종목 최초 저장 후 데이터 수집 대기');
+    } else {
+      setStoredDataConnectionState(true, '등록된 관심종목이 없습니다.');
     }
   } catch (error) {
     console.warn('Cloudflare 관심종목 동기화에 실패했습니다.', error);
+    setStoredDataConnectionState(false);
   }
   window.FundamentalProgress?.start();
+}
+
+function applyStoredCompanyToStock(stock, company) {
+  if (!stock || !company) return;
+  stock.name = company.name || stock.name || stock.ticker;
+  stock.sector = company.sector || stock.sector || '';
+  stock.exchange = company.exchange || stock.exchange || '';
+  stock.price = toNullableNumber(company.currentPrice) ?? stock.price;
+  stock.change = toNullableNumber(company.changeAmount) ?? stock.change;
+  stock.changePct = toNullableNumber(company.changePercent) ?? stock.changePct;
+  // 재무·배당·일봉 원본은 localStorage에 저장하지 않고, 현재 세션에서만 사용한다.
+  stock.marketData = company;
+}
+
+/** D1 읽기 요청은 외부 금융 API를 호출하지 않는다. 많은 종목에서도 브라우저 부담을 줄이기 위해 4개씩 읽는다. */
+async function hydrateStoredCompanies() {
+  const stocks = [...state.watchlist];
+  for (let index = 0; index < stocks.length; index += 4) {
+    const batch = stocks.slice(index, index + 4);
+    const companies = await Promise.all(batch.map(stock => fetchCompanyFromCloudflare(stock.ticker)));
+    companies.forEach((company, companyIndex) => applyStoredCompanyToStock(batch[companyIndex], company));
+  }
+  saveWatchlist(false);
+  renderWatchlist();
+  renderPortfolio();
+  updateCompanySummary();
+}
+
+function setStoredDataConnectionState(isConnected, message = '') {
+  const text = document.getElementById('marketStatusText');
+  const indicator = document.querySelector('#marketBadge .status-indicator');
+  if (text) text.textContent = message || (isConnected ? 'D1 저장 데이터 연결됨' : '저장 데이터 연결 실패');
+  if (indicator) indicator.classList.toggle('live', isConnected);
 }
 
 async function updateStockProfileFromCloudflare(ticker) {
@@ -154,17 +220,9 @@ async function updateStockProfileFromCloudflare(ticker) {
       return;
     }
 
-    // API 값이 있을 때만 덮어써, 동기화 전 화면의 사용자 데이터가 사라지지 않게 한다.
-    stock.name = company.name || stock.name;
-    stock.sector = company.sector || stock.sector;
-    stock.exchange = company.exchange || stock.exchange || '';
-    stock.price = Number.isFinite(company.currentPrice) ? company.currentPrice : stock.price;
-    stock.change = Number.isFinite(company.changeAmount) ? company.changeAmount : stock.change;
-    stock.changePct = Number.isFinite(company.changePercent) ? company.changePercent : stock.changePct;
-    saveWatchlist();
+    applyStoredCompanyToStock(stock, company);
+    saveWatchlist(false);
     renderWatchlist();
-    // 대용량 금융 원본은 D1에만 두고 브라우저 localStorage에는 저장하지 않는다.
-    stock.marketData = company;
     if (ticker === state.selectedTicker) {
       renderCompanyDetailData(company);
       renderDetailCharts(company);
@@ -486,22 +544,16 @@ async function loadStockChart(ticker) {
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
   document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
-  const initialIsUp = stock.change >= 0;
   const initialChangeElement = document.getElementById('chartChange');
-  initialChangeElement.className = `price-change ${initialIsUp ? 'up' : 'down'}`;
-  initialChangeElement.textContent = `${initialIsUp ? '+' : ''}${stock.change.toFixed(2)} (${initialIsUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
+  initialChangeElement.className = `price-change ${getChangeDirectionClass(stock.change)}`;
+  initialChangeElement.textContent = formatPriceChange(stock.change, stock.changePct);
   renderActiveTradingViewChart(stock);
 
   const company = await fetchCompanyFromCloudflare(ticker);
   if (ticker !== state.selectedTicker || !company) return;
 
-  stock.name = company.name || stock.name;
-  stock.sector = company.sector || stock.sector;
-  stock.exchange = company.exchange || stock.exchange || '';
-  if (Number.isFinite(company.currentPrice)) stock.price = company.currentPrice;
-  if (Number.isFinite(company.changeAmount)) stock.change = company.changeAmount;
-  if (Number.isFinite(company.changePercent)) stock.changePct = company.changePercent;
-  stock.marketData = company;
+  applyStoredCompanyToStock(stock, company);
+  saveWatchlist(false);
   renderCompanyDetailData(company);
   renderDetailCharts(company);
   updateCompanySummary();
@@ -509,18 +561,17 @@ async function loadStockChart(ticker) {
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
   document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
-  const isUp = stock.change >= 0;
   const changeElem = document.getElementById('chartChange');
-  changeElem.className = `price-change ${isUp ? 'up' : 'down'}`;
-  changeElem.textContent = `${isUp ? '+' : ''}${stock.change.toFixed(2)} (${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
+  changeElem.className = `price-change ${getChangeDirectionClass(stock.change)}`;
+  changeElem.textContent = formatPriceChange(stock.change, stock.changePct);
 
   const candles = normalizeChartCandles(company);
   const latestCandle = candles.at(-1);
   const latestValues = {
-    ohlcOpen: latestCandle ? `$${latestCandle.open.toFixed(2)}` : '-',
-    ohlcHigh: latestCandle ? `$${latestCandle.high.toFixed(2)}` : '-',
-    ohlcLow: latestCandle ? `$${latestCandle.low.toFixed(2)}` : '-',
-    ohlcClose: latestCandle ? `$${latestCandle.close.toFixed(2)}` : '-',
+    ohlcOpen: latestCandle ? formatUsdValue(latestCandle.open) : '데이터 없음',
+    ohlcHigh: latestCandle ? formatUsdValue(latestCandle.high) : '데이터 없음',
+    ohlcLow: latestCandle ? formatUsdValue(latestCandle.low) : '데이터 없음',
+    ohlcClose: latestCandle ? formatUsdValue(latestCandle.close) : '데이터 없음',
     ohlcVol: latestCandle ? latestCandle.volume.toLocaleString() : '-'
   };
   Object.entries(latestValues).forEach(([id, value]) => {
@@ -553,7 +604,7 @@ function addNewStock(ticker, strategy = 'price') {
     return false;
   }
 
-  // 신규 종목 시세 생성 및 등록 (자동 정렬하지 않고 사용자가 추가한 순서 그대로 배열에 추가)
+  // 신규 종목은 임의 시세를 만들지 않는다. D1 수집이 끝날 때까지 저장 대기로 표시한다.
   const profile = getLocalCompanyProfile(ticker);
   const newStock = {
     ticker,
@@ -561,9 +612,9 @@ function addNewStock(ticker, strategy = 'price') {
     name: profile.name,
     sector: profile.sector,
     strategy,
-    price: 100.00 + Math.random() * 150,
-    change: (Math.random() - 0.4) * 6,
-    changePct: (Math.random() - 0.4) * 3.5
+    price: null,
+    change: null,
+    changePct: null
   };
 
   state.watchlist.push(newStock);
@@ -652,10 +703,7 @@ function reorderWatchlist(fromIndex, toIndex) {
 // 드래그 중인 인덱스 추적 변수
 let draggedItemIndex = null;
 
-/**
- * 1번 종합의 회사 목록과 요약 정보를 동기화합니다.
- * 재무·배당 값은 API 연결 전임을 명확히 표시해 예시 데이터를 실제 정보로 오해하지 않게 합니다.
- */
+/** 1번 종합은 D1에 저장된 일봉·배당 집계값만 사용한다. */
 function renderCompanyOverview() {
   const priorityList = document.getElementById('priorityCompanyList');
   const dividendList = document.getElementById('dividendCompanyList');
@@ -676,7 +724,7 @@ function renderCompanyOverview() {
   const dividendStocks = state.watchlist.filter(stock => getInvestmentStrategy(stock) === 'dividend');
   const priceStocks = state.watchlist.filter(stock => getInvestmentStrategy(stock) === 'price');
   const priorityStocks = [...state.watchlist]
-    .sort((first, second) => getExampleWilliamsR(first.ticker) - getExampleWilliamsR(second.ticker))
+    .sort((first, second) => (getStoredWilliams(first)?.value ?? Infinity) - (getStoredWilliams(second)?.value ?? Infinity))
     .slice(0, 3);
 
   renderOverviewStockRows(priorityList, priorityStocks, '오늘은 우선 확인할 종목이 없습니다.', 'auto');
@@ -703,22 +751,24 @@ function renderOverviewStockRows(container, stocks, emptyMessage, showDividendDe
     const shouldShowDividendDetails = showDividendDetails === 'auto'
       ? getInvestmentStrategy(stock) === 'dividend'
       : showDividendDetails;
-    const williams = getExampleWilliamsR(stock.ticker);
-    const signal = getWilliamsSignal(williams);
-    const dividend = getExampleDividendInfo(stock.ticker);
+    const williams = getStoredWilliams(stock);
+    const signal = williams ? getWilliamsSignal(williams.value) : { label: '일봉 저장 대기', className: 'pending' };
+    const dividend = getStoredDividendInfo(stock);
+    const priceDirection = getChangeDirectionClass(stock.change);
+    const sparkline = createStoredSparkline(stock);
     const item = document.createElement('button');
     item.type = 'button';
     item.className = `overview-stock-row ${shouldShowDividendDetails ? '' : 'price-stock-row'} ${stock.ticker === state.selectedTicker ? 'active' : ''}`;
     item.innerHTML = `
-      <span class="overview-company-cell"><strong>${stock.ticker}</strong><span title="${stock.name}">${stock.name}</span></span>
-      <span class="overview-price-cell"><strong>${formatCurrency(stock.price)}</strong><span class="${stock.change >= 0 ? 'up' : 'down'}">${stock.change >= 0 ? '+' : ''}${stock.changePct.toFixed(2)}%</span></span>
-      <svg class="overview-sparkline" viewBox="0 0 110 35" aria-label="${stock.ticker} 예시 주가 추이"><polyline points="${createExampleSparkline(stock.ticker)}"></polyline></svg>
-      <span class="overview-williams-cell"><span class="overview-williams-value">${williams.toFixed(1)}</span><span class="overview-value-label">Williams %R (14일)</span></span>
-      <span class="overview-signal-cell"><span class="overview-signal ${signal.className}">${signal.label}</span><span class="overview-value-label">투자 신호 · 예시</span></span>
+      <span class="overview-company-cell"><strong>${escapeHtml(stock.ticker)}</strong><span title="${escapeHtml(stock.name || stock.ticker)}">${escapeHtml(stock.name || '회사 정보 저장 대기')}</span></span>
+      <span class="overview-price-cell"><strong>${formatCurrency(stock.price)}</strong><span class="${priceDirection}">${formatPercent(stock.changePct)}</span></span>
+      ${sparkline || `<span class="overview-sparkline overview-pending-sparkline">일봉 저장 대기</span>`}
+      <span class="overview-williams-cell"><span class="overview-williams-value">${williams ? williams.value.toFixed(1) : '—'}</span><span class="overview-value-label">Williams %R (14일)</span></span>
+      <span class="overview-signal-cell"><span class="overview-signal ${signal.className}">${signal.label}</span><span class="overview-value-label">저장 일봉 기준</span></span>
       ${shouldShowDividendDetails ? `
         <span class="overview-next-dividend-cell ${dividend.status}"><strong>${dividend.nextDate}</strong><span>${dividend.statusLabel}</span></span>
         <span class="overview-dividend-day-cell ${dividend.status}"><strong>${dividend.daysLeft}</strong><span>미국 영업일 기준</span></span>
-        <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>배당수익률 · 예시</span></span>
+        <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>저장 배당수익률</span></span>
       ` : ''}
     `;
     item.addEventListener('click', () => {
@@ -732,10 +782,8 @@ function renderOverviewStockRows(container, stocks, emptyMessage, showDividendDe
   });
 }
 
-/** API 연동 전 목록 UI를 검증하기 위한 종목별 고정 예시 Williams %R 값입니다. */
-function getExampleWilliamsR(ticker) {
-  const seed = ticker.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return -((seed * 13) % 86 + 8);
+function getStoredWilliams(stock) {
+  return getWilliamsSummary(normalizeChartCandles(stock.marketData));
 }
 
 /** 실제 매수·매도 기준은 나중에 사용자 전략 설정과 API 데이터로 교체합니다. */
@@ -745,17 +793,17 @@ function getWilliamsSignal(williamsR) {
   return { label: '관찰', className: 'hold' };
 }
 
-/** 외부 배당 API가 연결되기 전까지 레이아웃 확인용으로만 쓰는 고정 예시입니다. */
-function getExampleDividendInfo(ticker) {
-  const seed = ticker.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const days = (seed % 75) + 7;
+/** 배당 화면용으로 D1 집계값만 변환한다. 영업일 D-day가 저장되지 않았으면 추정하지 않는다. */
+function getStoredDividendInfo(stock) {
+  const dividend = stock.marketData?.dividendMetrics;
+  const isConfirmed = dividend?.nextDateStatus === 'confirmed';
+  const isEstimated = dividend?.nextDateStatus === 'estimated';
   return {
-    yieldRate: `${((seed % 55) / 10 + 0.4).toFixed(2)}%`,
-    nextDate: '11/20 예시',
-    daysLeft: `D-${days}`,
-    // 실제 API 응답의 확정 여부에 따라 confirmed(녹색) 또는 estimated(주황색)를 사용합니다.
-    status: seed % 2 === 0 ? 'confirmed' : 'estimated',
-    statusLabel: seed % 2 === 0 ? '확정일 · 예시' : '예정일 · 예시'
+    yieldRate: formatPercent(dividend?.dividendYield),
+    nextDate: formatMonthDay(dividend?.nextExDividendDate),
+    daysLeft: '계산 대기',
+    status: isConfirmed ? 'confirmed' : isEstimated ? 'estimated' : 'unknown',
+    statusLabel: isConfirmed ? '확정일' : isEstimated ? '예정일' : '다음 배당일 미정'
   };
 }
 
@@ -781,23 +829,31 @@ function calculateUsTradingDays(fromDate, targetDate, marketClosedDates = []) {
   return businessDays;
 }
 
-/** 티커별로 항상 같은 모양을 만드는 예시 스파크라인입니다. */
-function createExampleSparkline(ticker) {
-  const seed = ticker.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const points = [];
-  for (let index = 0; index < 14; index += 1) {
-    const value = 18 + ((seed * (index + 3) + index * index * 9) % 17);
-    points.push(`${index * 8.45},${35 - value}`);
-  }
-  return points.join(' ');
+/** 저장된 종가로만 스파크라인을 그린다. 데이터가 부족하면 빈 상태를 보여 준다. */
+function createStoredSparkline(stock) {
+  const closes = normalizeChartCandles(stock.marketData).map(candle => candle.close).slice(-30);
+  if (closes.length < 2) return '';
+  const lowest = Math.min(...closes);
+  const highest = Math.max(...closes);
+  const range = highest - lowest || 1;
+  const points = closes.map((close, index) => {
+    const x = (index / (closes.length - 1)) * 110;
+    const y = 31 - ((close - lowest) / range) * 27;
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(' ');
+  return `<svg class="overview-sparkline" viewBox="0 0 110 35" aria-label="${escapeHtml(stock.ticker)} 저장 일봉 추이"><polyline points="${points}"></polyline></svg>`;
 }
 
 function updateCompanySummary() {
   const stock = state.watchlist.find(item => item.ticker === state.selectedTicker) || state.watchlist[0];
-  if (!stock) return;
+  if (!stock) {
+    ['overviewTicker', 'overviewCompanyName', 'overviewPrice', 'overviewChange', 'detailTicker', 'detailCompanyName', 'detailPrice', 'detailChange']
+      .forEach(id => { const element = document.getElementById(id); if (element) element.textContent = '데이터 없음'; });
+    return;
+  }
 
-  const isUp = stock.change >= 0;
-  const changeText = `${isUp ? '+' : ''}${stock.change.toFixed(2)} (${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
+  const directionClass = getChangeDirectionClass(stock.change);
+  const changeText = formatPriceChange(stock.change, stock.changePct);
   const summaryFields = {
     overviewTicker: stock.ticker,
     overviewCompanyName: stock.name,
@@ -806,7 +862,7 @@ function updateCompanySummary() {
     detailTicker: stock.ticker,
     detailCompanyName: stock.name,
     detailPrice: formatCurrency(stock.price),
-    detailChange: `${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%`
+    detailChange: formatPercent(stock.changePct)
   };
 
   Object.entries(summaryFields).forEach(([id, value]) => {
@@ -815,10 +871,10 @@ function updateCompanySummary() {
   });
   ['overviewChange', 'detailChange'].forEach(id => {
     const element = document.getElementById(id);
-    if (element) element.className = isUp ? 'up' : 'down';
+    if (element) element.className = directionClass;
   });
 
-  const williams = getWilliamsSummary(normalizeChartCandles(stock.marketData));
+  const williams = getStoredWilliams(stock);
   const detailFields = {
     detailWilliamsR: williams ? williams.value.toFixed(1) : '데이터 수집 대기',
     detailWilliamsSignal: williams ? williams.status : '14일 일봉 수집 대기',
@@ -831,7 +887,8 @@ function updateCompanySummary() {
 }
 
 function formatMetricValue(value, suffix = '') {
-  return Number.isFinite(value) ? `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}` : '데이터 없음';
+  const number = toNullableNumber(value);
+  return number === null ? '데이터 없음' : `${number.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
 }
 
 /** 상세 모달의 재무·배당 카드는 D1 원본 집계값만 표시한다. */
@@ -846,6 +903,7 @@ function renderCompanyDetailData(company) {
   const financialEntries = [
     ['매출', financial?.revenue, '$'], ['영업이익', financial?.operatingIncome, '$'],
     ['순이익', financial?.netIncome, '$'], ['EPS', financial?.eps, '$'],
+    ['PEG', financial?.pegRatio, ''], ['PER', financial?.peRatio, ''], ['P/S', financial?.psRatio, ''],
     ['잉여현금흐름', financial?.freeCashFlow, '$'], ['ROE', financial?.roe, '%'],
     ['ROIC', financial?.roic, '%'], ['Gross Margin', financial?.grossMargin, '%'], ['Oper. Margin', financial?.operatingMargin, '%']
   ];
@@ -912,7 +970,7 @@ function renderWatchlist() {
   state.watchlist.forEach((stock, index) => {
     const strategy = getInvestmentStrategy(stock);
     const targetContainer = strategy === 'dividend' ? dividendContainer : priceContainer;
-    const isUp = stock.change >= 0;
+    const directionClass = getChangeDirectionClass(stock.change);
     const isSelected = stock.ticker === state.selectedTicker;
 
     const item = document.createElement('div');
@@ -928,14 +986,14 @@ function renderWatchlist() {
       </div>
       <span class="stock-order-badge" title="사용자 등록 순번">${index + 1}</span>
       <div class="stock-item-left">
-        <span class="stock-item-ticker">${stock.ticker}</span>
-        <span class="stock-item-name">${stock.name}</span>
-        <span class="stock-item-meta"><span class="strategy-badge ${strategy}">${strategy === 'dividend' ? '배당 투자' : '주가 투자'}</span>${getStockSector(stock)}</span>
+        <span class="stock-item-ticker">${escapeHtml(stock.ticker)}</span>
+        <span class="stock-item-name">${escapeHtml(stock.name || '회사 정보 저장 대기')}</span>
+        <span class="stock-item-meta"><span class="strategy-badge ${strategy}">${strategy === 'dividend' ? '배당 투자' : '주가 투자'}</span>${escapeHtml(getStockSector(stock))}</span>
       </div>
       <div class="stock-item-right">
         <div class="stock-item-price">${formatCurrency(stock.price)}</div>
-        <div class="stock-item-change ${isUp ? 'up' : 'down'}">
-          ${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%
+        <div class="stock-item-change ${directionClass}">
+          ${formatPercent(stock.changePct)}
         </div>
       </div>
       <button class="btn-delete-stock" title="${stock.ticker} 종목 삭제 (1-4)" data-ticker="${stock.ticker}">
@@ -1091,29 +1149,36 @@ function renderPortfolioToTarget(tbodyId, totalValId, totalValKrwId, totalPnlId,
 
   let totalBuyAmount = 0;
   let totalCurrentAmount = 0;
+  let pendingQuoteCount = 0;
 
   state.holdings.forEach(holding => {
     const stock = state.watchlist.find(s => s.ticker === holding.ticker);
-    const currentPrice = stock ? stock.price : holding.buyPrice * 1.05;
+    // 현재가는 반드시 D1에 저장된 값만 사용한다. 값이 없을 때 임의 수익률을 적용하면
+    // 포트폴리오 손익이 실제처럼 오해될 수 있으므로, 해당 보유분은 평가 대기로 남긴다.
+    const currentPrice = toNullableNumber(stock?.price);
 
     const buyVal = holding.qty * holding.buyPrice;
-    const curVal = holding.qty * currentPrice;
-    const pnl = curVal - buyVal;
-    const pnlPct = (pnl / buyVal) * 100;
-    const isUp = pnl >= 0;
+    const curVal = currentPrice === null ? null : holding.qty * currentPrice;
+    const pnl = curVal === null ? null : curVal - buyVal;
+    const pnlPct = pnl === null || buyVal <= 0 ? null : (pnl / buyVal) * 100;
+    const directionClass = getChangeDirectionClass(pnl);
 
     totalBuyAmount += buyVal;
-    totalCurrentAmount += curVal;
+    if (curVal === null) {
+      pendingQuoteCount += 1;
+    } else {
+      totalCurrentAmount += curVal;
+    }
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${holding.ticker}</strong></td>
+      <td><strong>${escapeHtml(holding.ticker)}</strong></td>
       <td>${holding.qty}주</td>
-      <td>$${holding.buyPrice.toFixed(2)}</td>
-      <td>$${currentPrice.toFixed(2)}</td>
-      <td class="${isUp ? 'up' : 'down'}">
-        <strong>${isUp ? '+' : ''}$${pnl.toFixed(2)}</strong><br>
-        <small>(${isUp ? '+' : ''}${pnlPct.toFixed(2)}%)</small>
+      <td>${formatUsdValue(holding.buyPrice)}</td>
+      <td>${formatCurrency(currentPrice)}</td>
+      <td class="${directionClass}">
+        <strong>${pnl === null ? '현재가 저장 대기' : formatPriceChange(pnl, pnlPct)}</strong>
+        ${pnl === null ? '<br><small>저장된 현재가가 도착하면 계산합니다.</small>' : ''}
       </td>
       <td>
         <button class="btn-delete-holding" data-id="${holding.id}" title="삭제">
@@ -1125,22 +1190,32 @@ function renderPortfolioToTarget(tbodyId, totalValId, totalValKrwId, totalPnlId,
   });
 
   // 총계 표시
-  const totalPnl = totalCurrentAmount - totalBuyAmount;
-  const totalPnlPct = totalBuyAmount > 0 ? (totalPnl / totalBuyAmount) * 100 : 0;
-  const isTotalUp = totalPnl >= 0;
+  // 일부 현재가가 없으면 합계 손익도 완전한 값이 아니므로 숫자로 단정하지 않는다.
+  const hasCompleteValuation = pendingQuoteCount === 0;
+  const totalPnl = hasCompleteValuation ? totalCurrentAmount - totalBuyAmount : null;
+  const totalPnlPct = totalPnl === null || totalBuyAmount <= 0 ? null : (totalPnl / totalBuyAmount) * 100;
+  const totalDirectionClass = getChangeDirectionClass(totalPnl);
 
   const valElem = document.getElementById(totalValId);
   const valKrwElem = document.getElementById(totalValKrwId);
   const pnlElem = document.getElementById(totalPnlId);
   const pnlKrwElem = document.getElementById(totalPnlKrwId);
 
-  if (valElem) valElem.textContent = formatCurrency(totalCurrentAmount);
-  if (valKrwElem) valKrwElem.textContent = `≈ ${Math.round(totalCurrentAmount * state.usdKrwRate).toLocaleString()}원`;
-  if (pnlElem) {
-    pnlElem.className = `value ${isTotalUp ? 'up' : 'down'}`;
-    pnlElem.textContent = `${isTotalUp ? '+' : ''}$${totalPnl.toFixed(2)} (${isTotalUp ? '+' : ''}${totalPnlPct.toFixed(2)}%)`;
+  if (valElem) valElem.textContent = hasCompleteValuation ? formatCurrency(totalCurrentAmount) : '평가 대기';
+  if (valKrwElem) {
+    valKrwElem.textContent = hasCompleteValuation && hasStoredNumber(state.usdKrwRate)
+      ? `≈ ${Math.round(totalCurrentAmount * state.usdKrwRate).toLocaleString()}원`
+      : hasCompleteValuation ? '환율 데이터 미연동' : `${pendingQuoteCount}개 종목 현재가 저장 대기`;
   }
-  if (pnlKrwElem) pnlKrwElem.textContent = `≈ ${isTotalUp ? '+' : ''}${Math.round(totalPnl * state.usdKrwRate).toLocaleString()}원`;
+  if (pnlElem) {
+    pnlElem.className = `value ${totalDirectionClass}`;
+    pnlElem.textContent = totalPnl === null ? '손익 계산 대기' : formatPriceChange(totalPnl, totalPnlPct);
+  }
+  if (pnlKrwElem) {
+    pnlKrwElem.textContent = totalPnl !== null && hasStoredNumber(state.usdKrwRate)
+      ? `≈ ${totalPnl >= 0 ? '+' : ''}${Math.round(totalPnl * state.usdKrwRate).toLocaleString()}원`
+      : totalPnl !== null ? '환율 데이터 미연동' : '현재가 저장 후 계산';
+  }
 
   // 삭제 버튼 이벤트
   tbody.querySelectorAll('.btn-delete-holding').forEach(btn => {
@@ -1168,13 +1243,58 @@ function saveWatchlist(shouldSync = true) {
   if (shouldSync) void uploadWatchlistToCloudflare();
 }
 
-// 화폐 포맷팅 함수 ($ 또는 ₩)
+/** 저장된 금융 숫자만 형식화한다. null은 0으로 보정하지 않는다. */
+function hasStoredNumber(value) {
+  return toNullableNumber(value) !== null;
+}
+
+function formatUsdValue(value) {
+  const number = toNullableNumber(value);
+  return number === null ? '데이터 없음' : `$${number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatPercent(value) {
+  const number = toNullableNumber(value);
+  return number === null ? '—' : `${number >= 0 ? '+' : ''}${number.toFixed(2)}%`;
+}
+
+function getChangeDirectionClass(value) {
+  const number = toNullableNumber(value);
+  if (number === null) return 'unknown';
+  return number >= 0 ? 'up' : 'down';
+}
+
+function formatPriceChange(change, changePercent) {
+  const amount = toNullableNumber(change);
+  const percent = toNullableNumber(changePercent);
+  if (amount === null && percent === null) return '변동 데이터 없음';
+  const amountText = amount === null
+    ? '변동액 없음'
+    : `${amount >= 0 ? '+' : '-'}${formatUsdValue(Math.abs(amount))}`;
+  return `${amountText} ${percent === null ? '(변동률 없음)' : `(${formatPercent(percent)})`}`;
+}
+
+function formatMonthDay(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(value)) return '미정';
+  const [, month, day] = value.match(/^\d{4}-(\d{2})-(\d{2})/) || [];
+  return month && day ? `${Number(month)}/${Number(day)}` : '미정';
+}
+
+function escapeHtml(value) {
+  const characters = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(value ?? '').replace(/[&<>"']/g, character => characters[character]);
+}
+
+// 화폐 포맷팅 함수 ($ 또는 ₩). 환율이 저장되지 않았을 때는 가상 환산값을 표시하지 않는다.
 function formatCurrency(valUSD) {
+  const number = toNullableNumber(valUSD);
+  if (number === null) return '데이터 없음';
   if (state.isKrwView) {
-    const krw = Math.round(valUSD * state.usdKrwRate);
+    if (!hasStoredNumber(state.usdKrwRate)) return '환율 데이터 없음';
+    const krw = Math.round(number * state.usdKrwRate);
     return `₩${krw.toLocaleString()}`;
   }
-  return `$${valUSD.toFixed(2)}`;
+  return formatUsdValue(number);
 }
 
 // ========================================================

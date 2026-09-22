@@ -71,8 +71,8 @@
           <span>US STOCK <strong>PRO</strong></span>
         </div>
         <div class="market-status" id="marketBadge">
-          <span class="status-indicator live"></span>
-          <span id="marketStatusText">실시간 마켓 연결됨</span>
+          <span class="status-indicator"></span>
+          <span id="marketStatusText">저장 데이터 연결 대기</span>
         </div>
       </div>
 
@@ -80,23 +80,23 @@
       <div class="index-ticker-bar" id="indexTickerBar">
         <div class="ticker-chip" id="sp500Chip">
           <span class="chip-name">S&P 500</span>
-          <span class="chip-price">5,638.20</span>
-          <span class="chip-change up">+0.48%</span>
+          <span class="chip-price">—</span>
+          <span class="chip-change">미연동</span>
         </div>
         <div class="ticker-chip" id="nasdaqChip">
           <span class="chip-name">NASDAQ</span>
-          <span class="chip-price">17,783.15</span>
-          <span class="chip-change up">+0.84%</span>
+          <span class="chip-price">—</span>
+          <span class="chip-change">미연동</span>
         </div>
         <div class="ticker-chip" id="dowChip">
           <span class="chip-name">DOW</span>
-          <span class="chip-price">41,393.78</span>
-          <span class="chip-change down">-0.12%</span>
+          <span class="chip-price">—</span>
+          <span class="chip-change">미연동</span>
         </div>
         <div class="ticker-chip" id="usdkrwChip">
           <span class="chip-name">USD/KRW</span>
-          <span class="chip-price">1,342.50</span>
-          <span class="chip-change up">+0.15%</span>
+          <span class="chip-price">—</span>
+          <span class="chip-change">환율 미연동</span>
         </div>
       </div>
 
@@ -161,8 +161,7 @@
         <p class="fundamental-summary" id="fundamentalSummary" aria-live="polite">재무·배당 수집 상태 확인 대기</p>
         <div class="overview-list-toolbar">
           <div><strong>1-1. 오늘의 우선 확인 종목</strong><span class="badge-count" id="overviewCompanyCount">0종목</span></div>
-          <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 API 연동 전
-            예시입니다.</span>
+          <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 D1에 저장된 데이터만 표시합니다.</span>
         </div>
         <div class="overview-stock-list priority-stock-list" id="priorityCompanyList"></div>
 
@@ -191,13 +190,13 @@
               <button class="btn-icon company-back-btn" id="closeCompanyDetailBtn" title="상세 분석 닫기"><i
                   class="fa-solid fa-xmark"></i></button>
               <div>
-                <h3><span id="detailTicker">NVDA</span> 상세 분석</h3>
-                <p class="section-desc" id="detailCompanyName">NVIDIA Corporation</p>
+                <h3><span id="detailTicker">종목 선택 대기</span> 상세 분석</h3>
+                <p class="section-desc" id="detailCompanyName">D1에 저장된 종목을 선택해 주세요.</p>
               </div>
             </div>
             <div class="company-detail-price">
-              <strong id="detailPrice">$124.58</strong>
-              <span class="up" id="detailChange">+3.53%</span>
+              <strong id="detailPrice">데이터 없음</strong>
+              <span class="unknown" id="detailChange">—</span>
             </div>
           </div>
           <div class="company-detail-tabs" role="tablist">
@@ -330,12 +329,12 @@
         <div class="chart-header-info">
           <div class="selected-stock-info">
             <div class="stock-title-wrap">
-              <span class="stock-ticker" id="chartTicker">NVDA</span>
-              <span class="stock-company" id="chartCompanyName">NVIDIA Corporation</span>
+              <span class="stock-ticker" id="chartTicker">종목 선택 대기</span>
+              <span class="stock-company" id="chartCompanyName">D1 저장 데이터를 불러오는 중입니다.</span>
             </div>
             <div class="stock-price-wrap">
-              <span class="current-price" id="chartPrice">$124.58</span>
-              <span class="price-change up" id="chartChange">+4.25 (+3.53%)</span>
+              <span class="current-price" id="chartPrice">데이터 없음</span>
+              <span class="price-change unknown" id="chartChange">변동 데이터 없음</span>
             </div>
           </div>
         </div>

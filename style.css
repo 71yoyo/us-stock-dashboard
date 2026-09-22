@@ -1151,6 +1151,18 @@ body.modal-open {
 
 .price-change.up { background: var(--color-up-bg); }
 .price-change.down { background: var(--color-down-bg); }
+.price-change.unknown,
+.unknown {
+  color: var(--text-muted);
+}
+
+.overview-pending-sparkline {
+  align-items: center;
+  color: var(--text-muted);
+  display: inline-flex;
+  font-size: 0.72rem;
+  justify-content: center;
+}
 
 .chart-controls {
   display: flex;
