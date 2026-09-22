@@ -1,7 +1,10 @@
+import { reserveFundamentalCall, blockFundamentalCall, ensureFundamentalStore } from './fundamental-store.js';
+
 const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
 const SEC_FACTS_BASE_URL = 'https://data.sec.gov/api/xbrl/companyfacts';
 
 function toFiniteNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -28,14 +31,19 @@ function isoDateAfter(days) {
 }
 
 async function fetchFmp(environment, path, params = {}) {
+  const isFundamental = !['quote', 'historical-price-eod/full'].includes(path);
+  if (isFundamental) await reserveFundamentalCall(environment, path, params.symbol || 'market');
   const url = new URL(`${FMP_BASE_URL}/${path}`);
   url.searchParams.set('apikey', environment.MARKET_DATA_API_KEY);
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null) url.searchParams.set(key, String(value));
   }
 
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`FMP 요청 실패: HTTP ${response.status}`);
+  const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(15000) });
+  if (!response.ok) {
+    if (isFundamental) await blockFundamentalCall(environment, path, params.symbol || 'market', response.status);
+    throw new Error(`FMP 요청 실패: HTTP ${response.status}`);
+  }
   const payload = await response.json();
   if (payload?.['Error Message'] || payload?.error) throw new Error(payload['Error Message'] || payload.error);
   return payload;
@@ -46,12 +54,14 @@ async function fetchFmp(environment, path, params = {}) {
  * FMP 무료 범위에 없는 재무·배당 데이터는 공식 공시 원문으로 보완한다.
  */
 async function fetchSecCompanyFacts(environment, ticker) {
+  if (environment.secFacts?.has(ticker)) return environment.secFacts.get(ticker);
   const company = await environment.DB.prepare('SELECT cik FROM companies WHERE ticker = ?').bind(ticker).first();
   const rawCik = String(company?.cik || '').replace(/\D/g, '');
   if (!rawCik) throw new Error('SEC CIK가 없어 공시 원문을 가져올 수 없습니다.');
   const cik = rawCik.padStart(10, '0');
 
   const response = await fetch(`${SEC_FACTS_BASE_URL}/CIK${cik}.json`, {
+    signal: AbortSignal.timeout(20000),
     headers: {
       // SEC 정책에 따라 수집 주체를 식별한다. 운영 환경에서는 Secret의 연락처를 우선 사용한다.
       'User-Agent': environment.SEC_USER_AGENT || 'US Stock Pro dashboard contact: https://github.com/71yoyo/us-stock-dashboard',
@@ -61,6 +71,7 @@ async function fetchSecCompanyFacts(environment, ticker) {
   if (!response.ok) throw new Error(`SEC EDGAR 요청 실패: HTTP ${response.status}`);
   const payload = await response.json();
   if (!payload?.facts?.['us-gaap']) throw new Error('SEC EDGAR 공시 원문에 US-GAAP 데이터가 없습니다.');
+  environment.secFacts?.set(ticker, payload.facts);
   return payload.facts;
 }
 
@@ -96,7 +107,7 @@ async function markSyncState(environment, ticker, dataType, error = null) {
   ).bind(ticker, dataType, now, nextRetryAt, failureCount, errorMessage).run();
 }
 
-async function syncProfile(environment, ticker) {
+export async function syncProfile(environment, ticker) {
   const [profile] = asRecords(await fetchFmp(environment, 'profile', { symbol: ticker }));
   if (!profile) throw new Error('FMP 회사 프로필이 없습니다.');
   await environment.DB.prepare(`INSERT INTO companies (ticker, name, sector, industry, exchange, currency, cik, updated_at)
@@ -149,33 +160,37 @@ function addMonths(isoDate, months) {
   return date.toISOString().slice(0, 10);
 }
 
-function calculateDividendMetrics(events, currentPrice) {
-  const datedEvents = events.filter(event => event.exDividendDate && event.amount !== null);
+export function calculateDividendMetrics(events, currentPrice, today = new Date().toISOString().slice(0, 10)) {
+  const datedEvents = events.filter(event => event.exDividendDate && Number.isFinite(event.amount))
+    .sort((a, b) => a.exDividendDate.localeCompare(b.exDividendDate));
+  const currentYear = Number(today.slice(0, 4));
   const annualAmounts = new Map();
   for (const event of datedEvents) {
     const year = event.exDividendDate.slice(0, 4);
+    if (Number(year) >= currentYear) continue;
     annualAmounts.set(year, (annualAmounts.get(year) || 0) + event.amount);
   }
   const years = [...annualAmounts.keys()].sort();
   const latestYear = years.at(-1);
   const annualDividend = latestYear ? annualAmounts.get(latestYear) : null;
-  const recentEvents = [...datedEvents].sort((a, b) => b.exDividendDate.localeCompare(a.exDividendDate)).slice(0, 4);
+  const quarterStart = addMonths(today, -3);
+  const recentEvents = datedEvents.filter(event => event.exDividendDate > quarterStart && event.exDividendDate <= today);
   const quarterlyDividend = recentEvents.length ? recentEvents.reduce((total, event) => total + event.amount, 0) : null;
 
   let growthYears = 0;
   for (let index = years.length - 1; index > 0; index -= 1) {
-    if (annualAmounts.get(years[index]) >= annualAmounts.get(years[index - 1])) growthYears += 1;
+    if (Number(years[index]) - Number(years[index - 1]) === 1
+      && annualAmounts.get(years[index]) > annualAmounts.get(years[index - 1]) + 1e-9) growthYears += 1;
     else break;
   }
-  const tenYearStart = years.length > 1 ? annualAmounts.get(years[0]) : null;
-  const yearSpan = years.length - 1;
+  const tenYearStart = annualAmounts.get(String(Number(latestYear) - 10));
+  const yearSpan = 10;
   const growthCagr = tenYearStart && annualDividend && yearSpan > 0
     ? (Math.pow(annualDividend / tenYearStart, 1 / yearSpan) - 1) * 100
     : null;
-  const futureEvent = datedEvents.find(event => event.exDividendDate >= new Date().toISOString().slice(0, 10));
-  const lastEvent = datedEvents.sort((a, b) => b.exDividendDate.localeCompare(a.exDividendDate))[0];
-  const estimatedNextDate = !futureEvent && lastEvent ? addMonths(lastEvent.exDividendDate, 3) : null;
-  const nextExDate = futureEvent?.exDividendDate || estimatedNextDate;
+  const futureEvent = datedEvents.find(event => event.exDividendDate >= today);
+  // 월배당·불규칙 배당에 3개월을 일괄 더하면 잘못된 날짜가 되므로 미확인 일정은 비워 둔다.
+  const nextExDate = futureEvent?.exDividendDate || null;
   const nextPaymentDate = futureEvent?.paymentDate || null;
 
   return {
@@ -186,11 +201,11 @@ function calculateDividendMetrics(events, currentPrice) {
     growthCagr,
     nextExDate,
     nextPaymentDate,
-    status: futureEvent ? 'confirmed' : estimatedNextDate ? 'estimated' : 'unknown'
+    status: futureEvent ? 'confirmed' : 'unknown'
   };
 }
 
-async function syncDividends(environment, ticker) {
+export async function syncDividends(environment, ticker) {
   const records = asRecords(await fetchFmp(environment, 'dividends', { symbol: ticker }));
   const events = records.map(record => ({
     declarationDate: toIsoDate(record.declarationDate),
@@ -223,22 +238,24 @@ async function syncDividends(environment, ticker) {
       next_date_status=excluded.next_date_status, next_payment_date=excluded.next_payment_date, calculated_at=CURRENT_TIMESTAMP`
   ).bind(ticker, calculated.annualDividend, calculated.quarterlyDividend, calculated.dividendYield, calculated.growthYears,
     calculated.growthCagr, calculated.nextExDate, calculated.status, calculated.nextPaymentDate).run();
+  return { source: 'FMP', eventCount: events.length, firstDate: events.map(event => event.exDividendDate).sort()[0] };
 }
 
 /** SEC 공시의 주당배당금으로 10년 배당 집계값을 만든다. 정확한 배당락일은 임의 추정하지 않는다. */
-async function syncDividendsFromSec(environment, ticker) {
+export async function syncDividendsFromSec(environment, ticker) {
+  await ensureFundamentalStore(environment);
   const facts = await fetchSecCompanyFacts(environment, ticker);
   const entries = selectSecFacts(facts, [
     'CommonStockDividendsPerShareDeclared',
     'CommonStockDividendsPerShareCashPaid'
   ], ['USD/shares']);
   const currentYear = new Date().getUTCFullYear();
-  const annualValues = latestSecValues(entries, ['10-K', '10-K/A'], currentYear - 11, 'annual');
-  const quarterlyValues = latestSecValues(entries, ['10-Q', '10-Q/A'], currentYear - 11, 'quarterly');
+  const annualValues = latestSecValues(entries, ['10-K', '10-K/A'], 1900, 'annual');
+  const quarterlyValues = latestSecValues(entries, ['10-Q', '10-Q/A', '10-K', '10-K/A'], currentYear - 11, 'quarterly');
   const annualRecords = [...annualValues.values()]
     .filter(record => Number.isFinite(Number(record.val)) && Number(record.val) >= 0)
     .sort((left, right) => left.end.localeCompare(right.end))
-    .slice(-10);
+    ;
   const quarterlyRecords = [...quarterlyValues.values()]
     .filter(record => Number.isFinite(Number(record.val)) && Number(record.val) >= 0)
     .sort((left, right) => left.end.localeCompare(right.end));
@@ -247,27 +264,22 @@ async function syncDividendsFromSec(environment, ticker) {
     throw new Error('SEC EDGAR에서 주당 배당금 공시를 찾지 못했습니다.');
   }
 
-  const annualDividend = annualRecords.length
-    ? Number(annualRecords.at(-1).val)
-    : quarterlyRecords.slice(-4).reduce((total, record) => total + Number(record.val), 0);
-  const recentFourQuarterDividend = quarterlyRecords.length >= 4
-    ? quarterlyRecords.slice(-4).reduce((total, record) => total + Number(record.val), 0)
-    : annualDividend;
+  const annualDividend = annualRecords.length ? Number(annualRecords.at(-1).val) : null;
+  const recentQuarterDividend = quarterlyRecords.length ? Number(quarterlyRecords.at(-1).val) : null;
   let growthYears = 0;
   for (let index = annualRecords.length - 1; index > 0; index -= 1) {
-    if (Number(annualRecords[index].val) + 1e-9 >= Number(annualRecords[index - 1].val)) growthYears += 1;
+    if (Number(annualRecords[index].end.slice(0, 4)) - Number(annualRecords[index - 1].end.slice(0, 4)) === 1
+      && Number(annualRecords[index].val) > Number(annualRecords[index - 1].val) + 1e-9) growthYears += 1;
     else break;
   }
-  const firstAnnual = annualRecords.length > 1 ? Number(annualRecords[0].val) : null;
-  const yearSpan = annualRecords.length - 1;
+  const endYear = Number(annualRecords.at(-1)?.end.slice(0, 4));
+  const firstAnnual = annualRecords.find(row => Number(row.end.slice(0, 4)) === endYear - 10)?.val;
+  const yearSpan = 10;
   const growthCagr = firstAnnual > 0 && annualDividend > 0 && yearSpan > 0
     ? (Math.pow(annualDividend / firstAnnual, 1 / yearSpan) - 1) * 100
     : null;
-  const quote = await environment.DB.prepare(`SELECT COALESCE(price_quotes.current_price, user_watchlist.saved_price) AS currentPrice
-    FROM companies
-    LEFT JOIN price_quotes ON price_quotes.ticker = companies.ticker
-    LEFT JOIN user_watchlist ON user_watchlist.ticker = companies.ticker AND user_watchlist.user_id = 'primary'
-    WHERE companies.ticker = ?`).bind(ticker).first();
+  // 예시/사용자 저장가격으로 배당수익률을 계산하지 않는다. 검증된 시세가 없으면 비워 둔다.
+  const quote = await environment.DB.prepare('SELECT current_price AS currentPrice FROM price_quotes WHERE ticker = ?').bind(ticker).first();
   const currentPrice = toFiniteNumber(quote?.currentPrice);
   const dividendYield = annualDividend > 0 && currentPrice > 0 ? (annualDividend / currentPrice) * 100 : null;
 
@@ -279,8 +291,19 @@ async function syncDividendsFromSec(environment, ticker) {
       quarterly_dividend=excluded.quarterly_dividend, dividend_yield=excluded.dividend_yield,
       dividend_growth_years=excluded.dividend_growth_years, dividend_growth_cagr_10y=excluded.dividend_growth_cagr_10y,
       calculated_at=CURRENT_TIMESTAMP`).bind(
-    ticker, annualDividend, recentFourQuarterDividend, dividendYield, growthYears, growthCagr
+    ticker, annualDividend, recentQuarterDividend, dividendYield, growthYears, growthCagr
   ).run();
+  const history = [['annual', annualRecords], ['quarterly', quarterlyRecords]];
+  for (const [periodType, rows] of history) {
+    const statements = rows.map(row => environment.DB.prepare(`INSERT INTO dividend_periods
+      (ticker, period_type, period_end, amount, source, reported_date) VALUES (?, ?, ?, ?, 'SEC EDGAR', ?)
+      ON CONFLICT(ticker, period_type, period_end) DO UPDATE SET amount=excluded.amount,
+      source=excluded.source, reported_date=excluded.reported_date`)
+      .bind(ticker, periodType, row.end, row.val, row.filed || null));
+    if (statements.length) await environment.DB.batch(statements);
+  }
+  return { source: 'SEC EDGAR', annualCount: annualRecords.length, quarterlyCount: quarterlyRecords.length,
+    firstDate: annualRecords[0]?.end, growthLimited: true, nextDateAvailable: false };
 }
 
 async function syncEarningsSchedule(environment, ticker) {
@@ -387,7 +410,7 @@ async function syncFinancials(environment, ticker, periodType, limit) {
   await environment.DB.batch(statements);
 }
 
-function selectSecFacts(facts, tags, acceptedUnits) {
+export function selectSecFacts(facts, tags, acceptedUnits) {
   const records = [];
   tags.forEach((tag, tagPriority) => {
     const fact = facts?.['us-gaap']?.[tag];
@@ -395,7 +418,7 @@ function selectSecFacts(facts, tags, acceptedUnits) {
     for (const unit of acceptedUnits) {
       if (!Array.isArray(fact.units[unit])) continue;
       // 회사와 연도에 따라 같은 지표의 표준 태그가 바뀌므로 후보 태그를 모두 합친다.
-      records.push(...fact.units[unit].map(entry => ({ ...entry, tagPriority })));
+      records.push(...fact.units[unit].map(entry => ({ ...entry, tag, tagPriority })));
     }
   });
   return records;
@@ -407,26 +430,47 @@ function secDurationDays(entry) {
   return Number.isFinite(duration) ? Math.round(duration / 86_400_000) : null;
 }
 
-function latestSecValues(entries, forms, minimumYear, periodType) {
+export function latestSecValues(entries, forms, minimumYear, periodType) {
   const records = new Map();
-  for (const entry of entries) {
-    if (!entry.end || !forms.includes(entry.form) || Number(entry.fy) < minimumYear) continue;
-    const isRequestedPeriod = periodType === 'annual'
-      ? entry.fp === 'FY'
-      : ['Q1', 'Q2', 'Q3'].includes(entry.fp);
-    if (!isRequestedPeriod) continue;
+  const eligible = entries.filter(entry => entry.end && forms.includes(entry.form)
+    && Number(entry.end.slice(0, 4)) >= minimumYear && Number.isFinite(entry.val));
+  // 제출서류의 fp는 비교기간과 다를 수 있으므로 실제 start/end 기간 길이로 판정한다.
+  const candidates = [...eligible];
+  if (periodType === 'quarterly') {
+    const cumulative = new Map();
+    for (const entry of eligible) {
+      if (!entry.start) continue;
+      const key = `${entry.tag}:${entry.start}:${entry.end}`;
+      if (!cumulative.has(key) || entry.filed > cumulative.get(key).filed) cumulative.set(key, entry);
+    }
+    const ordered = [...cumulative.values()].sort((a, b) => a.end.localeCompare(b.end));
+    for (const entry of ordered) {
+      if (secDurationDays(entry) < 150 || /EarningsPerShare/.test(entry.tag || '')) continue;
+      const previous = ordered.findLast(row => row.tag === entry.tag && row.start === entry.start
+        && row.end < entry.end && secDurationDays({ start: row.end, end: entry.end }) >= 60
+        && secDurationDays({ start: row.end, end: entry.end }) <= 125);
+      if (!previous) continue;
+      const start = new Date(`${previous.end}T00:00:00Z`);
+      start.setUTCDate(start.getUTCDate() + 1);
+      candidates.push({ ...entry, start: start.toISOString().slice(0, 10), val: entry.val - previous.val,
+        derived: true });
+    }
+  }
+  for (const entry of candidates) {
     const durationDays = secDurationDays(entry);
     // 10-Q에는 3개월 값과 누적 6·9개월 값이 함께 들어온다. 막대그래프에는 개별 분기 값만 남긴다.
     if (durationDays !== null) {
-      if (periodType === 'annual' && (durationDays < 250 || durationDays > 380)) continue;
+      if (periodType === 'annual' && (durationDays < 330 || durationDays > 380)) continue;
       if (periodType === 'quarterly' && (durationDays < 60 || durationDays > 125)) continue;
     }
+    if (durationDays === null && periodType === 'annual' && entry.fp !== 'FY') continue;
     const current = records.get(entry.end);
     const isNewerFiling = String(entry.filed || '') > String(current?.filed || '');
     const isPreferredTag = String(entry.filed || '') === String(current?.filed || '')
       && Number(entry.tagPriority ?? 999) < Number(current?.tagPriority ?? 999);
     // 같은 회계기간 수정 공시가 있다면 최신 제출분을, 같은 제출분이면 우선순위가 높은 태그를 쓴다.
-    if (!current || isNewerFiling || isPreferredTag) records.set(entry.end, entry);
+    if (!current || (current.derived && !entry.derived)
+      || (Boolean(current.derived) === Boolean(entry.derived) && (isNewerFiling || isPreferredTag))) records.set(entry.end, entry);
   }
   return records;
 }
@@ -435,7 +479,7 @@ function valueAt(values, end) {
   return values.get(end)?.val ?? null;
 }
 
-async function syncFinancialsFromSec(environment, ticker) {
+export async function syncFinancialsFromSec(environment, ticker) {
   const facts = await fetchSecCompanyFacts(environment, ticker);
   const currentYear = new Date().getUTCFullYear();
   const minAnnualYear = currentYear - 10;
@@ -445,7 +489,9 @@ async function syncFinancialsFromSec(environment, ticker) {
   const perShare = tags => selectSecFacts(facts, tags, ['USD/shares']);
   const revenue = usd(['RevenueFromContractWithCustomerExcludingAssessedTax', 'RevenueFromContractWithCustomerIncludingAssessedTax', 'Revenues', 'SalesRevenueNet']);
   const operatingIncome = usd(['OperatingIncomeLoss']);
-  const operatingExpenses = usd(['OperatingExpenses', 'CostsAndExpenses']);
+  const operatingExpenses = usd(['OperatingExpenses']);
+  const netInterestIncome = usd(['InterestIncomeExpenseNet']);
+  const noninterestIncome = usd(['NoninterestIncome']);
   const netIncome = usd(['NetIncomeLoss', 'ProfitLoss', 'NetIncomeLossAvailableToCommonStockholdersBasic']);
   const operatingCashFlow = usd(['NetCashProvidedByUsedInOperatingActivities']);
   const capitalExpenditure = usd(['PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireRealEstate', 'PaymentsToAcquireProductiveAssets']);
@@ -456,17 +502,20 @@ async function syncFinancialsFromSec(environment, ticker) {
   const debtNoncurrent = usd(['LongTermDebtNoncurrent', 'LongTermDebtAndFinanceLeaseObligationsNoncurrent']);
   const cash = usd(['CashAndCashEquivalentsAtCarryingValue']);
   const eps = perShare(['EarningsPerShareDiluted', 'EarningsPerShareBasicAndDiluted']);
-  const dataSets = { revenue, operatingIncome, operatingExpenses, netIncome, operatingCashFlow, capitalExpenditure, grossProfit, equity, totalDebt, debtCurrent, debtNoncurrent, cash, eps };
+  const dataSets = { revenue, netInterestIncome, noninterestIncome, operatingIncome, operatingExpenses, netIncome, operatingCashFlow, capitalExpenditure, grossProfit, equity, totalDebt, debtCurrent, debtNoncurrent, cash, eps };
 
   const writePeriod = async (periodType, forms, minimumYear, maximumRows) => {
     const dateSets = Object.fromEntries(Object.entries(dataSets)
       .map(([name, entries]) => [name, latestSecValues(entries, forms, minimumYear, periodType)]));
     // 잔액표의 날짜만으로 빈 손익 행이 생기지 않게 핵심 성과 지표가 있는 기간만 저장한다.
-    const coreDateSets = ['revenue', 'operatingIncome', 'netIncome', 'operatingCashFlow', 'eps']
+    const coreDateSets = ['revenue', 'netInterestIncome', 'operatingIncome', 'netIncome', 'operatingCashFlow', 'eps']
       .map(name => dateSets[name]);
     const dates = [...new Set(coreDateSets.flatMap(data => [...data.keys()]))].sort().slice(-maximumRows);
     const statements = dates.map(end => {
-      const revenueValue = valueAt(dateSets.revenue, end);
+      const interest = valueAt(dateSets.netInterestIncome, end);
+      const noninterest = valueAt(dateSets.noninterestIncome, end);
+      const revenueValue = valueAt(dateSets.revenue, end)
+        ?? (interest !== null && noninterest !== null ? interest + noninterest : null);
       const reportedOperatingIncome = valueAt(dateSets.operatingIncome, end);
       const operatingExpensesValue = valueAt(dateSets.operatingExpenses, end);
       const operatingIncomeValue = reportedOperatingIncome !== null
@@ -487,7 +536,8 @@ async function syncFinancialsFromSec(environment, ticker) {
       const grossMargin = grossProfitValue !== null && revenueValue ? (grossProfitValue / revenueValue) * 100 : null;
       const operatingMargin = operatingIncomeValue !== null && revenueValue ? (operatingIncomeValue / revenueValue) * 100 : null;
       const investedCapital = equityValue !== null ? equityValue + debtValue - cashValue : null;
-      const roic = operatingIncomeValue !== null && investedCapital ? (operatingIncomeValue / investedCapital) * 100 : null;
+      // 세후영업이익과 평균투하자본 검증 전에는 세전 단순비율을 ROIC로 표시하지 않는다.
+      const roic = null;
       const roe = netIncomeValue !== null && equityValue ? (netIncomeValue / equityValue) * 100 : null;
       return environment.DB.prepare(`INSERT INTO financial_metrics (ticker, period_type, fiscal_period_end, reported_date, currency, revenue, operating_income, net_income, eps, free_cash_flow, roe, roic, gross_margin, operating_margin, source, source_updated_at, cached_at)
         VALUES (?, ?, ?, ?, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SEC EDGAR', ?, CURRENT_TIMESTAMP)
@@ -498,13 +548,22 @@ async function syncFinancialsFromSec(environment, ticker) {
       ).bind(ticker, periodType, end, reportedDate, revenueValue, operatingIncomeValue, netIncomeValue, valueAt(dateSets.eps, end),
         freeCashFlow, roe, roic, grossMargin, operatingMargin, reportedDate);
     });
-    if (statements.length) await environment.DB.batch(statements);
+    if (statements.length) {
+      // 같은 종목/기간의 SEC 계산 캐시만 원자적으로 교체한다. 잘못 분류됐던 빈 연간·Q4 행을 정리한다.
+      await environment.DB.batch([
+        environment.DB.prepare(`DELETE FROM financial_metrics WHERE ticker = ? AND period_type = ?
+          AND source = 'SEC EDGAR' AND fiscal_period_end NOT IN (${dates.map(() => '?').join(',')})`)
+          .bind(ticker, periodType, ...dates),
+        ...statements
+      ]);
+    }
     return statements.length;
   };
 
   const annualCount = await writePeriod('annual', ['10-K', '10-K/A'], minAnnualYear, 10);
-  const quarterlyCount = await writePeriod('quarterly', ['10-Q', '10-Q/A'], minQuarterYear, 40);
+  const quarterlyCount = await writePeriod('quarterly', ['10-Q', '10-Q/A', '10-K', '10-K/A'], minQuarterYear, 40);
   if (!annualCount && !quarterlyCount) throw new Error('SEC EDGAR 재무 원문에서 저장할 기간을 찾지 못했습니다.');
+  return { source: 'SEC EDGAR', annualCount, quarterlyCount };
 }
 
 function isStale(lastSuccessAt, minutes) {

@@ -131,6 +131,7 @@ async function synchronizeWatchlistWithCloudflare() {
   } catch (error) {
     console.warn('Cloudflare 관심종목 동기화에 실패했습니다.', error);
   }
+  window.FundamentalProgress?.start();
 }
 
 async function updateStockProfileFromCloudflare(ticker) {
@@ -895,12 +896,8 @@ function renderCompanyDetailData(company) {
   if (!financialContainer || !dividendContainer) return;
 
   const quarterlyFinancials = (company.financials || []).filter(item => item.periodType === 'quarterly');
-  const completenessScore = item => [item?.revenue, item?.operatingIncome, item?.netIncome, item?.eps, item?.freeCashFlow]
-    .filter(Number.isFinite).length;
-  // 최신 행이 EPS 하나뿐인 공시라면, 바로 앞의 더 완전한 분기 데이터를 우선 보여준다.
-  const financial = quarterlyFinancials.find(item => completenessScore(item) >= 3)
-    || quarterlyFinancials[0]
-    || company.financials?.[0];
+  // 최신 공시의 부족한 항목은 그대로 표시한다. 과거의 완전한 행으로 몰래 바꾸지 않는다.
+  const financial = quarterlyFinancials[0] || company.financials?.[0];
   const financialEntries = [
     ['매출', financial?.revenue, '$'], ['영업이익', financial?.operatingIncome, '$'],
     ['순이익', financial?.netIncome, '$'], ['EPS', financial?.eps, '$'],
@@ -910,21 +907,21 @@ function renderCompanyDetailData(company) {
   financialContainer.innerHTML = financialEntries.map(([label, value, suffix]) =>
     `<div class="company-metric"><span>${label}</span><strong>${formatMetricValue(value, suffix)}</strong></div>`).join('');
   document.getElementById('detailFinancialSource').textContent = financial
-    ? `${financial.periodType === 'quarterly' ? '분기' : '연간'} ${financial.fiscalPeriodEnd} · ${financial.source} 저장값`
+    ? `${financial.periodType === 'quarterly' ? '분기' : '연간'} ${financial.fiscalPeriodEnd} · ${financial.source} 저장값 · 미확보 지표/이력 범위는 5-3 수집 현황에서 확인`
     : '아직 저장된 재무 데이터가 없습니다.';
 
   const dividend = company.dividendMetrics;
   const statusText = dividend?.nextDateStatus === 'confirmed' ? '확정' : dividend?.nextDateStatus === 'estimated' ? '예정' : '미정';
   const dividendEntries = [
     ['배당수익률', dividend?.dividendYield, '%'], ['연 배당금', dividend?.annualDividend, '$'],
-    ['최근 4회 배당금', dividend?.quarterlyDividend, '$'], ['배당 성장 연수', dividend?.dividendGrowthYears, '년'],
+    [dividend?.source === 'SEC EDGAR' ? '최근 공시 분기 배당금' : '최근 3개월 배당금', dividend?.quarterlyDividend, '$'], ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'],
     ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'], ['다음 배당일', dividend?.nextExDividendDate || '미정', ''],
     ['날짜 상태', statusText, '']
   ];
   dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix]) =>
     `<div class="company-metric"><span>${label}</span><strong>${typeof value === 'string' ? value : formatMetricValue(value, suffix)}</strong></div>`).join('');
   document.getElementById('detailDividendSource').textContent = dividend
-    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · ${dividend.source || '저장 데이터'} 기반`
+    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · ${dividend.source || '저장 데이터'} 기반 · 연 배당금은 최근 완료 연도, 미확보 항목은 5-3 수집 현황에서 확인`
     : '배당 이력이 아직 저장되지 않았습니다.';
 }
 
@@ -1222,7 +1219,7 @@ function saveHoldings() {
 }
 
 function saveWatchlist(shouldSync = true) {
-  localStorage.setItem('stock_app_watchlist', JSON.stringify(state.watchlist));
+  localStorage.setItem('stock_app_watchlist', JSON.stringify(state.watchlist.map(({ marketData, ...settings }) => settings)));
   if (shouldSync) void uploadWatchlistToCloudflare();
 }
 

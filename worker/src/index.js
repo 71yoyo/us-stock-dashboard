@@ -1,4 +1,5 @@
-import { syncTickerIncrementally, syncTickerDataType } from './fmp-sync.js';
+import { syncTickerDataType } from './fmp-sync.js';
+import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -171,14 +172,17 @@ async function getCompany(environment, ticker) {
     `).bind(ticker)
   ]);
 
+  const extra = await fundamentalDetails(environment, ticker);
+  const dividendSource = extra.collection.find(job => job.kind === 'dividends')?.details?.source;
   return {
     ...company,
+    ...extra,
     dividends: dividends.results,
     dividendMetrics: dividendMetrics.results[0]
       ? {
           ...dividendMetrics.results[0],
           // 이벤트가 있으면 FMP 원본, 집계만 있으면 SEC 공식 공시에서 계산한 값이다.
-          source: dividends.results.length ? 'FMP' : 'SEC EDGAR'
+          source: dividendSource || (dividends.results.length ? 'FMP' : 'SEC EDGAR')
         }
       : null,
     financials: financials.results,
@@ -255,6 +259,8 @@ async function findNextSyncJob(environment) {
   const jobs = [];
   for (const { ticker } of watchlistResult.results) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
+      // 회사·재무·배당은 전용 큐로 옮긴다. 기존 시세/차트 수집 주기는 그대로 둔다.
+      if (!['price', 'candles'].includes(dataType)) continue;
       const state = stateByKey.get(`${ticker}:${dataType}`);
       const coverage = coverageByTicker.get(ticker);
       const needsRepair = (dataType === 'financials' && Number(coverage?.hasUsableFinancials) !== 1)
@@ -314,7 +320,7 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-22-sec-fallback-3',
+        buildVersion: '2026-09-22-fundamentals-batch-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY)
@@ -362,6 +368,18 @@ export default {
       return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
     }
 
+    if (url.pathname === '/api/fundamentals/status' || url.pathname === '/api/fundamentals/run') {
+      if (!isPinAuthorized(request, environment)) return jsonResponse(environment, 401, { error: 'PIN 인증이 필요합니다.' });
+      const isStatus = url.pathname.endsWith('/status');
+      if (request.method !== (isStatus ? 'GET' : 'POST')) return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      try {
+        return jsonResponse(environment, 200, isStatus
+          ? await fundamentalStatus({ ...environment }) : await runFundamentalBatch(environment));
+      } catch (error) {
+        return jsonResponse(environment, 502, { error: `수집 상태를 확인하지 못했습니다: ${error.message}` });
+      }
+    }
+
     if (url.pathname === '/api/sync') {
       if (request.method !== 'POST') {
         return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
@@ -384,9 +402,9 @@ export default {
       }
 
       try {
-        // 화면에서 종목을 눌러도 모든 API를 즉시 호출하지 않고, 다음 한 작업만 처리한다.
-        const result = await syncTickerIncrementally(environment, ticker);
-        const status = Object.values(result).every(value => value === 'ok') ? 'success' : 'partial';
+        // 상세창 수집은 회사·재무·배당만 처리하며, 주가/일봉 외부 API는 호출하지 않는다.
+        const result = await runFundamentalBatch(environment, ticker);
+        const status = result.results.some(job => job.status === 'error') ? 'partial' : 'success';
         await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
           VALUES ('manual_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
           .bind(ticker, status, JSON.stringify(result)).run();
@@ -422,7 +440,8 @@ export default {
     return jsonResponse(environment, 404, { error: '존재하지 않는 API 경로입니다.' });
   },
 
-  async scheduled(_controller, environment, executionContext) {
-    executionContext.waitUntil(synchronizeMarketData(environment));
+  async scheduled(controller, environment, executionContext) {
+    executionContext.waitUntil(controller.cron === '1-59/5 * * * *'
+      ? runFundamentalBatch(environment) : synchronizeMarketData(environment));
   }
 };

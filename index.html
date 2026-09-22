@@ -19,6 +19,7 @@
   <script src="https://unpkg.com/lightweight-charts@5.2.1/dist/lightweight-charts.standalone.production.js"></script>
   
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="fundamental-progress.css">
 </head>
 <body class="dark-mode">
 
@@ -156,6 +157,7 @@
             </div>
           </div>
         </div>
+        <p class="fundamental-summary" id="fundamentalSummary" aria-live="polite">재무·배당 수집 상태 확인 대기</p>
         <div class="overview-list-toolbar">
           <div><strong>1-1. 오늘의 우선 확인 종목</strong><span class="badge-count" id="overviewCompanyCount">0종목</span></div>
           <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 API 연동 전 예시입니다.</span>
@@ -391,6 +393,24 @@
               <input type="file" id="importDataInput" accept=".json" style="display:none;">
             </label>
           </div>
+          <hr class="modal-divider">
+          <section class="fundamental-progress" aria-labelledby="fundamentalHeading">
+            <h4 id="fundamentalHeading">5-3. 회사·재무·배당 데이터 수집</h4>
+            <p class="subtext">최초에는 최대 2종목씩 수집하고, 이후에는 새 공시와 변경된 배당을 확인합니다. 시세·차트는 이 작업에 포함되지 않습니다.</p>
+            <div class="backup-actions">
+              <button class="btn btn-primary" id="fundamentalRunBtn" type="button">전체 데이터 채우기</button>
+              <button class="btn btn-secondary" id="fundamentalRefreshBtn" type="button">저장 상태 확인</button>
+            </div>
+            <p id="fundamentalMessage" role="status">잠금 해제 후 상태를 확인합니다.</p>
+            <progress id="fundamentalProgress" max="1" value="0" aria-label="수집 확인 진행률"></progress>
+            <p class="subtext">진행률은 수집을 확인한 비율입니다. 일부 저장·수집 제한은 전체 데이터 완성과 다릅니다. 재시도 대기 항목은 표시된 시각 이후 자동 확인합니다.</p>
+            <div class="fundamental-table-wrap">
+              <table class="fundamental-table">
+                <thead><tr><th>종목</th><th>구분</th><th>상태</th><th>저장 범위·안내</th><th>다음 확인</th></tr></thead>
+                <tbody id="fundamentalRows"></tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </section>
 
@@ -446,5 +466,6 @@
 
   <script src="cloudflare-config.js"></script>
   <script src="app.js"></script>
+  <script src="fundamental-progress.js"></script>
 </body>
 </html>

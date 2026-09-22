@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check app.js && node --check worker/src/index.js",
+    "check": "node --check app.js && node --check fundamental-progress.js && node --check worker/src/index.js && node --check worker/src/fmp-sync.js && node --check worker/src/fundamental-sync.js && node --check worker/src/fundamental-store.js",
+    "test": "node --test tests/*.test.js",
     "pages:dev": "wrangler pages dev .",
     "worker:dev": "wrangler dev --config worker/wrangler.jsonc",
     "d1:migrate:local": "wrangler d1 migrations apply us-stock-pro --local --config worker/wrangler.jsonc"
