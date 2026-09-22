@@ -11,7 +11,6 @@ const state = {
   selectedTicker: 'NVDA',
   activePeriod: '1D',
   dashboardEventsBound: false,
-  mainChartResizeBound: false,
   // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
   apiPin: '',
   watchlistSyncStarted: false,
@@ -205,8 +204,6 @@ let detailCandleSeries = null;
 let detailVolumeSeries = null;
 let detailMa20Series = null;
 let detailMa60Series = null;
-let detailChartResizeObserver = null;
-let detailChartResizeFrame = 0;
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -341,16 +338,11 @@ function destroyMainChart() {
   tvChartContainer.innerHTML = '';
 }
 
-function resizeMainChart() {
-  if (tvChart && tvChartContainer?.clientWidth > 0) {
-    tvChart.applyOptions({ width: tvChartContainer.clientWidth, height: tvChartContainer.clientHeight });
-  }
-}
-
 function initChart() {
   destroyMainChart();
 
   tvChart = LightweightCharts.createChart(tvChartContainer, {
+    autoSize: true,
     layout: {
       background: { color: 'transparent' },
       textColor: '#94a3b8',
@@ -372,12 +364,13 @@ function initChart() {
       timeVisible: true,
       secondsVisible: false,
     },
+    kineticScroll: { mouse: true, touch: true },
     handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
     handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
   });
 
   // 캔들 시리즈 추가
-  candleSeries = tvChart.addCandlestickSeries({
+  candleSeries = tvChart.addSeries(LightweightCharts.CandlestickSeries, {
     upColor: '#10b981',
     downColor: '#f43f5e',
     borderUpColor: '#10b981',
@@ -387,21 +380,21 @@ function initChart() {
   });
 
   // 볼륨(거래량) 시리즈 추가
-  volumeSeries = tvChart.addHistogramSeries({
+  volumeSeries = tvChart.addSeries(LightweightCharts.HistogramSeries, {
     color: 'rgba(56, 189, 248, 0.3)',
     priceFormat: { type: 'volume' },
-    priceScaleId: '', // 메인 차트 오버레이
-    scaleMargins: { top: 0.82, bottom: 0 },
+    priceScaleId: '' // 메인 차트 오버레이
   });
+  volumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
 
   // MA20 & MA60 이동평균선
-  ma20Series = tvChart.addLineSeries({
+  ma20Series = tvChart.addSeries(LightweightCharts.LineSeries, {
     color: '#facc15',
     lineWidth: 1.5,
     title: 'MA20'
   });
 
-  ma60Series = tvChart.addLineSeries({
+  ma60Series = tvChart.addSeries(LightweightCharts.LineSeries, {
     color: '#a855f7',
     lineWidth: 1.5,
     title: 'MA60'
@@ -424,12 +417,6 @@ function initChart() {
       document.getElementById('ohlcVol').textContent = Number(volume.value).toLocaleString();
     }
   });
-
-  // 차트를 다시 만들더라도 전역 resize 이벤트는 한 번만 연결한다.
-  if (!state.mainChartResizeBound) {
-    window.addEventListener('resize', resizeMainChart);
-    state.mainChartResizeBound = true;
-  }
 
   loadStockChart(state.selectedTicker);
 }
@@ -479,61 +466,40 @@ function getWilliamsSummary(candles) {
   };
 }
 
-function createDetailChart(container, height) {
+function createDetailChart(container) {
   return LightweightCharts.createChart(container, {
-    width: Math.max(container.clientWidth, 1),
-    height,
-    layout: { background: { color: 'transparent' }, textColor: '#94a3b8', fontSize: 11, fontFamily: 'Inter, sans-serif' },
+    autoSize: true,
+    layout: { background: { color: '#0b1220' }, textColor: '#94a3b8', fontSize: 11, fontFamily: 'Inter, sans-serif' },
     grid: { vertLines: { color: 'rgba(255, 255, 255, 0.035)' }, horzLines: { color: 'rgba(255, 255, 255, 0.035)' } },
     rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' },
     timeScale: { borderColor: 'rgba(255, 255, 255, 0.08)', timeVisible: true, secondsVisible: false },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    // 어느 패널 위에서도 자연스럽게 확대·이동할 수 있고, 시간축은 아래 동기화 함수가 맞춘다.
+    kineticScroll: { mouse: true, touch: true },
     handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
     handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
   });
 }
 
-function resizeDetailCharts() {
-  detailChartResizeFrame = 0;
-  const container = document.getElementById('detailPriceChart');
-  if (detailPriceChart && container && container.clientWidth > 0) {
-    detailPriceChart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-  }
-}
-
-/** 레이아웃 변경이 연속 발생해도 브라우저 프레임당 한 번만 차트 크기를 다시 계산한다. */
-function scheduleDetailChartResize() {
-  if (detailChartResizeFrame) return;
-  detailChartResizeFrame = requestAnimationFrame(resizeDetailCharts);
-}
-
 /** 상세 모달을 열 때만 차트 객체를 생성해, 숨겨진 요소의 너비가 0으로 계산되는 문제를 막는다. */
 function initDetailCharts() {
-  if (!window.LightweightCharts) return;
-  detailPriceChart?.remove();
-  detailChartResizeObserver?.disconnect();
+  if (!window.LightweightCharts || detailPriceChart) return;
 
   const priceContainer = document.getElementById('detailPriceChart');
   if (!priceContainer) return;
 
-  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285);
+  detailPriceChart = createDetailChart(priceContainer);
 
-  detailCandleSeries = detailPriceChart.addCandlestickSeries({
+  detailCandleSeries = detailPriceChart.addSeries(LightweightCharts.CandlestickSeries, {
     upColor: '#10b981', downColor: '#f43f5e', borderUpColor: '#10b981', borderDownColor: '#f43f5e', wickUpColor: '#10b981', wickDownColor: '#f43f5e'
   });
-  detailMa20Series = detailPriceChart.addLineSeries({ color: '#facc15', lineWidth: 1, title: 'MA20' });
-  detailMa60Series = detailPriceChart.addLineSeries({ color: '#a855f7', lineWidth: 1, title: 'MA60' });
+  detailMa20Series = detailPriceChart.addSeries(LightweightCharts.LineSeries, { color: '#facc15', lineWidth: 1, title: 'MA20' });
+  detailMa60Series = detailPriceChart.addSeries(LightweightCharts.LineSeries, { color: '#a855f7', lineWidth: 1, title: 'MA60' });
   // 거래량은 2번 화면과 같은 차트 안의 하단 18%만 사용한다.
-  detailVolumeSeries = detailPriceChart.addHistogramSeries({
+  detailVolumeSeries = detailPriceChart.addSeries(LightweightCharts.HistogramSeries, {
     priceFormat: { type: 'volume' },
-    priceScaleId: '',
-    scaleMargins: { top: 0.82, bottom: 0 }
+    priceScaleId: ''
   });
-
-  // 단일 캔버스만 관찰해 모달 레이아웃 변경에도 불필요한 재계산을 막는다.
-  detailChartResizeObserver = new ResizeObserver(scheduleDetailChartResize);
-  detailChartResizeObserver.observe(priceContainer);
+  detailVolumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
 }
 
 function renderDetailCharts(company) {
@@ -554,7 +520,6 @@ function renderDetailCharts(company) {
   })));
   // 한 캔버스만 갱신하므로 확대·축소와 드래그가 2번 차트 화면처럼 가볍게 동작한다.
   detailPriceChart.timeScale().fitContent();
-  scheduleDetailChartResize();
 }
 
 async function fetchCompanyFromCloudflare(ticker) {
@@ -1471,7 +1436,10 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
-      if (selectedTab === 'chart') requestAnimationFrame(scheduleDetailChartResize);
+      if (selectedTab === 'chart' && detailPriceChart) {
+        const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
+        if (stock?.marketData) renderDetailCharts(stock.marketData);
+      }
     });
   });
 }
@@ -1485,7 +1453,6 @@ function openCompanyDetailModal() {
   // 모달이 화면에 표시된 뒤에만 최초 차트를 만들고, 이후에는 기존 인스턴스를 재사용한다.
   requestAnimationFrame(() => {
     if (!detailPriceChart) initDetailCharts();
-    else scheduleDetailChartResize();
     const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
     if (stock?.marketData) renderDetailCharts(stock.marketData);
   });

@@ -548,7 +548,7 @@ body.modal-open {
 .company-detail-price strong { display: block; font-family: var(--font-display); font-size: 1.3rem; }
 
 .company-detail-modal { padding: 5vh 5vw; background: rgba(0, 0, 0, 0.84); backdrop-filter: none; }
-.company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow: hidden; }
+.company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow: hidden; background: #0d1422; backdrop-filter: none; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.38); contain: layout paint; }
 .company-detail-modal .modal-card { max-width: none; }
 .company-detail-header { flex: 0 0 auto; margin-bottom: 10px; }
 
@@ -570,7 +570,7 @@ body.modal-open {
 .detail-data-placeholder i { color: var(--accent-cyan); font-size: 2.2rem; }
 .detail-data-placeholder strong { color: var(--text-primary); }
 .detail-chart-stack { position: relative; display: flex; flex: 1 1 auto; min-height: 0; }
-.detail-chart-panel { display: flex; min-height: 0; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(4, 11, 24, 0.42); overflow: hidden; }
+.detail-chart-panel { display: flex; min-height: 0; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: #0b1220; overflow: hidden; contain: layout paint; }
 .detail-combined-chart-panel { width: 100%; }
 .detail-chart-label { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-primary); font-size: 0.78rem; }
 .detail-chart-label span { color: var(--text-muted); font-size: 0.7rem; }
