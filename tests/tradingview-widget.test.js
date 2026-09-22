@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 function loadTradingViewModule() {
   const source = readFileSync(new URL('../tradingview-widget.js', import.meta.url), 'utf8');
-  const context = { window: {} };
+  const context = { window: {}, URL };
   vm.runInNewContext(source, context);
   return context.window.TradingViewCharts;
 }
@@ -51,4 +51,19 @@ test('차트 조작 막대의 허용 시간 단위와 기간만 위젯 설정에
     { ...charts.normalizeSettings({ interval: '잘못된값', range: '99Y' }) },
     { interval: 'D', range: '3M' }
   );
+});
+
+test('위젯 주소는 브라우저 저장값보다 다크 테마를 우선하도록 명시한다', () => {
+  const charts = loadTradingViewModule();
+  const widgetUrl = new URL(charts.buildUrl(
+    { ticker: 'NVDA', exchange: 'NASDAQ' },
+    { interval: 'D', range: '3M' },
+    'tv-nvda-D-3M'
+  ));
+  const settings = JSON.parse(decodeURIComponent(widgetUrl.hash.slice(1)));
+
+  assert.equal(widgetUrl.searchParams.get('theme'), 'dark');
+  assert.equal(widgetUrl.searchParams.get('backgroundColor'), 'rgba(17, 26, 34, 1)');
+  assert.equal(settings.theme, 'dark');
+  assert.equal(settings.frameElementId, 'tv-nvda-D-3M');
 });

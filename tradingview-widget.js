@@ -3,7 +3,7 @@
 // ========================================================
 
 (function initializeTradingViewWidgetModule() {
-  const EMBED_SCRIPT_URL = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  const EMBED_WIDGET_URL = 'https://www.tradingview-widget.com/embed-widget/advanced-chart/';
 
   /**
    * FMP가 반환하는 거래소 표기를 TradingView 심볼 접두사로 변환한다.
@@ -90,7 +90,21 @@
   }
 
   /**
-   * 위젯 스크립트는 iframe을 만들기 때문에 종목 변경 때 기존 DOM을 완전히 비운다.
+   * TradingView의 간접 삽입 스크립트는 방문자 브라우저의 저장된 테마가 설정을 덮어쓸 수 있다.
+   * 따라서 iframe 주소의 검색 파라미터와 해시에 dark 설정을 함께 고정한다.
+   */
+  function buildWidgetUrl(stock, settings, frameId) {
+    const options = buildWidgetOptions(stock, settings);
+    const widgetUrl = new URL(EMBED_WIDGET_URL);
+    widgetUrl.searchParams.set('locale', options.locale);
+    widgetUrl.searchParams.set('theme', options.theme);
+    widgetUrl.searchParams.set('backgroundColor', options.backgroundColor);
+    widgetUrl.hash = encodeURIComponent(JSON.stringify({ ...options, frameElementId: frameId }));
+    return widgetUrl.toString();
+  }
+
+  /**
+   * 위젯 iframe은 종목 변경 때 기존 DOM을 완전히 비운다.
    * 같은 컨테이너에 iframe이 누적되면 입력 반응과 스크롤이 느려지는 문제가 생긴다.
    */
   function mount(container, stock, settings) {
@@ -115,36 +129,30 @@
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'tradingview-widget-container';
 
-    const widget = document.createElement('div');
-    widget.className = 'tradingview-widget-container__widget';
+    const frameId = `tv-${sanitizeTicker(stock.ticker).toLowerCase()}-${chartSettings.interval}-${chartSettings.range}`;
+    const iframe = document.createElement('iframe');
+    iframe.id = frameId;
+    iframe.className = 'tradingview-widget-container__widget';
+    iframe.title = `${sanitizeTicker(stock.ticker)} TradingView 차트`;
+    iframe.loading = 'eager';
+    iframe.setAttribute('allowtransparency', 'true');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('scrolling', 'no');
+    iframe.src = buildWidgetUrl(stock, chartSettings, frameId);
 
     const copyright = document.createElement('div');
     copyright.className = 'tradingview-widget-copyright';
     const symbolPath = symbol.replace(':', '-');
     copyright.innerHTML = `<a href="https://www.tradingview.com/symbols/${encodeURIComponent(symbolPath)}/" rel="noopener nofollow" target="_blank"><span class="blue-text">${sanitizeTicker(stock.ticker)} 차트</span></a><span class="trademark"> by TradingView</span>`;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = EMBED_SCRIPT_URL;
-    script.async = true;
-    script.textContent = JSON.stringify(buildWidgetOptions(stock, chartSettings));
-    script.addEventListener('error', () => {
+    iframe.addEventListener('load', () => loading.remove(), { once: true });
+    iframe.addEventListener('error', () => {
       loading.classList.add('is-error');
       loading.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>TradingView 연결에 실패했습니다. 네트워크 또는 광고 차단 설정을 확인해 주세요.</span>';
     }, { once: true });
 
-    widgetContainer.append(widget, copyright, script);
+    widgetContainer.append(iframe, copyright);
     container.append(loading, widgetContainer);
-
-    // 외부 스크립트가 만든 iframe을 확인한 뒤 로딩 안내만 제거한다.
-    const observer = new MutationObserver(() => {
-      if (container.querySelector('iframe')) {
-        loading.remove();
-        observer.disconnect();
-      }
-    });
-    observer.observe(widgetContainer, { childList: true, subtree: true });
-    window.setTimeout(() => observer.disconnect(), 15000);
   }
 
   function unmount(container) {
@@ -157,6 +165,7 @@
   window.TradingViewCharts = {
     buildSymbol,
     buildOptions: buildWidgetOptions,
+    buildUrl: buildWidgetUrl,
     normalizeSettings: normalizeChartSettings,
     mount,
     unmount
