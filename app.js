@@ -152,6 +152,9 @@ async function synchronizeWatchlistWithCloudflare() {
       renderWatchlist();
       renderPortfolio();
       setStoredDataConnectionState(true);
+      // 5-3 상태 표시는 상세 원본을 모두 읽기 전에 시작한다. 네트워크가 느려도
+      // "잠금 해제 후"라는 초기 문구에 멈춰 보이지 않게 한다.
+      window.FundamentalProgress?.start();
       // 종합 목록의 Williams %R·스파크라인·배당도 D1 원본을 써야 하므로 작은 묶음으로 채운다.
       await hydrateStoredCompanies();
       if (state.selectedTicker) loadStockChart(state.selectedTicker);
@@ -197,10 +200,11 @@ async function hydrateStoredCompanies() {
     const batch = stocks.slice(index, index + 4);
     const companies = await Promise.all(batch.map(stock => fetchCompanyFromCloudflare(stock.ticker)));
     companies.forEach((company, companyIndex) => applyStoredCompanyToStock(batch[companyIndex], company));
+    // 큰 목록도 첫 묶음부터 즉시 반영해 사용자가 전체 요청이 끝날 때까지 기다리지 않게 한다.
+    saveWatchlist(false);
+    renderWatchlist();
+    renderPortfolio();
   }
-  saveWatchlist(false);
-  renderWatchlist();
-  renderPortfolio();
   updateCompanySummary();
 }
 
@@ -532,13 +536,18 @@ function renderDetailCharts(company) {
 async function fetchCompanyFromCloudflare(ticker) {
   const apiUrl = getCloudflareApiUrl(`/api/companies/${encodeURIComponent(ticker)}`);
   if (!apiUrl) return null;
+  const controller = new AbortController();
+  // D1 읽기 자체가 느려진 경우에도 한 종목의 요청이 전체 종합 화면을 멈추게 하지 않는다.
+  const timeoutId = window.setTimeout(() => controller.abort(), 12000);
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl, { signal: controller.signal });
     if (!response.ok) return null;
     return (await response.json()).company || null;
   } catch (error) {
     console.warn('저장된 회사 데이터를 불러오지 못했습니다.', error);
     return null;
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
 
