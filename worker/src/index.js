@@ -279,11 +279,19 @@ async function findNextSyncJob(environment) {
       // 과거 코드가 빈 응답을 성공으로 기록했어도, 실제 핵심 값이 없으면 한 작업씩 자동 복구한다.
       const isDue = retryAllowed && (needsRepair || isNormallyDue);
       if (isDue) {
-        jobs.push({ ticker, dataType, lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z' });
+        // 최초 적재 때는 모든 종목의 현재가를 먼저 채워 목록이 비어 보이지 않게 한다.
+        // 일봉은 그 다음 순서로 저장해 API 호출을 한 작업씩 유지한다.
+        jobs.push({
+          ticker,
+          dataType,
+          lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z',
+          priority: dataType === 'price' ? 0 : 1
+        });
       }
     }
   }
-  jobs.sort((left, right) => left.lastAttemptAt.localeCompare(right.lastAttemptAt));
+  jobs.sort((left, right) => left.lastAttemptAt.localeCompare(right.lastAttemptAt)
+    || left.priority - right.priority);
   return jobs[0] || null;
 }
 
