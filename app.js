@@ -210,6 +210,10 @@ let detailMa60Series = null;
 let detailChartResizeObserver = null;
 let isDetailTimeScaleSyncing = false;
 let detailChartResizeFrame = 0;
+let detailTimeRangeFrame = 0;
+let pendingDetailTimeRange = null;
+let pendingDetailTimeRangeSource = null;
+let lastAppliedDetailTimeRangeKey = '';
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -474,7 +478,7 @@ function getWilliamsSummary(candles) {
   };
 }
 
-function createDetailChart(container, height, isInteractive = false) {
+function createDetailChart(container, height) {
   return LightweightCharts.createChart(container, {
     width: Math.max(container.clientWidth, 1),
     height,
@@ -483,9 +487,9 @@ function createDetailChart(container, height, isInteractive = false) {
     rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' },
     timeScale: { borderColor: 'rgba(255, 255, 255, 0.08)', timeVisible: true, secondsVisible: false },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    // 확대·이동은 가격 차트만 받는다. 보조 차트까지 동시에 입력을 처리하지 않아 조작이 부드러워진다.
-    handleScroll: isInteractive ? { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true } : false,
-    handleScale: isInteractive ? { axisPressedMouseMove: true, mouseWheel: true, pinch: true } : false
+    // 어느 패널 위에서도 자연스럽게 확대·이동할 수 있고, 시간축은 아래 동기화 함수가 맞춘다.
+    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
+    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
   });
 }
 
@@ -510,15 +514,58 @@ function scheduleDetailChartResize() {
 }
 
 function synchronizeDetailTimeScales() {
-  if (!detailPriceChart) return;
-  const targetCharts = [detailVolumeChart, detailWilliamsChart].filter(Boolean);
-  // 날짜 범위를 동기화하면 Williams 계산 전 13일 구간도 시간 기준으로 자연스럽게 맞는다.
-  detailPriceChart.timeScale().subscribeVisibleTimeRangeChange(range => {
-    if (!range || isDetailTimeScaleSyncing) return;
+  const charts = [detailPriceChart, detailVolumeChart, detailWilliamsChart].filter(Boolean);
+  if (charts.length < 2) return;
+
+  const applyPendingRange = () => {
+    detailTimeRangeFrame = 0;
+    const range = pendingDetailTimeRange;
+    const sourceChart = pendingDetailTimeRangeSource;
+    pendingDetailTimeRange = null;
+    pendingDetailTimeRangeSource = null;
+    if (!range) return;
+    lastAppliedDetailTimeRangeKey = `${String(range.from)}:${String(range.to)}`;
     isDetailTimeScaleSyncing = true;
-    targetCharts.forEach(chart => chart.timeScale().setVisibleRange(range));
+    charts.filter(chart => chart !== sourceChart).forEach(chart => chart.timeScale().setVisibleRange(range));
     isDetailTimeScaleSyncing = false;
+  };
+
+  const queueRangeSync = (range, sourceChart) => {
+    if (!range || isDetailTimeScaleSyncing) return;
+    // setVisibleRange가 보조 차트의 이벤트를 다시 발생시켜도 이미 적용한 범위는 무시한다.
+    if (`${String(range.from)}:${String(range.to)}` === lastAppliedDetailTimeRangeKey) return;
+    pendingDetailTimeRange = range;
+    pendingDetailTimeRangeSource = sourceChart;
+    if (!detailTimeRangeFrame) detailTimeRangeFrame = requestAnimationFrame(applyPendingRange);
+  };
+
+  // 세 패널 어디에서 확대·이동해도 동일한 실제 날짜 범위를 공유한다.
+  charts.forEach(sourceChart => {
+    sourceChart.timeScale().subscribeVisibleTimeRangeChange(range => {
+      queueRangeSync(range, sourceChart);
+    });
   });
+}
+
+/** 최초 렌더링에도 명시적으로 시간 범위를 전달해 보조 차트가 자체 범위를 쓰지 않게 한다. */
+function syncDetailTimeRangeFromPrice() {
+  const range = detailPriceChart?.timeScale().getVisibleRange();
+  if (!range) return;
+  pendingDetailTimeRange = range;
+  pendingDetailTimeRangeSource = detailPriceChart;
+  if (!detailTimeRangeFrame) {
+    detailTimeRangeFrame = requestAnimationFrame(() => {
+      detailTimeRangeFrame = 0;
+      const currentRange = pendingDetailTimeRange;
+      pendingDetailTimeRange = null;
+      pendingDetailTimeRangeSource = null;
+      if (!currentRange) return;
+      lastAppliedDetailTimeRangeKey = `${String(currentRange.from)}:${String(currentRange.to)}`;
+      isDetailTimeScaleSyncing = true;
+      [detailVolumeChart, detailWilliamsChart].filter(Boolean).forEach(chart => chart.timeScale().setVisibleRange(currentRange));
+      isDetailTimeScaleSyncing = false;
+    });
+  }
 }
 
 /** 상세 모달을 열 때만 차트 객체를 생성해, 숨겨진 요소의 너비가 0으로 계산되는 문제를 막는다. */
@@ -532,7 +579,7 @@ function initDetailCharts() {
   const williamsContainer = document.getElementById('detailWilliamsChart');
   if (!priceContainer || !volumeContainer || !williamsContainer) return;
 
-  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285, true);
+  detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285);
   detailVolumeChart = createDetailChart(volumeContainer, volumeContainer.clientHeight || 95);
   detailWilliamsChart = createDetailChart(williamsContainer, williamsContainer.clientHeight || 135);
 
@@ -549,10 +596,9 @@ function initDetailCharts() {
   detailWilliamsSeries.applyOptions({ priceFormat: { type: 'price', precision: 0, minMove: 1 } });
   synchronizeDetailTimeScales();
 
+  // 세 캔버스 대신 공통 레이아웃 한 곳만 관찰해 ResizeObserver의 중복 작업을 줄인다.
   detailChartResizeObserver = new ResizeObserver(scheduleDetailChartResize);
-  detailChartResizeObserver.observe(priceContainer);
-  detailChartResizeObserver.observe(volumeContainer);
-  detailChartResizeObserver.observe(williamsContainer);
+  detailChartResizeObserver.observe(document.getElementById('detailChartStack'));
 }
 
 function renderDetailCharts(company) {
@@ -575,6 +621,7 @@ function renderDetailCharts(company) {
   detailWilliamsSeries.setData(williamsValues);
   // 가격 차트의 시간축만 기준으로 삼아 보조 차트에 전달한다. 세 번의 동시 fitContent를 피한다.
   detailPriceChart.timeScale().fitContent();
+  requestAnimationFrame(syncDetailTimeRangeFromPrice);
   scheduleDetailChartResize();
 }
 
@@ -1511,6 +1558,11 @@ function closeCompanyDetailModal() {
   detailChartResizeObserver?.disconnect();
   if (detailChartResizeFrame) cancelAnimationFrame(detailChartResizeFrame);
   detailChartResizeFrame = 0;
+  if (detailTimeRangeFrame) cancelAnimationFrame(detailTimeRangeFrame);
+  detailTimeRangeFrame = 0;
+  pendingDetailTimeRange = null;
+  pendingDetailTimeRangeSource = null;
+  lastAppliedDetailTimeRangeKey = '';
   [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
   detailPriceChart = null;
   detailVolumeChart = null;
