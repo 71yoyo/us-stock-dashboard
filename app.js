@@ -1014,7 +1014,7 @@ function renderWatchlist() {
         <span class="stock-item-meta"><span class="strategy-badge ${strategy}">${strategy === 'dividend' ? '배당 투자' : '주가 투자'}</span>${escapeHtml(getStockSector(stock))}</span>
       </div>
       <div class="stock-item-right">
-        <div class="stock-item-price">${formatCurrency(stock.price)}</div>
+        <!-- 4번은 관리 화면이므로 현재가 대신 목록 분류·등락률만 표시한다. -->
         <div class="stock-item-change ${directionClass}">
           ${formatPercent(stock.changePct)}
         </div>

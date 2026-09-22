@@ -1013,11 +1013,6 @@ body.modal-open {
   flex-shrink: 0;
 }
 
-.stock-item-price {
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
 .stock-item-change {
   font-size: 0.75rem;
   font-weight: 600;
