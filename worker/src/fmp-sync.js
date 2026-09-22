@@ -589,8 +589,8 @@ export async function syncTickerIncrementally(environment, ticker) {
   const stateByType = new Map(states.results.map(state => [state.dataType, state]));
   const coverageState = coverage.results[0] || {};
   const missingDataTypes = [
-    !coverageState.hasDividendMetrics ? 'dividends' : null,
-    !coverageState.hasUsableFinancials ? 'financials' : null
+    Number(coverageState.hasDividendMetrics) !== 1 ? 'dividends' : null,
+    Number(coverageState.hasUsableFinancials) !== 1 ? 'financials' : null
   ].filter(dataType => {
     if (!dataType) return false;
     const syncState = stateByType.get(dataType);

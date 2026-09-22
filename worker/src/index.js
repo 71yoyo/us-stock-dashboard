@@ -257,8 +257,8 @@ async function findNextSyncJob(environment) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
       const state = stateByKey.get(`${ticker}:${dataType}`);
       const coverage = coverageByTicker.get(ticker);
-      const needsRepair = (dataType === 'financials' && !coverage?.hasUsableFinancials)
-        || (dataType === 'dividends' && !coverage?.hasDividendMetrics);
+      const needsRepair = (dataType === 'financials' && Number(coverage?.hasUsableFinancials) !== 1)
+        || (dataType === 'dividends' && Number(coverage?.hasDividendMetrics) !== 1);
       const retryAllowed = !state?.nextRetryAt || new Date(state.nextRetryAt).getTime() <= Date.now();
       const isNormallyDue = dataType === 'financials'
         ? isFinancialRefreshDue(state, scheduleByTicker.get(ticker), nyseHolidayDates)
@@ -314,6 +314,7 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
+        buildVersion: '2026-09-22-sec-fallback-2',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY)
