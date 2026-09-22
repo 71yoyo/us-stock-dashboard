@@ -573,10 +573,35 @@ export async function syncTickerDataType(environment, ticker, dataType) {
  * FMP 무료 호출 한도와 SEC의 공정 사용 정책을 함께 지키기 위한 증분 갱신 규칙이다.
  */
 export async function syncTickerIncrementally(environment, ticker) {
-  const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,
-    next_retry_at AS nextRetryAt
-    FROM data_sync_state WHERE ticker = ?`).bind(ticker).all();
+  const [states, coverage] = await environment.DB.batch([
+    environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,
+      next_retry_at AS nextRetryAt
+      FROM data_sync_state WHERE ticker = ?`).bind(ticker),
+    environment.DB.prepare(`SELECT
+      CASE WHEN EXISTS (
+        SELECT 1 FROM financial_metrics WHERE ticker = ? AND period_type = 'quarterly'
+          AND fiscal_period_end >= date('now', '-18 months') AND revenue IS NOT NULL AND net_income IS NOT NULL
+      ) THEN 1 ELSE 0 END AS hasUsableFinancials,
+      CASE WHEN EXISTS (
+        SELECT 1 FROM dividend_metrics WHERE ticker = ? AND annual_dividend IS NOT NULL
+      ) THEN 1 ELSE 0 END AS hasDividendMetrics`).bind(ticker, ticker)
+  ]);
   const stateByType = new Map(states.results.map(state => [state.dataType, state]));
+  const coverageState = coverage.results[0] || {};
+  const missingDataTypes = [
+    !coverageState.hasDividendMetrics ? 'dividends' : null,
+    !coverageState.hasUsableFinancials ? 'financials' : null
+  ].filter(dataType => {
+    if (!dataType) return false;
+    const syncState = stateByType.get(dataType);
+    return !syncState?.nextRetryAt || new Date(syncState.nextRetryAt).getTime() <= Date.now();
+  });
+  if (missingDataTypes.length) {
+    // 사용자가 상세창을 연 경우 비어 있는 핵심 데이터 두 종류는 한 번의 요청에서 즉시 복구한다.
+    return syncTickerFromFmp(environment, ticker, missingDataTypes, {
+      syncEarningsSchedule: missingDataTypes.includes('financials')
+    });
+  }
   const refreshRules = [
     ['price', 30],
     ['candles', 24 * 60],

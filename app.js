@@ -159,6 +159,13 @@ async function updateStockProfileFromCloudflare(ticker) {
     stock.changePct = Number.isFinite(company.changePercent) ? company.changePercent : stock.changePct;
     saveWatchlist();
     renderWatchlist();
+    // 대용량 금융 원본은 D1에만 두고 브라우저 localStorage에는 저장하지 않는다.
+    stock.marketData = company;
+    if (ticker === state.selectedTicker) {
+      renderCompanyDetailData(company);
+      renderDetailCharts(company);
+      updateCompanySummary();
+    }
   } catch (error) {
     // 네트워크 실패는 화면 사용을 막지 않는다. 다음 동기화 또는 새로고침에서 다시 시도한다.
     console.warn('Cloudflare 회사 프로필을 불러오지 못했습니다.', error);
@@ -1462,6 +1469,8 @@ function openCompanyDetailModal() {
     const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
     if (stock?.marketData) renderDetailCharts(stock.marketData);
   });
+  // 상세창에 저장값을 먼저 보여준 뒤, 누락 데이터가 있으면 Worker가 SEC 대체 경로로 즉시 보완한다.
+  if (state.selectedTicker) void synchronizeStockDataWithCloudflare(state.selectedTicker);
 }
 
 function closeCompanyDetailModal() {
