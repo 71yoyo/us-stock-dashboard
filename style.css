@@ -575,17 +575,101 @@ body.modal-open {
 .detail-chart-label { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-primary); font-size: 0.78rem; }
 .detail-chart-label span { color: var(--text-muted); font-size: 0.7rem; }
 .detail-chart-canvas { width: 100%; min-height: 0; flex: 1 1 auto; }
-.tradingview-chart-host { position: relative; background: #0b1220; }
+.tradingview-chart-host { position: relative; background: #111a22; }
 .tradingview-chart-host .tradingview-widget-container { width: 100%; height: 100%; }
 .tradingview-chart-host .tradingview-widget-container__widget { width: 100%; height: calc(100% - 24px); }
 .tradingview-chart-host .tradingview-widget-copyright { height: 24px; padding: 4px 8px; color: var(--text-muted); font-size: 0.68rem; text-align: right; }
 .tradingview-chart-host .tradingview-widget-copyright a { color: var(--accent-cyan); text-decoration: none; }
-.tradingview-chart-loading { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 9px; background: #0b1220; color: var(--text-muted); font-size: 0.8rem; }
+.tradingview-chart-loading { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 9px; background: #111a22; color: var(--text-muted); font-size: 0.8rem; }
 .tradingview-chart-loading i { color: var(--accent-cyan); }
 .tradingview-chart-loading.is-error { color: #fda4af; text-align: center; }
 .detail-chart-empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); background: rgba(11, 15, 25, 0.92); color: var(--text-muted); text-align: center; }
 .detail-chart-empty-state i { color: var(--accent-cyan); font-size: 2rem; }
 .detail-chart-empty-state strong { color: var(--text-primary); }
+
+/* TradingView iframe 내부는 CSS로 꾸밀 수 없어서, 기간·시간 단위 UI를 앱 바깥에 직접 제공한다. */
+.tradingview-control-bar,
+.tv-range-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #151e26;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.tradingview-control-bar {
+  min-height: 42px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.tv-timeframe-group,
+.tv-study-tags,
+.tv-range-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tv-timeframe-group { gap: 3px; }
+
+.tv-control-btn,
+.tv-range-btn {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #93a4b8;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tv-control-btn { min-width: 38px; padding: 7px 8px; }
+.tv-range-btn { padding: 7px 9px; }
+.tv-control-btn:hover,
+.tv-range-btn:hover { color: #e2e8f0; background: rgba(148, 163, 184, 0.12); }
+.tv-control-btn.active,
+.tv-range-btn.active {
+  color: #b7ecff;
+  background: rgba(14, 116, 144, 0.34);
+  border-color: rgba(56, 189, 248, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.08);
+}
+
+.tv-study-tags { justify-content: flex-end; gap: 6px; }
+.tv-study-tags span {
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+.tv-study-tags span + span { background: rgba(56, 189, 248, 0.12); color: var(--accent-cyan); }
+
+.tv-range-bar {
+  justify-content: flex-start;
+  gap: 3px;
+  min-height: 38px;
+  padding: 5px 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.main-chart-control-bar {
+  margin-top: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.main-chart-range-bar {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
 
 .card-header {
   display: flex;
@@ -1116,7 +1200,9 @@ body.modal-open {
 .chart-canvas-container {
   width: 100%;
   height: 420px;
-  border-radius: var(--radius-sm);
+  border-left: 1px solid rgba(148, 163, 184, 0.16);
+  border-right: 1px solid rgba(148, 163, 184, 0.16);
+  background: #111a22;
   overflow: hidden;
   position: relative;
 }
@@ -1373,6 +1459,11 @@ body.modal-open {
   .chart-canvas-container {
     height: 320px;
   }
+  .tradingview-control-bar { align-items: flex-start; flex-direction: column; }
+  .tv-study-tags { justify-content: flex-start; }
+  .tv-control-btn { min-width: 34px; padding: 6px; }
+  .tv-range-bar { gap: 2px; }
+  .tv-range-btn { padding: 6px 7px; font-size: 0.7rem; }
   .company-overview-layout { grid-template-columns: 1fr; }
   .company-summary-top, .company-price-summary { align-items: flex-start; flex-direction: column; }
   .company-summary-name { display: block; margin: 4px 0 0; }

@@ -28,9 +28,25 @@ test('기본 위젯은 3개월 일봉·MA20·Williams %R로 구성', () => {
   assert.equal(options.interval, 'D');
   assert.equal(options.range, '3M');
   assert.equal(options.hide_volume, false);
+  assert.equal(options.hide_top_toolbar, true);
   assert.deepEqual(Array.from(options.studies), [
     'MASimple@tv-basicstudies',
     'WilliamsR@tv-basicstudies'
   ]);
   assert.equal(options.studies_overrides['moving average.length'], 20);
+});
+
+test('차트 조작 막대의 허용 시간 단위와 기간만 위젯 설정에 반영', () => {
+  const charts = loadTradingViewModule();
+  const options = charts.buildOptions(
+    { ticker: 'NVDA', exchange: 'NASDAQ' },
+    { interval: '15', range: '12M' }
+  );
+
+  assert.equal(options.interval, '15');
+  assert.equal(options.range, '12M');
+  assert.deepEqual(
+    { ...charts.normalizeSettings({ interval: '잘못된값', range: '99Y' }) },
+    { interval: 'D', range: '3M' }
+  );
 });

@@ -9,6 +9,8 @@ const state = {
   usdKrwRate: 1342.50,
   isKrwView: false,
   selectedTicker: 'NVDA',
+  // TradingView는 iframe 내부 UI를 앱 CSS로 바꿀 수 없어, 시간·기간 선택 상태를 앱에서 관리한다.
+  chartSettings: { interval: 'D', range: '3M' },
   dashboardEventsBound: false,
   // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
   apiPin: '',
@@ -341,19 +343,62 @@ function isDetailChartTabActive() {
   return document.querySelector('.company-detail-tab.active')?.getAttribute('data-detail-tab') === 'chart';
 }
 
+/** 앱의 한글 조작 막대가 가리키는 설정을 모든 차트 위치에 동일하게 표시한다. */
+function syncTradingViewControlState() {
+  const { interval, range } = state.chartSettings;
+  document.querySelectorAll('[data-chart-interval]').forEach(button => {
+    const isActive = button.dataset.chartInterval === interval;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+  document.querySelectorAll('[data-chart-range]').forEach(button => {
+    const isActive = button.dataset.chartRange === range;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+
+  // FMP 저장값은 일봉이므로 분·시간·주봉 화면에 섞어 보이지 않게 일봉일 때만 노출한다.
+  const ohlcBar = document.getElementById('chartOhlcBar');
+  if (ohlcBar) ohlcBar.classList.toggle('hidden', interval !== 'D');
+}
+
+/** 조작 버튼은 최초 한 번만 연결하고, 설정 변경 시 보이는 iframe만 다시 만든다. */
+function setupTradingViewControls() {
+  document.querySelectorAll('[data-chart-interval]').forEach(button => {
+    button.addEventListener('click', () => {
+      const nextInterval = button.dataset.chartInterval;
+      if (!nextInterval || state.chartSettings.interval === nextInterval) return;
+      state.chartSettings.interval = nextInterval;
+      syncTradingViewControlState();
+      renderActiveTradingViewChart();
+    });
+  });
+
+  document.querySelectorAll('[data-chart-range]').forEach(button => {
+    button.addEventListener('click', () => {
+      const nextRange = button.dataset.chartRange;
+      if (!nextRange || state.chartSettings.range === nextRange) return;
+      state.chartSettings.range = nextRange;
+      syncTradingViewControlState();
+      renderActiveTradingViewChart();
+    });
+  });
+  syncTradingViewControlState();
+}
+
 /** 현재 보이는 위치에만 외부 iframe을 생성해 불필요한 중복 렌더링을 막는다. */
 function renderActiveTradingViewChart(stock = getSelectedStock()) {
   if (!stock || !window.TradingViewCharts) return;
 
   if (isCompanyDetailOpen() && isDetailChartTabActive()) {
     window.TradingViewCharts.unmount(tvChartContainer);
-    window.TradingViewCharts.mount(detailPriceChartContainer, stock);
+    window.TradingViewCharts.mount(detailPriceChartContainer, stock, state.chartSettings);
     return;
   }
 
   window.TradingViewCharts.unmount(detailPriceChartContainer);
   if (state.currentView === 'chart') {
-    window.TradingViewCharts.mount(tvChartContainer, stock);
+    window.TradingViewCharts.mount(tvChartContainer, stock, state.chartSettings);
   } else {
     window.TradingViewCharts.unmount(tvChartContainer);
   }
@@ -368,6 +413,7 @@ function destroyDetailChart() {
 }
 
 function initChart() {
+  syncTradingViewControlState();
   renderActiveTradingViewChart();
 }
 
@@ -1381,6 +1427,7 @@ function initDashboard() {
   if (!state.dashboardEventsBound) {
     setupOverviewQuickAdd();
     setupCompanyDetail();
+    setupTradingViewControls();
     state.dashboardEventsBound = true;
   }
   renderWatchlist();
