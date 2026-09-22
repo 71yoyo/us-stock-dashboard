@@ -914,6 +914,123 @@ function formatMetricValue(value, suffix = '') {
   return number === null ? '데이터 없음' : `${number.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
 }
 
+/** D1의 배당 이벤트 날짜를 브라우저 시간대 영향 없이 YYYY-MM-DD로 정규화한다. */
+function normalizeIsoDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? value : null;
+}
+
+function compareIsoDate(left, right) {
+  return left.localeCompare(right);
+}
+
+/** 월말을 넘는 날짜는 해당 월의 마지막 날로 맞춰 월배당 예상일을 안전하게 계산한다. */
+function addCalendarMonths(isoDate, amount) {
+  const normalized = normalizeIsoDate(isoDate);
+  if (!normalized) return null;
+  const [year, month, day] = normalized.split('-').map(Number);
+  const targetMonthIndex = month - 1 + amount;
+  const targetYear = year + Math.floor(targetMonthIndex / 12);
+  const targetMonth = ((targetMonthIndex % 12) + 12) % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(Math.min(day, lastDay)).padStart(2, '0')}`;
+}
+
+function addCalendarYears(isoDate, amount) {
+  return addCalendarMonths(isoDate, amount * 12);
+}
+
+function dateDifferenceInDays(startDate, endDate) {
+  const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
+  return Number.isFinite(start) && Number.isFinite(end) ? Math.round((end - start) / 86400000) : null;
+}
+
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+/** 저장된 FMP 주기명이 우선이며, 없을 때만 실제 배당 기준일 간격으로 주기를 판별한다. */
+function detectDividendFrequency(events) {
+  const explicitFrequency = events.map(event => String(event.frequency || '').toLowerCase()).find(Boolean) || '';
+  if (explicitFrequency.includes('month')) return { key: 'monthly', label: '월배당', basis: '저장된 배당 주기' };
+  if (explicitFrequency.includes('quarter')) return { key: 'quarterly', label: '분기배당', basis: '저장된 배당 주기' };
+  if (explicitFrequency.includes('semi') || explicitFrequency.includes('half')) return { key: 'semiannual', label: '반기배당', basis: '저장된 배당 주기' };
+  if (explicitFrequency.includes('annual') || explicitFrequency.includes('year')) return { key: 'annual', label: '연배당', basis: '저장된 배당 주기' };
+
+  const dates = [...new Set(events.map(event => normalizeIsoDate(event.exDividendDate)).filter(Boolean))].sort(compareIsoDate);
+  const intervals = dates.slice(1).map((date, index) => dateDifferenceInDays(dates[index], date)).filter(days => days !== null && days > 0);
+  const typicalDays = median(intervals.slice(-8));
+  if (typicalDays === null) return { key: 'unknown', label: '주기 판단 대기', basis: '저장된 날짜 부족' };
+  if (typicalDays <= 45) return { key: 'monthly', label: '월배당', basis: '저장된 날짜 간격' };
+  if (typicalDays <= 120) return { key: 'quarterly', label: '분기배당', basis: '저장된 날짜 간격' };
+  if (typicalDays <= 210) return { key: 'semiannual', label: '반기배당', basis: '저장된 날짜 간격' };
+  return { key: 'annual', label: '연배당', basis: '저장된 날짜 간격' };
+}
+
+/** 확정 공시가 없을 때만 과거 배당 이벤트에서 다음 예상 기준일을 계산한다. */
+function estimateNextDividendDate(events, frequency, today) {
+  const pastEvents = events
+    .map(event => ({ ...event, exDividendDate: normalizeIsoDate(event.exDividendDate) }))
+    .filter(event => event.exDividendDate && compareIsoDate(event.exDividendDate, today) < 0)
+    .sort((left, right) => compareIsoDate(right.exDividendDate, left.exDividendDate));
+  if (!pastEvents.length || frequency.key === 'unknown') return null;
+
+  if (frequency.key === 'monthly') {
+    const estimatedDate = addCalendarMonths(pastEvents[0].exDividendDate, 1);
+    return estimatedDate && compareIsoDate(estimatedDate, today) > 0
+      ? { date: estimatedDate, basis: '직전 월 배당 기준일' }
+      : null;
+  }
+
+  // 분기·반기·연배당은 작년 같은 배당 시점을 올해(이미 지났으면 다음 해)로 옮긴다.
+  const candidates = pastEvents.map(event => {
+    let candidate = event.exDividendDate;
+    while (compareIsoDate(candidate, today) <= 0) candidate = addCalendarYears(candidate, 1);
+    return candidate;
+  }).filter(Boolean).sort(compareIsoDate);
+  return candidates[0] ? { date: candidates[0], basis: '전년 동일 배당 시점' } : null;
+}
+
+/** 상세 1-3에 표시할 확정·예상 날짜와 배당 주기를 모두 저장된 이벤트만으로 만든다. */
+function getDividendSchedule(company) {
+  const events = (company.dividends || []).filter(event => normalizeIsoDate(event.exDividendDate));
+  const frequency = detectDividendFrequency(events);
+  const today = new Date().toISOString().slice(0, 10);
+  const confirmedDate = company.dividendMetrics?.nextDateStatus === 'confirmed'
+    ? normalizeIsoDate(company.dividendMetrics?.nextExDividendDate)
+    : null;
+  const latestPayout = [...events]
+    .filter(event => compareIsoDate(event.exDividendDate, today) < 0)
+    .sort((left, right) => compareIsoDate(right.exDividendDate, left.exDividendDate))[0] || null;
+
+  if (confirmedDate && compareIsoDate(confirmedDate, today) >= 0) {
+    return {
+      frequency,
+      latestPayout,
+      nextDate: confirmedDate,
+      nextStatus: 'confirmed',
+      statusLabel: '확정 공시',
+      estimateBasis: '저장된 확정 배당 일정'
+    };
+  }
+
+  const estimated = estimateNextDividendDate(events, frequency, today);
+  return {
+    frequency,
+    latestPayout,
+    nextDate: estimated?.date || null,
+    nextStatus: estimated ? 'estimated' : 'unknown',
+    statusLabel: estimated ? '예상일' : '예측 불가',
+    estimateBasis: estimated?.basis || '저장된 배당 이벤트 부족'
+  };
+}
+
 /** 상세 모달의 재무·배당 카드는 D1 원본 집계값만 표시한다. */
 function renderCompanyDetailData(company) {
   const financialContainer = document.getElementById('detailFinancialMetrics');
@@ -937,17 +1054,31 @@ function renderCompanyDetailData(company) {
     : '아직 저장된 재무 데이터가 없습니다.';
 
   const dividend = company.dividendMetrics;
-  const statusText = dividend?.nextDateStatus === 'confirmed' ? '확정' : dividend?.nextDateStatus === 'estimated' ? '예정' : '미정';
+  const schedule = getDividendSchedule(company);
+  const perPayoutLabel = schedule.frequency.key === 'monthly' ? '최근 월 배당금'
+    : schedule.frequency.key === 'quarterly' ? '최근 분기 배당금'
+      : schedule.frequency.key === 'semiannual' ? '최근 반기 배당금'
+        : schedule.frequency.key === 'annual' ? '최근 연 배당금' : '최근 1회 배당금';
   const dividendEntries = [
+    ['배당 주기', schedule.frequency.label, schedule.frequency.basis],
     ['배당수익률', dividend?.dividendYield, '%'], ['연 배당금', dividend?.annualDividend, '$'],
-    [dividend?.source === 'SEC EDGAR' ? '최근 공시 분기 배당금' : '최근 3개월 배당금', dividend?.quarterlyDividend, '$'], ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'],
-    ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'], ['다음 배당일', dividend?.nextExDividendDate || '미정', ''],
-    ['날짜 상태', statusText, '']
+    [perPayoutLabel, schedule.latestPayout?.amount, '$'], ['최근 3개월 배당금', dividend?.quarterlyDividend, '$'],
+    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'], ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'],
+    ['다음 배당 기준일', schedule.nextDate || '미정', schedule.estimateBasis, schedule.nextStatus],
+    ['날짜 상태', schedule.statusLabel, schedule.nextStatus === 'confirmed' ? '저장된 확정 일정' : schedule.estimateBasis, schedule.nextStatus]
   ];
-  dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix]) =>
-    `<div class="company-metric"><span>${label}</span><strong>${typeof value === 'string' ? value : formatMetricValue(value, suffix)}</strong></div>`).join('');
-  document.getElementById('detailDividendSource').textContent = dividend
-    ? `계산 시각 ${dividend.calculatedAt || '알 수 없음'} · ${dividend.source || '저장 데이터'} 기반 · 연 배당금은 최근 완료 연도, 미확보 항목은 5-3 수집 현황에서 확인`
+  dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix, status]) => {
+    const displayValue = typeof value === 'string' ? value : formatMetricValue(value, suffix);
+    const detail = suffix && typeof value === 'string' ? `<small>${escapeHtml(suffix)}</small>` : '';
+    return `<div class="company-metric${status ? ` dividend-date ${status}` : ''}"><span>${label}</span><strong>${escapeHtml(displayValue)}</strong>${detail}</div>`;
+  }).join('');
+  const nextDateDescription = schedule.nextStatus === 'confirmed'
+    ? '확정 공시값'
+    : schedule.nextStatus === 'estimated'
+      ? '저장된 과거 배당 이력 예상값'
+      : '저장된 이벤트 부족으로 계산하지 않음';
+  document.getElementById('detailDividendSource').textContent = dividend || company.dividends?.length
+    ? `계산 시각 ${dividend?.calculatedAt || '알 수 없음'} · ${dividend?.source || '저장 배당 이벤트'} 기반 · ${schedule.frequency.label} · 다음 날짜는 ${nextDateDescription}입니다.`
     : '배당 이력이 아직 저장되지 않았습니다.';
 }
 
