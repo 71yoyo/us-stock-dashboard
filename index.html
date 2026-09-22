@@ -1,26 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0b0f19">
   <meta name="description" content="나만의 미국 주식 실시간 분석 및 포트폴리오 대시보드">
   <title>US Stock Pro - 미국 주식 대시보드</title>
-  
+
   <!-- 폰트: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- 아이콘 FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- TradingView Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts@5.2.1/dist/lightweight-charts.standalone.production.js"></script>
-  
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="fundamental-progress.css">
 </head>
+
 <body class="dark-mode">
 
   <!-- 🔒 보안 잠금 화면 (PIN 번호) -->
@@ -31,14 +32,14 @@
       </div>
       <h2>미국 주식 비공개 대시보드</h2>
       <p class="pin-subtext">나만 볼 수 있는 안전한 보안 환경입니다.<br>화면 키패드 또는 키보드로 PIN 4자리를 입력해 주세요.</p>
-      
+
       <div class="pin-dots" id="pinDots">
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
       </div>
-      
+
       <div id="pinError" class="pin-error-msg"></div>
 
       <!-- 키패드 -->
@@ -61,7 +62,7 @@
 
   <!-- 📱 메인 앱 컨테이너 -->
   <div id="mainApp" class="app-container hidden">
-    
+
     <!-- 상단 네비게이션 헤더 -->
     <header class="app-header">
       <div class="header-left">
@@ -160,13 +161,15 @@
         <p class="fundamental-summary" id="fundamentalSummary" aria-live="polite">재무·배당 수집 상태 확인 대기</p>
         <div class="overview-list-toolbar">
           <div><strong>1-1. 오늘의 우선 확인 종목</strong><span class="badge-count" id="overviewCompanyCount">0종목</span></div>
-          <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 API 연동 전 예시입니다.</span>
+          <span class="overview-data-notice"><i class="fa-solid fa-circle-info"></i> Williams %R·배당 수치는 API 연동 전
+            예시입니다.</span>
         </div>
         <div class="overview-stock-list priority-stock-list" id="priorityCompanyList"></div>
 
         <div class="investment-list-section">
           <div class="overview-list-toolbar">
-            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">배당일·D-day는 확정 여부에 따라 색상으로 구분</span></div>
+            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">배당일·D-day는 확정 여부에 따라 색상으로 구분</span>
+            </div>
           </div>
           <div class="overview-stock-list" id="dividendCompanyList"></div>
         </div>
@@ -180,51 +183,58 @@
       </section>
 
       <!-- 선택 회사 상세: D1에 저장된 가격·재무·배당 데이터를 표시 -->
-      <div class="modal-overlay company-detail-modal hidden" id="companyDetailModal" role="dialog" aria-modal="true" aria-label="회사 상세 분석">
-      <section class="section-card company-detail-section">
-        <div class="card-header company-detail-header">
-          <div class="header-title">
-            <button class="btn-icon company-back-btn" id="closeCompanyDetailBtn" title="상세 분석 닫기"><i class="fa-solid fa-xmark"></i></button>
-            <div>
-              <h3><span id="detailTicker">NVDA</span> 상세 분석</h3>
-              <p class="section-desc" id="detailCompanyName">NVIDIA Corporation</p>
+      <div class="modal-overlay company-detail-modal hidden" id="companyDetailModal" role="dialog" aria-modal="true"
+        aria-label="회사 상세 분석">
+        <section class="section-card company-detail-section">
+          <div class="card-header company-detail-header">
+            <div class="header-title">
+              <button class="btn-icon company-back-btn" id="closeCompanyDetailBtn" title="상세 분석 닫기"><i
+                  class="fa-solid fa-xmark"></i></button>
+              <div>
+                <h3><span id="detailTicker">NVDA</span> 상세 분석</h3>
+                <p class="section-desc" id="detailCompanyName">NVIDIA Corporation</p>
+              </div>
+            </div>
+            <div class="company-detail-price">
+              <strong id="detailPrice">$124.58</strong>
+              <span class="up" id="detailChange">+3.53%</span>
             </div>
           </div>
-          <div class="company-detail-price">
-            <strong id="detailPrice">$124.58</strong>
-            <span class="up" id="detailChange">+3.53%</span>
+          <div class="company-detail-tabs" role="tablist">
+            <button class="company-detail-tab active" data-detail-tab="chart" role="tab">1-1. 차트</button>
+            <button class="company-detail-tab" data-detail-tab="financials" role="tab">1-2. 재무</button>
+            <button class="company-detail-tab" data-detail-tab="dividend" role="tab">1-3. 배당</button>
           </div>
-        </div>
-        <div class="company-detail-tabs" role="tablist">
-          <button class="company-detail-tab active" data-detail-tab="chart" role="tab">1-1. 차트</button>
-          <button class="company-detail-tab" data-detail-tab="financials" role="tab">1-2. 재무</button>
-          <button class="company-detail-tab" data-detail-tab="dividend" role="tab">1-3. 배당</button>
-        </div>
-        <div class="company-detail-panel" data-detail-panel="chart">
-          <div class="william-r-summary-grid">
-            <div class="company-metric"><span>현재 Williams %R</span><strong id="detailWilliamsR">데이터 수집 대기</strong></div>
-            <div class="company-metric"><span>14일 기준 상태</span><strong id="detailWilliamsSignal">데이터 수집 대기</strong></div>
-            <div class="company-metric"><span>투자 신호</span><strong id="detailInvestmentSignal">데이터 수집 대기</strong></div>
-          </div>
-          <div class="detail-chart-stack" id="detailChartStack">
-            <section class="detail-chart-panel detail-combined-chart-panel">
-              <div class="detail-chart-label"><strong>주가 차트</strong><span>일봉 · 거래량 · MA20 · MA60</span></div>
-              <div class="detail-chart-canvas" id="detailPriceChart" aria-label="주가 캔들 차트"></div>
-            </section>
-            <div class="detail-chart-empty-state hidden" id="detailChartEmptyState">
-              <i class="fa-solid fa-clock-rotate-left"></i><strong>차트 데이터를 수집하고 있습니다.</strong><span>저장된 일봉 데이터가 쌓이면 가격·거래량 차트가 자동으로 표시됩니다.</span>
+          <div class="company-detail-panel" data-detail-panel="chart">
+            <div class="william-r-summary-grid">
+              <div class="company-metric"><span>현재 Williams %R</span><strong id="detailWilliamsR">데이터 수집 대기</strong>
+              </div>
+              <div class="company-metric"><span>14일 기준 상태</span><strong id="detailWilliamsSignal">데이터 수집 대기</strong>
+              </div>
+              <div class="company-metric"><span>투자 신호</span><strong id="detailInvestmentSignal">데이터 수집 대기</strong></div>
+            </div>
+            <div class="detail-chart-stack" id="detailChartStack">
+              <section class="detail-chart-panel detail-combined-chart-panel">
+                <div class="detail-chart-label"><strong>주가 차트</strong><span>TradingView · 일봉 · 거래량 · MA20 · Williams %R(14)</span></div>
+                <div class="detail-chart-canvas" id="detailPriceChart" aria-label="TradingView 주가 차트"></div>
+              </section>
+              <div class="detail-chart-empty-state hidden" id="detailChartEmptyState">
+                <i class="fa-solid fa-clock-rotate-left"></i><strong>차트 데이터를 수집하고 있습니다.</strong><span>저장된 일봉 데이터가 쌓이면
+                  가격·거래량 차트가 자동으로 표시됩니다.</span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="company-detail-panel hidden" data-detail-panel="financials">
-          <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span id="detailFinancialSource">저장된 최신 재무 데이터를 불러오는 중입니다.</span></div>
-          <div class="detail-data-grid" id="detailFinancialMetrics"></div>
-        </div>
-        <div class="company-detail-panel hidden" data-detail-panel="dividend">
-          <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span id="detailDividendSource">저장된 배당 이력을 불러오는 중입니다.</span></div>
-          <div class="detail-data-grid detail-dividend-grid" id="detailDividendMetrics"></div>
-        </div>
-      </section>
+          <div class="company-detail-panel hidden" data-detail-panel="financials">
+            <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span
+                id="detailFinancialSource">저장된 최신 재무 데이터를 불러오는 중입니다.</span></div>
+            <div class="detail-data-grid" id="detailFinancialMetrics"></div>
+          </div>
+          <div class="company-detail-panel hidden" data-detail-panel="dividend">
+            <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span id="detailDividendSource">저장된 배당
+                이력을 불러오는 중입니다.</span></div>
+            <div class="detail-data-grid detail-dividend-grid" id="detailDividendMetrics"></div>
+          </div>
+        </section>
       </div>
 
       <!-- 1번 종합 > 1. 주식 목록 관리 (순서대로 나열) -->
@@ -251,12 +261,14 @@
             <form class="quick-add-form strategy-quick-add" data-strategy="dividend" onsubmit="return false;">
               <div class="input-wrap ticker-input-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" class="strategy-ticker" placeholder="티커 (예: O, KO)" maxlength="10" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
+                <input type="text" class="strategy-ticker" placeholder="티커 (예: O, KO)" maxlength="10" autocomplete="off"
+                  spellcheck="false" style="text-transform: uppercase;">
               </div>
               <button type="submit" class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> 배당 목록 추가</button>
             </form>
             <p class="quick-add-help">회사명·섹터는 자동 조회하며, 배당 전략으로 저장됩니다.</p>
-            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서 드래그로 순서 조정</span></div>
+            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서
+                드래그로 순서 조정</span></div>
             <div class="watchlist-container strategy-watchlist-container" id="dividendWatchlistContainer"></div>
           </section>
 
@@ -269,12 +281,14 @@
             <form class="quick-add-form strategy-quick-add" data-strategy="price" onsubmit="return false;">
               <div class="input-wrap ticker-input-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" class="strategy-ticker" placeholder="티커 (예: NVDA, AAPL)" maxlength="10" autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
+                <input type="text" class="strategy-ticker" placeholder="티커 (예: NVDA, AAPL)" maxlength="10"
+                  autocomplete="off" spellcheck="false" style="text-transform: uppercase;">
               </div>
               <button type="submit" class="btn-sm btn-primary"><i class="fa-solid fa-plus"></i> 주가 목록 추가</button>
             </form>
             <p class="quick-add-help">회사명·섹터는 자동 조회하며, 주가 전략으로 저장됩니다.</p>
-            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서 드래그로 순서 조정</span></div>
+            <div class="watchlist-sub-header"><span class="drag-hint"><i class="fa-solid fa-grip-vertical"></i> 목록 안에서
+                드래그로 순서 조정</span></div>
             <div class="watchlist-container strategy-watchlist-container" id="priceWatchlistContainer"></div>
           </section>
         </div>
@@ -287,18 +301,14 @@
             <span class="section-badge">2</span>
             <div>
               <h3>실시간 차트 분석</h3>
-              <p class="section-desc">TradingView 캔들 차트 및 보조지표</p>
+              <p class="section-desc">TradingView 차트 · FMP 3개월 데이터는 분석용으로 별도 저장</p>
             </div>
           </div>
           <div class="chart-controls">
-            <div class="btn-group" id="timeframeGroup">
-              <button class="btn-pill active" data-period="1D">일봉</button>
-              <button class="btn-pill" data-period="1W">주봉</button>
-              <button class="btn-pill" data-period="1M">월봉</button>
-            </div>
             <div class="chart-indicators">
+              <span class="indicator-tag source">TradingView</span>
               <span class="indicator-tag ma20">MA20</span>
-              <span class="indicator-tag ma60">MA60</span>
+              <span class="indicator-tag williams">Williams %R(14)</span>
             </div>
           </div>
         </div>
@@ -314,8 +324,9 @@
             </div>
           </div>
         </div>
-        <div class="chart-canvas-container" id="tvChartContainer"></div>
-        <div class="chart-ohlc-bar" id="chartOhlcBar">
+        <div class="chart-canvas-container" id="tvChartContainer" aria-label="TradingView 실시간 차트"></div>
+        <div class="chart-ohlc-bar" id="chartOhlcBar" aria-label="FMP에 저장된 최신 일봉">
+          <span class="chart-data-source">FMP 최신 저장 일봉</span>
           <span>시가(O): <strong id="ohlcOpen">-</strong></span>
           <span>고가(H): <strong id="ohlcHigh">-</strong></span>
           <span>저가(L): <strong id="ohlcLow">-</strong></span>
@@ -355,7 +366,12 @@
           <table class="holdings-table">
             <thead>
               <tr>
-                <th>종목</th><th>보유수량</th><th>매수단가</th><th>현재가</th><th>평가손익(수익률)</th><th>관리</th>
+                <th>종목</th>
+                <th>보유수량</th>
+                <th>매수단가</th>
+                <th>현재가</th>
+                <th>평가손익(수익률)</th>
+                <th>관리</th>
               </tr>
             </thead>
             <tbody id="holdingsTableBody"></tbody>
@@ -387,7 +403,8 @@
           <h4>💾 5-2. 포트폴리오 데이터 백업</h4>
           <p class="subtext">관심종목과 포트폴리오 데이터를 JSON 파일로 안전하게 보관하거나 복원합니다.</p>
           <div class="backup-actions">
-            <button class="btn btn-secondary" id="exportDataBtn"><i class="fa-solid fa-download"></i> JSON 백업 다운로드</button>
+            <button class="btn btn-secondary" id="exportDataBtn"><i class="fa-solid fa-download"></i> JSON 백업
+              다운로드</button>
             <label class="btn btn-secondary file-upload-btn">
               <i class="fa-solid fa-upload"></i> 백업 파일 불러오기
               <input type="file" id="importDataInput" accept=".json" style="display:none;">
@@ -406,7 +423,15 @@
             <p class="subtext">진행률은 수집을 확인한 비율입니다. 일부 저장·수집 제한은 전체 데이터 완성과 다릅니다. 재시도 대기 항목은 표시된 시각 이후 자동 확인합니다.</p>
             <div class="fundamental-table-wrap">
               <table class="fundamental-table">
-                <thead><tr><th>종목</th><th>구분</th><th>상태</th><th>저장 범위·안내</th><th>다음 확인</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>종목</th>
+                    <th>구분</th>
+                    <th>상태</th>
+                    <th>저장 범위·안내</th>
+                    <th>다음 확인</th>
+                  </tr>
+                </thead>
                 <tbody id="fundamentalRows"></tbody>
               </table>
             </div>
@@ -465,7 +490,9 @@
   </div>
 
   <script src="cloudflare-config.js"></script>
+  <script src="tradingview-widget.js"></script>
   <script src="app.js"></script>
   <script src="fundamental-progress.js"></script>
 </body>
+
 </html>

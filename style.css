@@ -575,6 +575,14 @@ body.modal-open {
 .detail-chart-label { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-primary); font-size: 0.78rem; }
 .detail-chart-label span { color: var(--text-muted); font-size: 0.7rem; }
 .detail-chart-canvas { width: 100%; min-height: 0; flex: 1 1 auto; }
+.tradingview-chart-host { position: relative; background: #0b1220; }
+.tradingview-chart-host .tradingview-widget-container { width: 100%; height: 100%; }
+.tradingview-chart-host .tradingview-widget-container__widget { width: 100%; height: calc(100% - 24px); }
+.tradingview-chart-host .tradingview-widget-copyright { height: 24px; padding: 4px 8px; color: var(--text-muted); font-size: 0.68rem; text-align: right; }
+.tradingview-chart-host .tradingview-widget-copyright a { color: var(--accent-cyan); text-decoration: none; }
+.tradingview-chart-loading { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 9px; background: #0b1220; color: var(--text-muted); font-size: 0.8rem; }
+.tradingview-chart-loading i { color: var(--accent-cyan); }
+.tradingview-chart-loading.is-error { color: #fda4af; text-align: center; }
 .detail-chart-empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); background: rgba(11, 15, 25, 0.92); color: var(--text-muted); text-align: center; }
 .detail-chart-empty-state i { color: var(--accent-cyan); font-size: 2rem; }
 .detail-chart-empty-state strong { color: var(--text-primary); }
@@ -1102,7 +1110,8 @@ body.modal-open {
   border-radius: 4px;
 }
 .indicator-tag.ma20 { background: rgba(250, 204, 21, 0.15); color: #facc15; }
-.indicator-tag.ma60 { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+.indicator-tag.williams { background: rgba(56, 189, 248, 0.14); color: var(--accent-cyan); }
+.indicator-tag.source { background: rgba(148, 163, 184, 0.12); color: var(--text-secondary); }
 
 .chart-canvas-container {
   width: 100%;
@@ -1123,6 +1132,7 @@ body.modal-open {
   flex-wrap: wrap;
 }
 .chart-ohlc-bar strong { color: var(--text-primary); }
+.chart-data-source { color: var(--accent-cyan); font-weight: 700; }
 
 /* 💼 5. 포트폴리오 관리 섹션 */
 .portfolio-summary-card {

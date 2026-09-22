@@ -79,11 +79,14 @@ function normalizeWatchlist(rawWatchlist) {
 
 async function listWatchlist(environment) {
   const result = await environment.DB.prepare(`
-    SELECT ticker, strategy, display_name AS name, sector,
-      saved_price AS price, saved_change AS change, saved_change_percent AS changePct
+    SELECT user_watchlist.ticker, user_watchlist.strategy, user_watchlist.display_name AS name,
+      user_watchlist.sector, companies.exchange,
+      user_watchlist.saved_price AS price, user_watchlist.saved_change AS change,
+      user_watchlist.saved_change_percent AS changePct
     FROM user_watchlist
-    WHERE user_id = ?
-    ORDER BY display_order ASC
+    LEFT JOIN companies ON companies.ticker = user_watchlist.ticker
+    WHERE user_watchlist.user_id = ?
+    ORDER BY user_watchlist.display_order ASC
   `).bind(getWatchlistUserId()).all();
   return result.results;
 }
@@ -320,7 +323,7 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-22-fundamentals-batch-1',
+        buildVersion: '2026-09-22-tradingview-widget-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY)

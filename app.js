@@ -9,7 +9,6 @@ const state = {
   usdKrwRate: 1342.50,
   isKrwView: false,
   selectedTicker: 'NVDA',
-  activePeriod: '1D',
   dashboardEventsBound: false,
   // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
   apiPin: '',
@@ -74,6 +73,7 @@ function normalizeRemoteWatchlist(rawWatchlist) {
     ticker: stock.ticker,
     name: stock.name || getLocalCompanyProfile(stock.ticker).name,
     sector: stock.sector || getLocalCompanyProfile(stock.ticker).sector,
+    exchange: stock.exchange || '',
     strategy: stock.strategy === 'dividend' ? 'dividend' : 'price',
     price: Number.isFinite(Number(stock.price)) ? Number(stock.price) : 0,
     change: Number.isFinite(Number(stock.change)) ? Number(stock.change) : 0,
@@ -155,6 +155,7 @@ async function updateStockProfileFromCloudflare(ticker) {
     // API 값이 있을 때만 덮어써, 동기화 전 화면의 사용자 데이터가 사라지지 않게 한다.
     stock.name = company.name || stock.name;
     stock.sector = company.sector || stock.sector;
+    stock.exchange = company.exchange || stock.exchange || '';
     stock.price = Number.isFinite(company.currentPrice) ? company.currentPrice : stock.price;
     stock.change = Number.isFinite(company.changeAmount) ? company.changeAmount : stock.change;
     stock.changePct = Number.isFinite(company.changePercent) ? company.changePercent : stock.changePct;
@@ -200,18 +201,7 @@ const mainApp = document.getElementById('mainApp');
 const pinDots = document.querySelectorAll('.pin-dots .dot');
 const pinError = document.getElementById('pinError');
 const tvChartContainer = document.getElementById('tvChartContainer');
-
-let tvChart = null;
-let candleSeries = null;
-let volumeSeries = null;
-let ma20Series = null;
-let ma60Series = null;
-// 상세 분석은 2번 화면과 같은 단일 캔들 차트를 사용해 조작 부담을 최소화한다.
-let detailPriceChart = null;
-let detailCandleSeries = null;
-let detailVolumeSeries = null;
-let detailMa20Series = null;
-let detailMa60Series = null;
+const detailPriceChartContainer = document.getElementById('detailPriceChart');
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -324,6 +314,8 @@ function unlockApp() {
 }
 
 function lockApp() {
+  destroyMainChart();
+  destroyDetailChart();
   mainApp.classList.add('hidden');
   pinScreen.classList.remove('hidden');
   state.enteredPin = '';
@@ -334,110 +326,52 @@ function lockApp() {
 }
 
 // ========================================================
-// 📊 4. TradingView 인터랙티브 캔들 차트
+// 📊 4. TradingView Advanced Chart 위젯
 // ========================================================
+
+function getSelectedStock() {
+  return state.watchlist.find(item => item.ticker === state.selectedTicker) || null;
+}
+
+function isCompanyDetailOpen() {
+  return !document.getElementById('companyDetailModal')?.classList.contains('hidden');
+}
+
+function isDetailChartTabActive() {
+  return document.querySelector('.company-detail-tab.active')?.getAttribute('data-detail-tab') === 'chart';
+}
+
+/** 현재 보이는 위치에만 외부 iframe을 생성해 불필요한 중복 렌더링을 막는다. */
+function renderActiveTradingViewChart(stock = getSelectedStock()) {
+  if (!stock || !window.TradingViewCharts) return;
+
+  if (isCompanyDetailOpen() && isDetailChartTabActive()) {
+    window.TradingViewCharts.unmount(tvChartContainer);
+    window.TradingViewCharts.mount(detailPriceChartContainer, stock);
+    return;
+  }
+
+  window.TradingViewCharts.unmount(detailPriceChartContainer);
+  if (state.currentView === 'chart') {
+    window.TradingViewCharts.mount(tvChartContainer, stock);
+  } else {
+    window.TradingViewCharts.unmount(tvChartContainer);
+  }
+}
+
 function destroyMainChart() {
-  tvChart?.remove();
-  tvChart = null;
-  candleSeries = null;
-  volumeSeries = null;
-  ma20Series = null;
-  ma60Series = null;
-  tvChartContainer.innerHTML = '';
+  window.TradingViewCharts?.unmount(tvChartContainer);
+}
+
+function destroyDetailChart() {
+  window.TradingViewCharts?.unmount(detailPriceChartContainer);
 }
 
 function initChart() {
-  destroyMainChart();
-
-  tvChart = LightweightCharts.createChart(tvChartContainer, {
-    autoSize: true,
-    layout: {
-      background: { color: 'transparent' },
-      textColor: '#94a3b8',
-      fontSize: 12,
-      fontFamily: 'Inter, sans-serif'
-    },
-    grid: {
-      vertLines: { color: 'rgba(255, 255, 255, 0.04)' },
-      horzLines: { color: 'rgba(255, 255, 255, 0.04)' }
-    },
-    crosshair: {
-      mode: LightweightCharts.CrosshairMode.Normal,
-    },
-    rightPriceScale: {
-      borderColor: 'rgba(255, 255, 255, 0.08)',
-    },
-    timeScale: {
-      borderColor: 'rgba(255, 255, 255, 0.08)',
-      timeVisible: true,
-      secondsVisible: false,
-    },
-    kineticScroll: { mouse: true, touch: true },
-    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
-    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
-  });
-
-  // 캔들 시리즈 추가
-  candleSeries = tvChart.addSeries(LightweightCharts.CandlestickSeries, {
-    upColor: '#10b981',
-    downColor: '#f43f5e',
-    borderUpColor: '#10b981',
-    borderDownColor: '#f43f5e',
-    wickUpColor: '#10b981',
-    wickDownColor: '#f43f5e',
-  });
-
-  // 볼륨(거래량) 시리즈 추가
-  volumeSeries = tvChart.addSeries(LightweightCharts.HistogramSeries, {
-    color: 'rgba(56, 189, 248, 0.3)',
-    priceFormat: { type: 'volume' },
-    priceScaleId: '' // 메인 차트 오버레이
-  });
-  volumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-
-  // MA20 & MA60 이동평균선
-  ma20Series = tvChart.addSeries(LightweightCharts.LineSeries, {
-    color: '#facc15',
-    lineWidth: 1.5,
-    title: 'MA20'
-  });
-
-  ma60Series = tvChart.addSeries(LightweightCharts.LineSeries, {
-    color: '#a855f7',
-    lineWidth: 1.5,
-    title: 'MA60'
-  });
-
-  // 크로스헤어 호버 시 OHLCV 업데이트
-  tvChart.subscribeCrosshairMove(param => {
-    if (!param || !param.time || !param.seriesData) {
-      return;
-    }
-    const candle = param.seriesData.get(candleSeries);
-    const volume = param.seriesData.get(volumeSeries);
-    if (candle) {
-      document.getElementById('ohlcOpen').textContent = `$${candle.open.toFixed(2)}`;
-      document.getElementById('ohlcHigh').textContent = `$${candle.high.toFixed(2)}`;
-      document.getElementById('ohlcLow').textContent = `$${candle.low.toFixed(2)}`;
-      document.getElementById('ohlcClose').textContent = `$${candle.close.toFixed(2)}`;
-    }
-    if (volume) {
-      document.getElementById('ohlcVol').textContent = Number(volume.value).toLocaleString();
-    }
-  });
-
-  loadStockChart(state.selectedTicker);
+  renderActiveTradingViewChart();
 }
 
-function calculateMovingAverage(candles, days) {
-  return candles.flatMap((candle, index) => {
-    if (index < days - 1) return [];
-    const average = candles.slice(index - days + 1, index + 1).reduce((sum, item) => sum + item.close, 0) / days;
-    return [{ time: candle.time, value: average }];
-  });
-}
-
-/** D1 응답에서 차트에 필요한 값이 모두 있는 일봉만 골라, 주·보조 차트가 같은 시간축을 공유하게 한다. */
+/** D1 응답에서 Williams %R과 최신 OHLC 계산에 사용할 수 있는 정상 일봉만 고른다. */
 function normalizeChartCandles(company) {
   return (company?.candles || []).map(candle => ({
     time: candle.candleDate,
@@ -474,60 +408,12 @@ function getWilliamsSummary(candles) {
   };
 }
 
-function createDetailChart(container) {
-  return LightweightCharts.createChart(container, {
-    autoSize: true,
-    layout: { background: { color: '#0b1220' }, textColor: '#94a3b8', fontSize: 11, fontFamily: 'Inter, sans-serif' },
-    grid: { vertLines: { color: 'rgba(255, 255, 255, 0.035)' }, horzLines: { color: 'rgba(255, 255, 255, 0.035)' } },
-    rightPriceScale: { borderColor: 'rgba(255, 255, 255, 0.08)' },
-    timeScale: { borderColor: 'rgba(255, 255, 255, 0.08)', timeVisible: true, secondsVisible: false },
-    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    kineticScroll: { mouse: true, touch: true },
-    handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: true },
-    handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
-  });
-}
-
-/** 상세 모달을 열 때만 차트 객체를 생성해, 숨겨진 요소의 너비가 0으로 계산되는 문제를 막는다. */
-function initDetailCharts() {
-  if (!window.LightweightCharts || detailPriceChart) return;
-
-  const priceContainer = document.getElementById('detailPriceChart');
-  if (!priceContainer) return;
-
-  detailPriceChart = createDetailChart(priceContainer);
-
-  detailCandleSeries = detailPriceChart.addSeries(LightweightCharts.CandlestickSeries, {
-    upColor: '#10b981', downColor: '#f43f5e', borderUpColor: '#10b981', borderDownColor: '#f43f5e', wickUpColor: '#10b981', wickDownColor: '#f43f5e'
-  });
-  detailMa20Series = detailPriceChart.addSeries(LightweightCharts.LineSeries, { color: '#facc15', lineWidth: 1, title: 'MA20' });
-  detailMa60Series = detailPriceChart.addSeries(LightweightCharts.LineSeries, { color: '#a855f7', lineWidth: 1, title: 'MA60' });
-  // 거래량은 2번 화면과 같은 차트 안의 하단 18%만 사용한다.
-  detailVolumeSeries = detailPriceChart.addSeries(LightweightCharts.HistogramSeries, {
-    priceFormat: { type: 'volume' },
-    priceScaleId: ''
-  });
-  detailVolumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-}
-
 function renderDetailCharts(company) {
-  if (!detailCandleSeries || !detailVolumeSeries) return;
-  const candles = normalizeChartCandles(company);
-  const emptyState = document.getElementById('detailChartEmptyState');
-  const hasChartData = candles.length > 0;
-  emptyState?.classList.toggle('hidden', hasChartData);
-  if (!hasChartData) return;
-
-  detailCandleSeries.setData(candles);
-  detailMa20Series.setData(calculateMovingAverage(candles, 20));
-  detailMa60Series.setData(calculateMovingAverage(candles, 60));
-  detailVolumeSeries.setData(candles.map(candle => ({
-    time: candle.time,
-    value: candle.volume,
-    color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.55)' : 'rgba(244, 63, 94, 0.55)'
-  })));
-  // 한 캔버스만 갱신하므로 확대·축소와 드래그가 2번 차트 화면처럼 가볍게 동작한다.
-  detailPriceChart.timeScale().fitContent();
+  const stock = getSelectedStock();
+  if (!stock) return;
+  if (company?.exchange) stock.exchange = company.exchange;
+  document.getElementById('detailChartEmptyState')?.classList.add('hidden');
+  renderActiveTradingViewChart(stock);
 }
 
 async function fetchCompanyFromCloudflare(ticker) {
@@ -543,16 +429,29 @@ async function fetchCompanyFromCloudflare(ticker) {
   }
 }
 
-/** D1에 저장된 3개월 일봉만 차트에 사용하며, 임의 차트 데이터는 생성하지 않는다. */
+/**
+ * 차트 자체는 TradingView가 표시하고, FMP 3개월 일봉은 Williams %R·목록·최신 OHLC에 계속 사용한다.
+ * 신규 종목은 거래소 조회를 기다리지 않고 티커로 먼저 표시한 뒤 회사 프로필이 도착하면 자동 보정한다.
+ */
 async function loadStockChart(ticker) {
   const stock = state.watchlist.find(item => item.ticker === ticker);
-  const chartAtRequest = tvChart;
-  if (!stock || !chartAtRequest) return;
+  if (!stock) return;
+
+  document.getElementById('chartTicker').textContent = stock.ticker;
+  document.getElementById('chartCompanyName').textContent = stock.name;
+  document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
+  const initialIsUp = stock.change >= 0;
+  const initialChangeElement = document.getElementById('chartChange');
+  initialChangeElement.className = `price-change ${initialIsUp ? 'up' : 'down'}`;
+  initialChangeElement.textContent = `${initialIsUp ? '+' : ''}${stock.change.toFixed(2)} (${initialIsUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
+  renderActiveTradingViewChart(stock);
+
   const company = await fetchCompanyFromCloudflare(ticker);
   if (ticker !== state.selectedTicker || !company) return;
 
   stock.name = company.name || stock.name;
   stock.sector = company.sector || stock.sector;
+  stock.exchange = company.exchange || stock.exchange || '';
   if (Number.isFinite(company.currentPrice)) stock.price = company.currentPrice;
   if (Number.isFinite(company.changeAmount)) stock.change = company.changeAmount;
   if (Number.isFinite(company.changePercent)) stock.changePct = company.changePercent;
@@ -560,9 +459,6 @@ async function loadStockChart(ticker) {
   renderCompanyDetailData(company);
   renderDetailCharts(company);
   updateCompanySummary();
-
-  // 상세 모달을 여는 동안 2번 차트를 해제했을 수 있다. 이 경우 저장된 상세 데이터만 갱신한다.
-  if (tvChart !== chartAtRequest || !candleSeries || !volumeSeries || !ma20Series || !ma60Series) return;
 
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
@@ -573,14 +469,19 @@ async function loadStockChart(ticker) {
   changeElem.textContent = `${isUp ? '+' : ''}${stock.change.toFixed(2)} (${isUp ? '+' : ''}${stock.changePct.toFixed(2)}%)`;
 
   const candles = normalizeChartCandles(company);
-  candleSeries.setData(candles);
-  volumeSeries.setData(candles.map(candle => ({
-    time: candle.time, value: candle.volume,
-    color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)'
-  })));
-  ma20Series.setData(calculateMovingAverage(candles, 20));
-  ma60Series.setData(calculateMovingAverage(candles, 60));
-  tvChart.timeScale().fitContent();
+  const latestCandle = candles.at(-1);
+  const latestValues = {
+    ohlcOpen: latestCandle ? `$${latestCandle.open.toFixed(2)}` : '-',
+    ohlcHigh: latestCandle ? `$${latestCandle.high.toFixed(2)}` : '-',
+    ohlcLow: latestCandle ? `$${latestCandle.low.toFixed(2)}` : '-',
+    ohlcClose: latestCandle ? `$${latestCandle.close.toFixed(2)}` : '-',
+    ohlcVol: latestCandle ? latestCandle.volume.toLocaleString() : '-'
+  };
+  Object.entries(latestValues).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+  renderActiveTradingViewChart(stock);
 }
 
 // ========================================================
@@ -620,16 +521,14 @@ function addNewStock(ticker, strategy = 'price') {
   };
 
   state.watchlist.push(newStock);
+  // 새로 추가한 종목을 즉시 현재 종목으로 선택해 2번 차트와 상세 분석에서 바로 사용할 수 있게 한다.
+  state.selectedTicker = ticker;
   saveWatchlist();
   renderWatchlist();
+  updateCompanySummary();
+  loadStockChart(ticker);
   // 관심종목 저장을 먼저 요청한 뒤 최초 금융 이력을 수집한다.
   void synchronizeStockDataWithCloudflare(ticker);
-
-  // 첫 번째 종목이거나 현재 선택된 차트가 없으면 즉시 해당 종목 차트 로드
-  if (!state.selectedTicker || state.watchlist.length === 1) {
-    state.selectedTicker = ticker;
-    loadStockChart(ticker);
-  }
 
   return true;
 }
@@ -1380,18 +1279,13 @@ function showDashboardView(viewName) {
     button.classList.toggle('active', button.getAttribute('data-view') === viewName);
   });
 
-  // 숨겨진 상태에서 차트를 열면 너비가 0이 될 수 있어 표시 후 다시 계산합니다.
-  if (viewName === 'chart' && tvChart) {
-    setTimeout(() => {
-      tvChart.applyOptions({
-        width: tvChartContainer.clientWidth,
-        height: tvChartContainer.clientHeight
-      });
-      tvChart.timeScale().fitContent();
-    }, 0);
-  }
-
   state.currentView = viewName;
+  // 메뉴 2를 볼 때만 위젯을 만들고 다른 메뉴로 이동하면 iframe을 해제한다.
+  if (viewName === 'chart') {
+    requestAnimationFrame(() => renderActiveTradingViewChart());
+  } else {
+    destroyMainChart();
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1446,9 +1340,10 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
-      if (selectedTab === 'chart' && detailPriceChart) {
-        const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
-        if (stock?.marketData) renderDetailCharts(stock.marketData);
+      if (selectedTab === 'chart') {
+        requestAnimationFrame(() => renderActiveTradingViewChart());
+      } else {
+        destroyDetailChart();
       }
     });
   });
@@ -1458,13 +1353,10 @@ function openCompanyDetailModal() {
   updateCompanySummary();
   document.getElementById('companyDetailModal').classList.remove('hidden');
   document.body.classList.add('modal-open');
-  // 뒤쪽 2번 차트를 제거해 모달에는 하나의 캔버스만 남긴다.
+  // 뒤쪽 2번 위젯을 제거해 상세창에 외부 iframe 하나만 유지한다.
   destroyMainChart();
-  // 모달이 화면에 표시된 뒤에만 최초 차트를 만들고, 이후에는 기존 인스턴스를 재사용한다.
   requestAnimationFrame(() => {
-    if (!detailPriceChart) initDetailCharts();
-    const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
-    if (stock?.marketData) renderDetailCharts(stock.marketData);
+    renderActiveTradingViewChart();
   });
   // 상세창에 저장값을 먼저 보여준 뒤, 누락 데이터가 있으면 Worker가 SEC 대체 경로로 즉시 보완한다.
   if (state.selectedTicker) void synchronizeStockDataWithCloudflare(state.selectedTicker);
@@ -1473,9 +1365,10 @@ function openCompanyDetailModal() {
 function closeCompanyDetailModal() {
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
-  // 상세 차트는 다음 종목 열기에서 재사용하고, 뒤쪽 2번 차트만 필요 시 다시 만든다.
+  // 닫힌 모달의 iframe을 해제하고, 현재 화면이 2번일 때만 메인 차트를 복원한다.
+  destroyDetailChart();
   requestAnimationFrame(() => {
-    if (!tvChart && !mainApp.classList.contains('hidden')) initChart();
+    if (state.currentView === 'chart' && !mainApp.classList.contains('hidden')) initChart();
   });
 }
 
