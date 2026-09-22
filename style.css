@@ -1008,16 +1008,6 @@ body.modal-open {
 .strategy-badge.dividend { color: #34d399; background: rgba(16, 185, 129, 0.12); }
 .strategy-badge.price { color: var(--accent-cyan); background: rgba(56, 189, 248, 0.12); }
 
-.stock-item-right {
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.stock-item-change {
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 /* 1-4. 삭제 버튼 */
 .btn-delete-stock {
   background: transparent;

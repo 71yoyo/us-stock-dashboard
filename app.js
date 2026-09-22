@@ -993,7 +993,6 @@ function renderWatchlist() {
   state.watchlist.forEach((stock, index) => {
     const strategy = getInvestmentStrategy(stock);
     const targetContainer = strategy === 'dividend' ? dividendContainer : priceContainer;
-    const directionClass = getChangeDirectionClass(stock.change);
     const isSelected = stock.ticker === state.selectedTicker;
 
     const item = document.createElement('div');
@@ -1013,12 +1012,7 @@ function renderWatchlist() {
         <span class="stock-item-name">${escapeHtml(stock.name || '회사 정보 저장 대기')}</span>
         <span class="stock-item-meta"><span class="strategy-badge ${strategy}">${strategy === 'dividend' ? '배당 투자' : '주가 투자'}</span>${escapeHtml(getStockSector(stock))}</span>
       </div>
-      <div class="stock-item-right">
-        <!-- 4번은 관리 화면이므로 현재가 대신 목록 분류·등락률만 표시한다. -->
-        <div class="stock-item-change ${directionClass}">
-          ${formatPercent(stock.changePct)}
-        </div>
-      </div>
+      <!-- 4번은 종목 추가·분류·정렬 관리만 담당하므로 시세·등락률을 표시하지 않는다. -->
       <button class="btn-delete-stock" title="${stock.ticker} 종목 삭제 (1-4)" data-ticker="${stock.ticker}">
         <i class="fa-solid fa-trash-can"></i>
       </button>
