@@ -85,7 +85,16 @@ async function listWatchlist(environment) {
       -- D1에 실제로 저장된 현재가만 모든 기기의 공통 기준으로 반환한다.
       price_quotes.current_price AS price,
       price_quotes.change_amount AS change,
-      price_quotes.change_percent AS changePct
+      -- 공급원이 등락률을 주지 않은 경우에도 현재가·전일 종가라는 D1 원본으로만 계산한다.
+      COALESCE(
+        price_quotes.change_percent,
+        CASE
+          WHEN price_quotes.current_price IS NOT NULL
+            AND price_quotes.previous_close IS NOT NULL
+            AND price_quotes.previous_close != 0
+          THEN ((price_quotes.current_price - price_quotes.previous_close) / price_quotes.previous_close) * 100
+        END
+      ) AS changePct
     FROM user_watchlist
     LEFT JOIN companies ON companies.ticker = user_watchlist.ticker
     LEFT JOIN price_quotes ON price_quotes.ticker = user_watchlist.ticker

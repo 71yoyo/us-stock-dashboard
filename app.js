@@ -174,9 +174,18 @@ function applyStoredCompanyToStock(stock, company) {
   stock.name = company.name || stock.name || stock.ticker;
   stock.sector = company.sector || stock.sector || '';
   stock.exchange = company.exchange || stock.exchange || '';
-  stock.price = toNullableNumber(company.currentPrice) ?? stock.price;
-  stock.change = toNullableNumber(company.changeAmount) ?? stock.change;
-  stock.changePct = toNullableNumber(company.changePercent) ?? stock.changePct;
+  const currentPrice = toNullableNumber(company.currentPrice);
+  const previousClose = toNullableNumber(company.previousClose);
+  const changeAmount = toNullableNumber(company.changeAmount);
+  const changePercent = toNullableNumber(company.changePercent);
+  stock.price = currentPrice ?? stock.price;
+  stock.change = changeAmount ?? stock.change;
+  // 공급원이 등락률을 비워도 D1에 있는 현재가·전일 종가로만 계산할 수 있다.
+  // 두 원본 중 하나라도 없으면 숫자를 만들지 않고 그대로 미확보로 남긴다.
+  stock.changePct = changePercent
+    ?? (currentPrice !== null && previousClose !== null && previousClose !== 0
+      ? ((currentPrice - previousClose) / previousClose) * 100
+      : stock.changePct);
   // 재무·배당·일봉 원본은 localStorage에 저장하지 않고, 현재 세션에서만 사용한다.
   stock.marketData = company;
 }
