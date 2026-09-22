@@ -86,6 +86,9 @@ test('전체 수집은 시세/차트 미호출, SEC 한 번 재사용, 새 공�
     const status = await fundamentalStatus({ DB });
     assert.equal(status.summary.financials.stored, 2);
     assert.equal(status.summary.dividends.stored, 2);
+    // 5-3은 재무 작업과 별개로 D1에 저장된 최신 현재가도 같은 종목 행에서 보여 준다.
+    assert.equal(status.stocks.find(stock => stock.ticker === 'O').price.currentPrice, 100);
+    assert.equal(status.stocks.find(stock => stock.ticker === 'O').price.status, 'ready');
     assert.ok(batches.flatMap(batch => batch.results).every(row => row.status !== 'error'));
     assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM dividend_periods').get().n, 4);
     const before = urls.length;

@@ -1,13 +1,32 @@
-/* 수집 상태 화면은 기존 메뉴/차트 크기와 독립적으로 배치한다. */
+/* 수집 상태 화면은 한 종목을 한 행으로 보이게 해, 구분별 세로 반복을 없앤다. */
 .fundamental-summary { color: #8ecae6; font-size: 13px; padding: 10px 12px; background: #121e2b; border-radius: 8px; }
 .fundamental-progress { margin-top: 18px; }
 .fundamental-progress progress { width: 100%; height: 12px; accent-color: #30bced; }
 .fundamental-table-wrap { width: 100%; overflow-x: auto; margin-top: 16px; }
-.fundamental-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-.fundamental-table th, .fundamental-table td { padding: 10px 12px; border-bottom: 1px solid #273347; vertical-align: top; }
-.fundamental-table th { color: #97abc5; white-space: nowrap; }
-.fundamental-table td:nth-child(4) { min-width: 240px; overflow-wrap: anywhere; }
-.fundamental-table [data-status="ready"] { color: #16bf93; }
-.fundamental-table [data-status="partial"], .fundamental-table [data-status="error"] { color: #f8b556; }
-.fundamental-table [data-status="running"] { color: #30bced; }
+.fundamental-table { width: 100%; min-width: 1120px; border-collapse: collapse; font-size: 12px; text-align: left; table-layout: fixed; }
+.fundamental-table th, .fundamental-table td { padding: 12px 11px; border-bottom: 1px solid #273347; vertical-align: top; }
+.fundamental-table thead th { color: #97abc5; white-space: nowrap; font-size: 12px; }
+.fundamental-table thead th:nth-child(1) { width: 8%; }
+.fundamental-table thead th:nth-child(2) { width: 25%; }
+.fundamental-table thead th:nth-child(3) { width: 12%; }
+.fundamental-table thead th:nth-child(4) { width: 19%; }
+.fundamental-table thead th:nth-child(5) { width: 19%; }
+.fundamental-table thead th:nth-child(6) { width: 17%; }
+.fundamental-table tbody tr:hover { background: rgba(48, 188, 237, 0.035); }
+.fundamental-ticker-cell { color: #eef5ff; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.fundamental-data-cell { overflow-wrap: anywhere; }
+.fundamental-status-badge { display: inline-flex; align-items: center; min-height: 20px; padding: 2px 7px; border-radius: 999px; background: rgba(148, 163, 184, 0.12); color: #97abc5; font-size: 11px; font-weight: 700; }
+.fundamental-cell-detail { display: block; margin-top: 6px; color: #d8e2ef; line-height: 1.45; }
+.fundamental-cell-time { color: #8294ac; font-size: 11px; }
+.fundamental-cell-error { color: #f8b556; font-size: 11px; }
+.fundamental-price-value { color: #f3f7fb; font-size: 13px; font-weight: 700; }
+.fundamental-next-check { color: #d8e2ef; font-variant-numeric: tabular-nums; line-height: 1.45; }
+.fundamental-table [data-status="ready"] { background: rgba(22, 191, 147, 0.12); color: #16bf93; }
+.fundamental-table [data-status="partial"], .fundamental-table [data-status="error"] { background: rgba(248, 181, 86, 0.12); color: #f8b556; }
+.fundamental-table [data-status="running"] { background: rgba(48, 188, 237, 0.12); color: #30bced; }
 .fundamental-progress button:disabled { opacity: .6; cursor: wait; }
+
+@media (max-width: 760px) {
+  .fundamental-table { min-width: 980px; }
+  .fundamental-table th, .fundamental-table td { padding: 10px 9px; }
+}

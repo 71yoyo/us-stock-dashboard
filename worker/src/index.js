@@ -1,4 +1,4 @@
-import { syncTickerDataType } from './fmp-sync.js';
+import { syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
 import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
@@ -81,10 +81,14 @@ async function listWatchlist(environment) {
   const result = await environment.DB.prepare(`
     SELECT user_watchlist.ticker, user_watchlist.strategy, user_watchlist.display_name AS name,
       user_watchlist.sector, companies.exchange,
-      user_watchlist.saved_price AS price, user_watchlist.saved_change AS change,
-      user_watchlist.saved_change_percent AS changePct
+      -- 목록의 임시 저장값보다 D1에 최신 저장된 현재가를 우선한다.
+      -- 이 덕분에 다른 브라우저에서도 마지막으로 저장된 시세가 즉시 보인다.
+      COALESCE(price_quotes.current_price, user_watchlist.saved_price) AS price,
+      COALESCE(price_quotes.change_amount, user_watchlist.saved_change) AS change,
+      COALESCE(price_quotes.change_percent, user_watchlist.saved_change_percent) AS changePct
     FROM user_watchlist
     LEFT JOIN companies ON companies.ticker = user_watchlist.ticker
+    LEFT JOIN price_quotes ON price_quotes.ticker = user_watchlist.ticker
     WHERE user_watchlist.user_id = ?
     ORDER BY user_watchlist.display_order ASC
   `).bind(getWatchlistUserId()).all();
@@ -405,9 +409,15 @@ export default {
       }
 
       try {
-        // 상세창 수집은 회사·재무·배당만 처리하며, 주가/일봉 외부 API는 호출하지 않는다.
-        const result = await runFundamentalBatch(environment, ticker);
-        const status = result.results.some(job => job.status === 'error') ? 'partial' : 'success';
+        // 신규 종목은 먼저 회사 정보·현재가·3개월 일봉을 저장한다.
+        // 회사 테이블이 없는 상태에서 시세를 먼저 쓰면 외래 키 오류가 나므로 같은 순서로 묶는다.
+        const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles']);
+        // 재무·배당은 장기 원본을 읽어야 하므로 전용 큐에서 제한된 속도로 이어서 처리한다.
+        const fundamental = await runFundamentalBatch(environment, ticker);
+        const result = { market, fundamental };
+        const marketFailed = Object.values(market).some(value => value !== 'ok');
+        const fundamentalFailed = fundamental.results.some(job => job.status === 'error');
+        const status = marketFailed || fundamentalFailed ? 'partial' : 'success';
         await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
           VALUES ('manual_market_sync', ?, ?, ?, CURRENT_TIMESTAMP)`)
           .bind(ticker, status, JSON.stringify(result)).run();

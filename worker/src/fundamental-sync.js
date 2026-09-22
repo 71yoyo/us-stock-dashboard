@@ -17,16 +17,122 @@ function readDetails(value) {
   try { return JSON.parse(value || '{}'); } catch { return {}; }
 }
 
+/**
+ * 시세와 일봉은 fundamental_jobs가 아니라 data_sync_state에서 독립적으로 갱신한다.
+ * 5-3 화면에서는 사용자가 한눈에 확인할 수 있도록 두 저장소의 상태를 같은 종목 행에 합친다.
+ */
+function marketStorageStatus(hasStoredValue, syncState) {
+  if (hasStoredValue) return 'ready';
+  if (syncState?.lastError) return 'error';
+  if (syncState?.lastAttemptAt) return 'partial';
+  return 'pending';
+}
+
+function nextMarketCheck(syncState, intervalMilliseconds) {
+  if (syncState?.nextRetryAt) return syncState.nextRetryAt;
+  if (!syncState?.lastSuccessAt) return null;
+  const lastSuccess = new Date(syncState.lastSuccessAt).getTime();
+  return Number.isFinite(lastSuccess) ? new Date(lastSuccess + intervalMilliseconds).toISOString() : null;
+}
+
+function earliestDate(...values) {
+  const dates = values.filter(Boolean)
+    .map(value => ({ value, time: new Date(value).getTime() }))
+    .filter(item => Number.isFinite(item.time))
+    .sort((left, right) => left.time - right.time);
+  return dates[0]?.value || null;
+}
+
 export async function fundamentalStatus(environment) {
   await seedJobs(environment);
-  const jobs = await environment.DB.prepare(`SELECT j.* FROM fundamental_jobs j
-    JOIN user_watchlist w ON w.ticker = j.ticker AND w.user_id = 'primary'
-    ORDER BY w.display_order, j.kind`).all();
-  const rows = jobs.results.map(job => ({
+  const [jobResult, marketResult] = await environment.DB.batch([
+    environment.DB.prepare(`SELECT j.* FROM fundamental_jobs j
+      JOIN user_watchlist w ON w.ticker = j.ticker AND w.user_id = 'primary'
+      ORDER BY w.display_order, j.kind`),
+    environment.DB.prepare(`SELECT
+      w.ticker,
+      w.display_order AS displayOrder,
+      price_quotes.current_price AS currentPrice,
+      price_quotes.change_percent AS changePercent,
+      price_quotes.market_updated_at AS quoteUpdatedAt,
+      price_quotes.cached_at AS quoteCachedAt,
+      price_state.last_success_at AS priceLastSuccessAt,
+      price_state.last_attempt_at AS priceLastAttemptAt,
+      price_state.next_retry_at AS priceNextRetryAt,
+      price_state.last_error AS priceLastError,
+      candle_state.last_success_at AS candlesLastSuccessAt,
+      candle_state.last_attempt_at AS candlesLastAttemptAt,
+      candle_state.next_retry_at AS candlesNextRetryAt,
+      candle_state.last_error AS candlesLastError,
+      (SELECT COUNT(*) FROM price_candles candles WHERE candles.ticker = w.ticker) AS candleCount,
+      (SELECT MAX(cached_at) FROM price_candles candles WHERE candles.ticker = w.ticker) AS candlesCachedAt
+      FROM user_watchlist w
+      LEFT JOIN price_quotes ON price_quotes.ticker = w.ticker
+      LEFT JOIN data_sync_state price_state
+        ON price_state.ticker = w.ticker AND price_state.data_type = 'price'
+      LEFT JOIN data_sync_state candle_state
+        ON candle_state.ticker = w.ticker AND candle_state.data_type = 'candles'
+      WHERE w.user_id = 'primary'
+      ORDER BY w.display_order`)
+  ]);
+  const rows = jobResult.results.map(job => ({
     ticker: job.ticker, kind: job.kind, label: labels[job.kind],
     status: job.status === 'running' && job.lease_until < new Date().toISOString() ? 'pending' : job.status,
     checkedAt: job.checked_at, nextRunAt: job.next_run_at, details: readDetails(job.details), error: job.error
   }));
+  const jobsByTicker = new Map();
+  rows.forEach(job => {
+    const tickerJobs = jobsByTicker.get(job.ticker) || {};
+    tickerJobs[job.kind] = job;
+    jobsByTicker.set(job.ticker, tickerJobs);
+  });
+  const stocks = marketResult.results.map(stock => {
+    const priceState = {
+      lastSuccessAt: stock.priceLastSuccessAt, lastAttemptAt: stock.priceLastAttemptAt,
+      nextRetryAt: stock.priceNextRetryAt, lastError: stock.priceLastError
+    };
+    const candlesState = {
+      lastSuccessAt: stock.candlesLastSuccessAt, lastAttemptAt: stock.candlesLastAttemptAt,
+      nextRetryAt: stock.candlesNextRetryAt, lastError: stock.candlesLastError
+    };
+    const hasQuote = Number.isFinite(Number(stock.currentPrice));
+    const hasCandles = Number(stock.candleCount || 0) > 0;
+    const price = {
+      status: marketStorageStatus(hasQuote, priceState),
+      currentPrice: hasQuote ? Number(stock.currentPrice) : null,
+      changePercent: Number.isFinite(Number(stock.changePercent)) ? Number(stock.changePercent) : null,
+      updatedAt: stock.quoteUpdatedAt || stock.quoteCachedAt || priceState.lastSuccessAt || null,
+      nextRunAt: nextMarketCheck(priceState, 30 * 60_000),
+      error: priceState.lastError || null
+    };
+    const candles = {
+      status: marketStorageStatus(hasCandles, candlesState),
+      count: Number(stock.candleCount || 0),
+      updatedAt: stock.candlesCachedAt || candlesState.lastSuccessAt || null,
+      nextRunAt: nextMarketCheck(candlesState, day),
+      error: candlesState.lastError || null
+    };
+    const marketStatus = price.status === 'ready' && candles.status === 'ready'
+      ? 'ready'
+      : price.status === 'error' && candles.status === 'error'
+        ? 'error'
+        : price.status === 'pending' && candles.status === 'pending'
+          ? 'pending'
+          : 'partial';
+    const jobs = jobsByTicker.get(stock.ticker) || {};
+    return {
+      ticker: stock.ticker,
+      price,
+      candles,
+      marketStatus,
+      jobs,
+      nextCheckAt: earliestDate(
+        price.nextRunAt,
+        candles.nextRunAt,
+        ...Object.values(jobs).map(job => job.nextRunAt)
+      )
+    };
+  });
   const summary = Object.fromEntries(kinds.map(kind => {
     const group = rows.filter(row => row.kind === kind);
     return [kind, { total: group.length,
@@ -34,7 +140,19 @@ export async function fundamentalStatus(environment) {
       stored: group.filter(row => ['ready', 'partial'].includes(row.status)).length,
       pending: group.filter(row => ['pending', 'running'].includes(row.status)).length }];
   }));
-  return { summary, jobs: rows, checkedAt: new Date().toISOString(), scope: kinds };
+  summary.price = {
+    total: stocks.length,
+    processed: stocks.filter(stock => stock.price.updatedAt).length,
+    stored: stocks.filter(stock => stock.price.status === 'ready').length,
+    pending: stocks.filter(stock => ['pending', 'partial'].includes(stock.price.status)).length
+  };
+  summary.candles = {
+    total: stocks.length,
+    processed: stocks.filter(stock => stock.candles.updatedAt).length,
+    stored: stocks.filter(stock => stock.candles.status === 'ready').length,
+    pending: stocks.filter(stock => ['pending', 'partial'].includes(stock.candles.status)).length
+  };
+  return { summary, jobs: rows, stocks, checkedAt: new Date().toISOString(), scope: [...kinds, 'price', 'candles'] };
 }
 
 async function latestFiling(environment, ticker) {
