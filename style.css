@@ -569,8 +569,9 @@ body.modal-open {
 .detail-data-placeholder { min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); color: var(--text-muted); text-align: center; }
 .detail-data-placeholder i { color: var(--accent-cyan); font-size: 2.2rem; }
 .detail-data-placeholder strong { color: var(--text-primary); }
-.detail-chart-stack { position: relative; display: grid; grid-template-rows: minmax(0, 2.2fr) minmax(0, 0.65fr) minmax(0, 0.9fr); flex: 1 1 auto; min-height: 0; gap: 8px; }
+.detail-chart-stack { position: relative; display: flex; flex: 1 1 auto; min-height: 0; }
 .detail-chart-panel { display: flex; min-height: 0; flex-direction: column; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(4, 11, 24, 0.42); overflow: hidden; }
+.detail-combined-chart-panel { width: 100%; }
 .detail-chart-label { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--text-primary); font-size: 0.78rem; }
 .detail-chart-label span { color: var(--text-muted); font-size: 0.7rem; }
 .detail-chart-canvas { width: 100%; min-height: 0; flex: 1 1 auto; }

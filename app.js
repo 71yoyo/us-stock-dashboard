@@ -198,22 +198,14 @@ let candleSeries = null;
 let volumeSeries = null;
 let ma20Series = null;
 let ma60Series = null;
-// 상세 분석 모달은 가격·거래량·Williams %R을 각각 별도 차트로 관리한다.
+// 상세 분석은 2번 화면과 같은 단일 캔들 차트를 사용해 조작 부담을 최소화한다.
 let detailPriceChart = null;
-let detailVolumeChart = null;
-let detailWilliamsChart = null;
 let detailCandleSeries = null;
 let detailVolumeSeries = null;
-let detailWilliamsSeries = null;
 let detailMa20Series = null;
 let detailMa60Series = null;
 let detailChartResizeObserver = null;
-let isDetailTimeScaleSyncing = false;
 let detailChartResizeFrame = 0;
-let detailTimeRangeFrame = 0;
-let pendingDetailTimeRange = null;
-let pendingDetailTimeRangeSource = null;
-let lastAppliedDetailTimeRangeKey = '';
 
 // ========================================================
 // 🔒 3. PIN 보안 잠금 화면
@@ -495,16 +487,10 @@ function createDetailChart(container, height) {
 
 function resizeDetailCharts() {
   detailChartResizeFrame = 0;
-  const chartDefinitions = [
-    [detailPriceChart, document.getElementById('detailPriceChart')],
-    [detailVolumeChart, document.getElementById('detailVolumeChart')],
-    [detailWilliamsChart, document.getElementById('detailWilliamsChart')]
-  ];
-  chartDefinitions.forEach(([chart, container]) => {
-    if (chart && container && container.clientWidth > 0) {
-      chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-    }
-  });
+  const container = document.getElementById('detailPriceChart');
+  if (detailPriceChart && container && container.clientWidth > 0) {
+    detailPriceChart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+  }
 }
 
 /** 레이아웃 변경이 연속 발생해도 브라우저 프레임당 한 번만 차트 크기를 다시 계산한다. */
@@ -513,100 +499,39 @@ function scheduleDetailChartResize() {
   detailChartResizeFrame = requestAnimationFrame(resizeDetailCharts);
 }
 
-function synchronizeDetailTimeScales() {
-  const charts = [detailPriceChart, detailVolumeChart, detailWilliamsChart].filter(Boolean);
-  if (charts.length < 2) return;
-
-  const applyPendingRange = () => {
-    detailTimeRangeFrame = 0;
-    const range = pendingDetailTimeRange;
-    const sourceChart = pendingDetailTimeRangeSource;
-    pendingDetailTimeRange = null;
-    pendingDetailTimeRangeSource = null;
-    if (!range) return;
-    lastAppliedDetailTimeRangeKey = `${String(range.from)}:${String(range.to)}`;
-    isDetailTimeScaleSyncing = true;
-    charts.filter(chart => chart !== sourceChart).forEach(chart => chart.timeScale().setVisibleRange(range));
-    isDetailTimeScaleSyncing = false;
-  };
-
-  const queueRangeSync = (range, sourceChart) => {
-    if (!range || isDetailTimeScaleSyncing) return;
-    // setVisibleRange가 보조 차트의 이벤트를 다시 발생시켜도 이미 적용한 범위는 무시한다.
-    if (`${String(range.from)}:${String(range.to)}` === lastAppliedDetailTimeRangeKey) return;
-    pendingDetailTimeRange = range;
-    pendingDetailTimeRangeSource = sourceChart;
-    if (!detailTimeRangeFrame) detailTimeRangeFrame = requestAnimationFrame(applyPendingRange);
-  };
-
-  // 세 패널 어디에서 확대·이동해도 동일한 실제 날짜 범위를 공유한다.
-  charts.forEach(sourceChart => {
-    sourceChart.timeScale().subscribeVisibleTimeRangeChange(range => {
-      queueRangeSync(range, sourceChart);
-    });
-  });
-}
-
-/** 최초 렌더링에도 명시적으로 시간 범위를 전달해 보조 차트가 자체 범위를 쓰지 않게 한다. */
-function syncDetailTimeRangeFromPrice() {
-  const range = detailPriceChart?.timeScale().getVisibleRange();
-  if (!range) return;
-  pendingDetailTimeRange = range;
-  pendingDetailTimeRangeSource = detailPriceChart;
-  if (!detailTimeRangeFrame) {
-    detailTimeRangeFrame = requestAnimationFrame(() => {
-      detailTimeRangeFrame = 0;
-      const currentRange = pendingDetailTimeRange;
-      pendingDetailTimeRange = null;
-      pendingDetailTimeRangeSource = null;
-      if (!currentRange) return;
-      lastAppliedDetailTimeRangeKey = `${String(currentRange.from)}:${String(currentRange.to)}`;
-      isDetailTimeScaleSyncing = true;
-      [detailVolumeChart, detailWilliamsChart].filter(Boolean).forEach(chart => chart.timeScale().setVisibleRange(currentRange));
-      isDetailTimeScaleSyncing = false;
-    });
-  }
-}
-
 /** 상세 모달을 열 때만 차트 객체를 생성해, 숨겨진 요소의 너비가 0으로 계산되는 문제를 막는다. */
 function initDetailCharts() {
   if (!window.LightweightCharts) return;
-  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
+  detailPriceChart?.remove();
   detailChartResizeObserver?.disconnect();
 
   const priceContainer = document.getElementById('detailPriceChart');
-  const volumeContainer = document.getElementById('detailVolumeChart');
-  const williamsContainer = document.getElementById('detailWilliamsChart');
-  if (!priceContainer || !volumeContainer || !williamsContainer) return;
+  if (!priceContainer) return;
 
   detailPriceChart = createDetailChart(priceContainer, priceContainer.clientHeight || 285);
-  detailVolumeChart = createDetailChart(volumeContainer, volumeContainer.clientHeight || 95);
-  detailWilliamsChart = createDetailChart(williamsContainer, williamsContainer.clientHeight || 135);
 
   detailCandleSeries = detailPriceChart.addCandlestickSeries({
     upColor: '#10b981', downColor: '#f43f5e', borderUpColor: '#10b981', borderDownColor: '#f43f5e', wickUpColor: '#10b981', wickDownColor: '#f43f5e'
   });
   detailMa20Series = detailPriceChart.addLineSeries({ color: '#facc15', lineWidth: 1, title: 'MA20' });
   detailMa60Series = detailPriceChart.addLineSeries({ color: '#a855f7', lineWidth: 1, title: 'MA60' });
-  detailVolumeSeries = detailVolumeChart.addHistogramSeries({ color: 'rgba(56, 189, 248, 0.45)', priceFormat: { type: 'volume' } });
-  detailWilliamsSeries = detailWilliamsChart.addLineSeries({ color: '#38bdf8', lineWidth: 2, title: 'Williams %R' });
-  detailWilliamsSeries.createPriceLine({ price: -20, color: 'rgba(244, 63, 94, 0.75)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '과매수' });
-  detailWilliamsSeries.createPriceLine({ price: -80, color: 'rgba(16, 185, 129, 0.75)', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dashed, axisLabelVisible: true, title: '과매도' });
-  detailWilliamsChart.priceScale('right').applyOptions({ scaleMargins: { top: 0.1, bottom: 0.1 } });
-  detailWilliamsSeries.applyOptions({ priceFormat: { type: 'price', precision: 0, minMove: 1 } });
-  synchronizeDetailTimeScales();
+  // 거래량은 2번 화면과 같은 차트 안의 하단 18%만 사용한다.
+  detailVolumeSeries = detailPriceChart.addHistogramSeries({
+    priceFormat: { type: 'volume' },
+    priceScaleId: '',
+    scaleMargins: { top: 0.82, bottom: 0 }
+  });
 
-  // 세 캔버스 대신 공통 레이아웃 한 곳만 관찰해 ResizeObserver의 중복 작업을 줄인다.
+  // 단일 캔버스만 관찰해 모달 레이아웃 변경에도 불필요한 재계산을 막는다.
   detailChartResizeObserver = new ResizeObserver(scheduleDetailChartResize);
-  detailChartResizeObserver.observe(document.getElementById('detailChartStack'));
+  detailChartResizeObserver.observe(priceContainer);
 }
 
 function renderDetailCharts(company) {
-  if (!detailCandleSeries || !detailVolumeSeries || !detailWilliamsSeries) return;
+  if (!detailCandleSeries || !detailVolumeSeries) return;
   const candles = normalizeChartCandles(company);
-  const williamsValues = calculateWilliamsR(candles);
   const emptyState = document.getElementById('detailChartEmptyState');
-  const hasChartData = candles.length >= 14 && williamsValues.length > 0;
+  const hasChartData = candles.length > 0;
   emptyState?.classList.toggle('hidden', hasChartData);
   if (!hasChartData) return;
 
@@ -618,10 +543,8 @@ function renderDetailCharts(company) {
     value: candle.volume,
     color: candle.close >= candle.open ? 'rgba(16, 185, 129, 0.55)' : 'rgba(244, 63, 94, 0.55)'
   })));
-  detailWilliamsSeries.setData(williamsValues);
-  // 가격 차트의 시간축만 기준으로 삼아 보조 차트에 전달한다. 세 번의 동시 fitContent를 피한다.
+  // 한 캔버스만 갱신하므로 확대·축소와 드래그가 2번 차트 화면처럼 가볍게 동작한다.
   detailPriceChart.timeScale().fitContent();
-  requestAnimationFrame(syncDetailTimeRangeFromPrice);
   scheduleDetailChartResize();
 }
 
@@ -1558,18 +1481,10 @@ function closeCompanyDetailModal() {
   detailChartResizeObserver?.disconnect();
   if (detailChartResizeFrame) cancelAnimationFrame(detailChartResizeFrame);
   detailChartResizeFrame = 0;
-  if (detailTimeRangeFrame) cancelAnimationFrame(detailTimeRangeFrame);
-  detailTimeRangeFrame = 0;
-  pendingDetailTimeRange = null;
-  pendingDetailTimeRangeSource = null;
-  lastAppliedDetailTimeRangeKey = '';
-  [detailPriceChart, detailVolumeChart, detailWilliamsChart].forEach(chart => chart?.remove());
+  detailPriceChart?.remove();
   detailPriceChart = null;
-  detailVolumeChart = null;
-  detailWilliamsChart = null;
   detailCandleSeries = null;
   detailVolumeSeries = null;
-  detailWilliamsSeries = null;
   detailMa20Series = null;
   detailMa60Series = null;
 }
