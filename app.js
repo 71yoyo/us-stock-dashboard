@@ -11,6 +11,7 @@ const state = {
   selectedTicker: 'NVDA',
   activePeriod: '1D',
   dashboardEventsBound: false,
+  mainChartResizeBound: false,
   // Worker 인증이 성공한 현재 PIN만 메모리에 보관한다. 새로고침 뒤에는 다시 PIN을 입력해야 한다.
   apiPin: '',
   watchlistSyncStarted: false,
@@ -330,12 +331,24 @@ function lockApp() {
 // ========================================================
 // 📊 4. TradingView 인터랙티브 캔들 차트
 // ========================================================
-function initChart() {
-  if (tvChart) {
-    tvChart.remove();
-  }
-
+function destroyMainChart() {
+  tvChart?.remove();
+  tvChart = null;
+  candleSeries = null;
+  volumeSeries = null;
+  ma20Series = null;
+  ma60Series = null;
   tvChartContainer.innerHTML = '';
+}
+
+function resizeMainChart() {
+  if (tvChart && tvChartContainer?.clientWidth > 0) {
+    tvChart.applyOptions({ width: tvChartContainer.clientWidth, height: tvChartContainer.clientHeight });
+  }
+}
+
+function initChart() {
+  destroyMainChart();
 
   tvChart = LightweightCharts.createChart(tvChartContainer, {
     layout: {
@@ -412,15 +425,11 @@ function initChart() {
     }
   });
 
-  // 리사이즈 옵저버
-  window.addEventListener('resize', () => {
-    if (tvChart && tvChartContainer) {
-      tvChart.applyOptions({
-        width: tvChartContainer.clientWidth,
-        height: tvChartContainer.clientHeight
-      });
-    }
-  });
+  // 차트를 다시 만들더라도 전역 resize 이벤트는 한 번만 연결한다.
+  if (!state.mainChartResizeBound) {
+    window.addEventListener('resize', resizeMainChart);
+    state.mainChartResizeBound = true;
+  }
 
   loadStockChart(state.selectedTicker);
 }
@@ -564,7 +573,8 @@ async function fetchCompanyFromCloudflare(ticker) {
 /** D1에 저장된 3개월 일봉만 차트에 사용하며, 임의 차트 데이터는 생성하지 않는다. */
 async function loadStockChart(ticker) {
   const stock = state.watchlist.find(item => item.ticker === ticker);
-  if (!stock || !tvChart) return;
+  const chartAtRequest = tvChart;
+  if (!stock || !chartAtRequest) return;
   const company = await fetchCompanyFromCloudflare(ticker);
   if (ticker !== state.selectedTicker || !company) return;
 
@@ -576,6 +586,10 @@ async function loadStockChart(ticker) {
   stock.marketData = company;
   renderCompanyDetailData(company);
   renderDetailCharts(company);
+  updateCompanySummary();
+
+  // 상세 모달을 여는 동안 2번 차트를 해제했을 수 있다. 이 경우 저장된 상세 데이터만 갱신한다.
+  if (tvChart !== chartAtRequest || !candleSeries || !volumeSeries || !ma20Series || !ma60Series) return;
 
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
@@ -594,7 +608,6 @@ async function loadStockChart(ticker) {
   ma20Series.setData(calculateMovingAverage(candles, 20));
   ma60Series.setData(calculateMovingAverage(candles, 60));
   tvChart.timeScale().fitContent();
-  updateCompanySummary();
 }
 
 // ========================================================
@@ -1467,9 +1480,12 @@ function openCompanyDetailModal() {
   updateCompanySummary();
   document.getElementById('companyDetailModal').classList.remove('hidden');
   document.body.classList.add('modal-open');
-  // 모달이 화면에 표시된 뒤 생성해야 차트 너비를 정상적으로 계산할 수 있다.
+  // 뒤쪽 2번 차트를 제거해 모달에는 하나의 캔버스만 남긴다.
+  destroyMainChart();
+  // 모달이 화면에 표시된 뒤에만 최초 차트를 만들고, 이후에는 기존 인스턴스를 재사용한다.
   requestAnimationFrame(() => {
-    initDetailCharts();
+    if (!detailPriceChart) initDetailCharts();
+    else scheduleDetailChartResize();
     const stock = state.watchlist.find(item => item.ticker === state.selectedTicker);
     if (stock?.marketData) renderDetailCharts(stock.marketData);
   });
@@ -1478,15 +1494,10 @@ function openCompanyDetailModal() {
 function closeCompanyDetailModal() {
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
-  detailChartResizeObserver?.disconnect();
-  if (detailChartResizeFrame) cancelAnimationFrame(detailChartResizeFrame);
-  detailChartResizeFrame = 0;
-  detailPriceChart?.remove();
-  detailPriceChart = null;
-  detailCandleSeries = null;
-  detailVolumeSeries = null;
-  detailMa20Series = null;
-  detailMa60Series = null;
+  // 상세 차트는 다음 종목 열기에서 재사용하고, 뒤쪽 2번 차트만 필요 시 다시 만든다.
+  requestAnimationFrame(() => {
+    if (!tvChart && !mainApp.classList.contains('hidden')) initChart();
+  });
 }
 
 // ========================================================

@@ -547,7 +547,7 @@ body.modal-open {
 .company-detail-price { text-align: right; }
 .company-detail-price strong { display: block; font-family: var(--font-display); font-size: 1.3rem; }
 
-.company-detail-modal { padding: 5vh 5vw; }
+.company-detail-modal { padding: 5vh 5vw; background: rgba(0, 0, 0, 0.84); backdrop-filter: none; }
 .company-detail-modal .company-detail-section { width: 90vw; max-width: 1600px; height: 90vh; overflow: hidden; }
 .company-detail-modal .modal-card { max-width: none; }
 .company-detail-header { flex: 0 0 auto; margin-bottom: 10px; }
