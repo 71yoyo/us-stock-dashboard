@@ -1,4 +1,4 @@
-import { syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
+import { recalculateStoredDividendMetrics, syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
 import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
@@ -467,6 +467,20 @@ export default {
           ? await fundamentalStatus({ ...environment }) : await runFundamentalBatch(environment));
       } catch (error) {
         return jsonResponse(environment, 502, { error: `수집 상태를 확인하지 못했습니다: ${error.message}` });
+      }
+    }
+
+    if (url.pathname === '/api/dividends/recalculate') {
+      if (request.method !== 'POST') return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      if (!isPinAuthorized(request, environment)) return jsonResponse(environment, 401, { error: 'PIN 인증이 필요합니다.' });
+      try {
+        const watchlist = await listWatchlist(environment);
+        // D1 저장값만 읽는 작업이므로 순차 처리해도 외부 API 호출·속도 제한이 발생하지 않는다.
+        const results = [];
+        for (const stock of watchlist) results.push(await recalculateStoredDividendMetrics(environment, stock.ticker));
+        return jsonResponse(environment, 200, { results });
+      } catch (error) {
+        return jsonResponse(environment, 502, { error: `저장 배당수익률을 다시 계산하지 못했습니다: ${error.message}` });
       }
     }
 

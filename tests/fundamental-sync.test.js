@@ -47,16 +47,32 @@ test('SEC 태그 전환, 누적 현금흐름 분리, 연간/Q4 구분', () => {
   assert.equal(annual.get('2025-12-31').val, 80);
 });
 
-test('배당은 진행 중인 연도/미래분을 연간 합계에 넣지 않고 10년 미확보는 null', () => {
+test('분기배당 수익률은 최근 실제 지급 4회를 현재가로 나누고 미래 지급분은 제외한다', () => {
   const metrics = calculateDividendMetrics([
-    { exDividendDate: '2025-03-01', amount: 1 }, { exDividendDate: '2025-12-01', amount: 1 },
-    { exDividendDate: '2026-07-01', amount: .2 }, { exDividendDate: '2026-08-01', amount: .2 },
-    { exDividendDate: '2026-09-01', amount: .2 }, { exDividendDate: '2026-10-01', amount: .2 }
+    { exDividendDate: '2025-12-01', paymentDate: '2025-12-15', amount: .5, frequency: 'Quarterly' },
+    { exDividendDate: '2026-03-01', paymentDate: '2026-03-15', amount: .5, frequency: 'Quarterly' },
+    { exDividendDate: '2026-06-01', paymentDate: '2026-06-15', amount: .6, frequency: 'Quarterly' },
+    { exDividendDate: '2026-09-01', paymentDate: '2026-09-15', amount: .6, frequency: 'Quarterly' },
+    { exDividendDate: '2026-12-01', paymentDate: '2026-12-15', amount: .7, frequency: 'Quarterly' }
   ], 100, '2026-09-22');
-  assert.equal(metrics.annualDividend, 2);
+  assert.equal(metrics.annualDividend, 2.2);
   assert.ok(Math.abs(metrics.quarterlyDividend - .6) < 1e-9);
+  assert.ok(Math.abs(metrics.dividendYield - 2.2) < 1e-9);
+  assert.equal(metrics.frequency, 'quarterly');
   assert.equal(metrics.growthCagr, null);
-  assert.equal(metrics.nextExDate, '2026-10-01');
+  assert.equal(metrics.nextExDate, '2026-12-01');
+});
+
+test('월배당 수익률은 최근 실제 지급 12회를 합산한다', () => {
+  const events = Array.from({ length: 13 }, (_, index) => {
+    const date = new Date(Date.UTC(2024, 11 + index, 1));
+    const isoDate = date.toISOString().slice(0, 10);
+    return { exDividendDate: isoDate, paymentDate: `${isoDate.slice(0, 8)}15`, amount: .1, frequency: 'Monthly' };
+  });
+  const metrics = calculateDividendMetrics(events, 24, '2026-01-01');
+  assert.ok(Math.abs(metrics.annualDividend - 1.2) < 1e-9);
+  assert.ok(Math.abs(metrics.dividendYield - 5) < 1e-9);
+  assert.equal(metrics.frequency, 'monthly');
 });
 
 test('전체 수집은 시세/차트 미호출, SEC 한 번 재사용, 새 공시 없으면 원문 미호출, 실패 제한 유지', async () => {

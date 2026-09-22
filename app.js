@@ -785,7 +785,7 @@ function renderOverviewStockRows(container, stocks, emptyMessage, showDividendDe
       ${shouldShowDividendDetails ? `
         <span class="overview-next-dividend-cell ${dividend.status}"><strong>${dividend.nextDate}</strong><span>${dividend.statusLabel}</span></span>
         <span class="overview-dividend-day-cell ${dividend.status}"><strong>${dividend.daysLeft}</strong><span>미국 영업일 기준</span></span>
-        <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>저장 배당수익률</span></span>
+        <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>최근 지급 1년 배당수익률</span></span>
       ` : ''}
     `;
     item.addEventListener('click', () => {
@@ -1061,7 +1061,7 @@ function renderCompanyDetailData(company) {
         : schedule.frequency.key === 'annual' ? '최근 연 배당금' : '최근 1회 배당금';
   const dividendEntries = [
     ['배당 주기', schedule.frequency.label, schedule.frequency.basis],
-    ['배당수익률', dividend?.dividendYield, '%'], ['연 배당금', dividend?.annualDividend, '$'],
+    ['최근 지급 1년 배당수익률', dividend?.dividendYield, '%'], ['최근 지급 1년 배당금', dividend?.annualDividend, '$'],
     [perPayoutLabel, schedule.latestPayout?.amount, '$'], ['최근 3개월 배당금', dividend?.quarterlyDividend, '$'],
     ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'], ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'],
     ['다음 배당 기준일', schedule.nextDate || '미정', schedule.estimateBasis, schedule.nextStatus],

@@ -153,16 +153,80 @@ function toIsoDate(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value) ? value.slice(0, 10) : null;
 }
 
-function addMonths(isoDate, months) {
-  const date = new Date(`${isoDate}T00:00:00Z`);
-  if (Number.isNaN(date.getTime())) return null;
-  date.setUTCMonth(date.getUTCMonth() + months);
-  return date.toISOString().slice(0, 10);
+/** FMP의 표기와 과거 지급 간격을 같은 배당 주기 값으로 정규화한다. */
+function normalizeDividendFrequency(value) {
+  const text = String(value || '').trim().toLowerCase();
+  if (!text) return null;
+  if (text.includes('month')) return 'monthly';
+  if (text.includes('quarter')) return 'quarterly';
+  if (text.includes('semi') || text.includes('half')) return 'semiannual';
+  if (text.includes('annual') || text.includes('year')) return 'annual';
+  return null;
+}
+
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+/**
+ * FMP가 주기를 주면 그 값을 우선한다. 누락된 경우에만 과거 배당락일 간격을 사용한다.
+ * 불규칙 특별배당을 월배당으로 오판하지 않도록, 충분한 간격 기록이 없으면 null을 반환한다.
+ */
+function detectDividendFrequency(events) {
+  const explicitFrequencies = events
+    .map(event => normalizeDividendFrequency(event.frequency))
+    .filter(Boolean);
+  if (explicitFrequencies.length) {
+    const counts = new Map();
+    for (const frequency of explicitFrequencies) counts.set(frequency, (counts.get(frequency) || 0) + 1);
+    return [...counts.entries()].sort((left, right) => right[1] - left[1])[0][0];
+  }
+
+  const dates = events.map(event => event.exDividendDate).filter(Boolean).sort();
+  if (dates.length < 4) return null;
+  const gaps = [];
+  for (let index = 1; index < dates.length; index += 1) {
+    const previous = Date.parse(`${dates[index - 1]}T00:00:00Z`);
+    const current = Date.parse(`${dates[index]}T00:00:00Z`);
+    if (Number.isFinite(previous) && Number.isFinite(current)) gaps.push((current - previous) / 86_400_000);
+  }
+  const typicalGap = median(gaps);
+  if (typicalGap === null) return null;
+  if (typicalGap >= 20 && typicalGap <= 45) return 'monthly';
+  if (typicalGap >= 70 && typicalGap <= 120) return 'quarterly';
+  if (typicalGap >= 150 && typicalGap <= 210) return 'semiannual';
+  if (typicalGap >= 300 && typicalGap <= 400) return 'annual';
+  return null;
+}
+
+function payoutCountPerYear(frequency) {
+  return { monthly: 12, quarterly: 4, semiannual: 2, annual: 1 }[frequency] || null;
+}
+
+function receivedDate(event) {
+  // "마지막 받은 배당금" 기준을 지키기 위해 지급일이 있으면 우선한다.
+  return event.paymentDate || event.exDividendDate;
 }
 
 export function calculateDividendMetrics(events, currentPrice, today = new Date().toISOString().slice(0, 10)) {
-  const datedEvents = events.filter(event => event.exDividendDate && Number.isFinite(event.amount))
+  const datedEvents = events.map(event => ({ ...event, amount: toFiniteNumber(event.amount) }))
+    .filter(event => event.exDividendDate && event.amount !== null)
     .sort((a, b) => a.exDividendDate.localeCompare(b.exDividendDate));
+  const frequency = detectDividendFrequency(datedEvents);
+  const payoutsPerYear = payoutCountPerYear(frequency);
+  const receivedEvents = datedEvents
+    .filter(event => receivedDate(event) && receivedDate(event) <= today)
+    .sort((left, right) => receivedDate(right).localeCompare(receivedDate(left)));
+
+  // 분기배당은 최근 4회, 월배당은 최근 12회를 합산한다. 지급 횟수가 모자라면
+  // 일부 기간을 1년치처럼 연환산하지 않고 수익률을 비워 실제 값으로 오해하지 않게 한다.
+  const trailingPayouts = payoutsPerYear ? receivedEvents.slice(0, payoutsPerYear) : [];
+  const annualDividend = payoutsPerYear && trailingPayouts.length === payoutsPerYear
+    ? trailingPayouts.reduce((total, event) => total + event.amount, 0) : null;
+
   const currentYear = Number(today.slice(0, 4));
   const annualAmounts = new Map();
   for (const event of datedEvents) {
@@ -172,10 +236,11 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
   }
   const years = [...annualAmounts.keys()].sort();
   const latestYear = years.at(-1);
-  const annualDividend = latestYear ? annualAmounts.get(latestYear) : null;
-  const quarterStart = addMonths(today, -3);
-  const recentEvents = datedEvents.filter(event => event.exDividendDate > quarterStart && event.exDividendDate <= today);
-  const quarterlyDividend = recentEvents.length ? recentEvents.reduce((total, event) => total + event.amount, 0) : null;
+  const latestCompletedAnnualDividend = latestYear ? annualAmounts.get(latestYear) : null;
+  // 카드의 "최근 3개월"은 월배당은 3회 합계, 분기배당은 최근 1회 지급액만 보인다.
+  const quarterPayoutCount = frequency === 'monthly' ? 3 : frequency === 'quarterly' ? 1 : null;
+  const quarterlyDividend = quarterPayoutCount && receivedEvents.length >= quarterPayoutCount
+    ? receivedEvents.slice(0, quarterPayoutCount).reduce((total, event) => total + event.amount, 0) : null;
 
   let growthYears = 0;
   for (let index = years.length - 1; index > 0; index -= 1) {
@@ -185,8 +250,8 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
   }
   const tenYearStart = annualAmounts.get(String(Number(latestYear) - 10));
   const yearSpan = 10;
-  const growthCagr = tenYearStart && annualDividend && yearSpan > 0
-    ? (Math.pow(annualDividend / tenYearStart, 1 / yearSpan) - 1) * 100
+  const growthCagr = tenYearStart && latestCompletedAnnualDividend && yearSpan > 0
+    ? (Math.pow(latestCompletedAnnualDividend / tenYearStart, 1 / yearSpan) - 1) * 100
     : null;
   const futureEvent = datedEvents.find(event => event.exDividendDate >= today);
   // 월배당·불규칙 배당에 3개월을 일괄 더하면 잘못된 날짜가 되므로 미확인 일정은 비워 둔다.
@@ -197,6 +262,9 @@ export function calculateDividendMetrics(events, currentPrice, today = new Date(
     annualDividend,
     quarterlyDividend,
     dividendYield: annualDividend && currentPrice ? (annualDividend / currentPrice) * 100 : null,
+    frequency,
+    trailingPayoutCount: trailingPayouts.length,
+    requiredPayoutCount: payoutsPerYear,
     growthYears,
     growthCagr,
     nextExDate,
@@ -241,6 +309,36 @@ export async function syncDividends(environment, ticker) {
   return { source: 'FMP', eventCount: events.length, firstDate: events.map(event => event.exDividendDate).sort()[0] };
 }
 
+/**
+ * 이미 D1에 저장된 FMP 배당 이벤트를 다시 집계한다.
+ * 외부 API를 재호출하지 않아, 계산식 변경 후에도 호출 한도와 대기 시간 없이 화면 값을 교정할 수 있다.
+ */
+export async function recalculateStoredDividendMetrics(environment, ticker) {
+  const [eventsResult, quote] = await Promise.all([
+    environment.DB.prepare(`SELECT ex_dividend_date AS exDividendDate, payment_date AS paymentDate,
+      amount, frequency FROM dividend_events WHERE ticker = ? ORDER BY ex_dividend_date ASC`).bind(ticker).all(),
+    environment.DB.prepare('SELECT current_price AS currentPrice FROM price_quotes WHERE ticker = ?').bind(ticker).first()
+  ]);
+  const events = eventsResult.results || [];
+  if (!events.length) return { ticker, status: 'skipped', reason: '저장된 배당 이벤트 없음' };
+
+  const calculated = calculateDividendMetrics(events, quote?.currentPrice);
+  await environment.DB.prepare(`INSERT INTO dividend_metrics
+    (ticker, annual_dividend, quarterly_dividend, dividend_yield, calculated_at)
+    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(ticker) DO UPDATE SET annual_dividend=excluded.annual_dividend,
+      quarterly_dividend=excluded.quarterly_dividend, dividend_yield=excluded.dividend_yield,
+      calculated_at=CURRENT_TIMESTAMP`
+  ).bind(ticker, calculated.annualDividend, calculated.quarterlyDividend, calculated.dividendYield).run();
+  return {
+    ticker,
+    status: calculated.dividendYield === null ? 'partial' : 'updated',
+    frequency: calculated.frequency,
+    receivedPayouts: calculated.trailingPayoutCount,
+    requiredPayouts: calculated.requiredPayoutCount
+  };
+}
+
 /** SEC 공시의 주당배당금으로 10년 배당 집계값을 만든다. 정확한 배당락일은 임의 추정하지 않는다. */
 export async function syncDividendsFromSec(environment, ticker) {
   await ensureFundamentalStore(environment);
@@ -278,10 +376,9 @@ export async function syncDividendsFromSec(environment, ticker) {
   const growthCagr = firstAnnual > 0 && annualDividend > 0 && yearSpan > 0
     ? (Math.pow(annualDividend / firstAnnual, 1 / yearSpan) - 1) * 100
     : null;
-  // 예시/사용자 저장가격으로 배당수익률을 계산하지 않는다. 검증된 시세가 없으면 비워 둔다.
-  const quote = await environment.DB.prepare('SELECT current_price AS currentPrice FROM price_quotes WHERE ticker = ?').bind(ticker).first();
-  const currentPrice = toFiniteNumber(quote?.currentPrice);
-  const dividendYield = annualDividend > 0 && currentPrice > 0 ? (annualDividend / currentPrice) * 100 : null;
+  // SEC 연간·분기 집계만으로는 월배당/분기배당의 "최근 실제 지급 1년치"를 확정할 수 없다.
+  // 따라서 FMP 지급 이벤트가 없는 종목의 수익률을 연간 공시값으로 대체하지 않는다.
+  const dividendYield = null;
 
   await environment.DB.prepare(`INSERT INTO dividend_metrics
     (ticker, annual_dividend, quarterly_dividend, dividend_yield, dividend_growth_years, dividend_growth_cagr_10y,
