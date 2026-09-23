@@ -1,5 +1,8 @@
-import { recalculateStoredDividendMetrics, syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
-import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
+import { syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
+import { runFundamentalBatch, fundamentalStatus, fundamentalDetails,
+  summarizeSecDividendPeriods, recalculateSecDividendMetrics } from './fundamental-sync.js';
+import { readWilliamsSignals } from './williams-store.js';
+import { combineDividendData } from './dividend-view.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -115,24 +118,34 @@ async function getDashboardSummary(environment) {
 
   const tickers = watchlist.map(item => item.ticker);
   const placeholders = tickers.map(() => '?').join(', ');
-  const [candleResult, dividendResult] = await environment.DB.batch([
-    environment.DB.prepare(`
+  // 아직 전용 수집을 시작하지 않은 DB에서는 배당 테이블 자체가 없을 수 있다. 로그인마다 CREATE를 반복하지 않는다.
+  const hasDividendHistory = await environment.DB.prepare(`SELECT 1 FROM sqlite_master
+    WHERE type = 'table' AND name = 'dividend_periods'`).first();
+  const queries = [environment.DB.prepare(`
       SELECT ticker, candle_date AS candleDate, open_price AS open, high_price AS high,
-        low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
+      low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
       FROM price_candles
       WHERE ticker IN (${placeholders})
         AND candle_date >= date('now', '-120 days')
       ORDER BY ticker ASC, candle_date ASC
-    `).bind(...tickers),
-    environment.DB.prepare(`
-      SELECT ticker, annual_dividend AS annualDividend, quarterly_dividend AS quarterlyDividend,
-        dividend_yield AS dividendYield, dividend_growth_years AS dividendGrowthYears,
-        dividend_growth_cagr_10y AS dividendGrowthCagr10y, next_ex_dividend_date AS nextExDividendDate,
-        next_date_status AS nextDateStatus, next_payment_date AS nextPaymentDate, calculated_at AS calculatedAt
-      FROM dividend_metrics
-      WHERE ticker IN (${placeholders})
-    `).bind(...tickers)
-  ]);
+    `).bind(...tickers)];
+  if (hasDividendHistory) queries.push(environment.DB.prepare(`
+      WITH latest AS (
+        SELECT ticker, period_type AS periodType, period_end AS periodEnd, amount,
+          ROW_NUMBER() OVER (PARTITION BY ticker, period_type ORDER BY period_end DESC) AS rank
+        FROM dividend_periods WHERE ticker IN (${placeholders}) AND source = 'SEC EDGAR'
+      )
+      SELECT ticker, periodType, periodEnd, amount FROM latest WHERE rank = 1
+    `).bind(...tickers));
+  queries.push(environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
+    ex_dividend_date AS exDividendDate, payment_date AS paymentDate, amount, source
+    FROM dividend_events WHERE ticker IN (${placeholders}) AND source='FMP'
+      AND (payment_date >= date('now', '-13 months') OR ex_dividend_date >= date('now'))
+    ORDER BY ticker, ex_dividend_date`).bind(...tickers));
+  const results = await environment.DB.batch(queries);
+  const candleResult = results[0];
+  const dividendResult = hasDividendHistory ? results[1] : { results: [] };
+  const eventResult = results[hasDividendHistory ? 2 : 1];
 
   const candlesByTicker = new Map();
   for (const candle of candleResult.results) {
@@ -140,7 +153,28 @@ async function getDashboardSummary(environment) {
     candles.push(candle);
     candlesByTicker.set(candle.ticker, candles);
   }
-  const dividendsByTicker = new Map(dividendResult.results.map(item => [item.ticker, item]));
+  const dividendsByTicker = new Map();
+  for (const period of dividendResult.results) {
+    const metrics = dividendsByTicker.get(period.ticker) || {
+      source: 'SEC EDGAR', annualDividend: null, quarterlyDividend: null,
+      dividendYield: null, nextExDividendDate: null, nextDateStatus: 'unknown'
+    };
+    if (period.periodType === 'annual') {
+      metrics.annualDividend = period.amount;
+      metrics.annualPeriodEnd = period.periodEnd;
+    } else {
+      metrics.quarterlyDividend = period.amount;
+      metrics.quarterlyPeriodEnd = period.periodEnd;
+    }
+    dividendsByTicker.set(period.ticker, metrics);
+  }
+  const eventsByTicker = new Map();
+  for (const event of eventResult.results) {
+    const events = eventsByTicker.get(event.ticker) || [];
+    events.push(event);
+    eventsByTicker.set(event.ticker, events);
+  }
+  const signalsByTicker = await readWilliamsSignals(environment, tickers);
 
   return {
     watchlist,
@@ -153,7 +187,9 @@ async function getDashboardSummary(environment) {
       changeAmount: stock.change,
       changePercent: stock.changePct,
       candles: candlesByTicker.get(stock.ticker) || [],
-      dividendMetrics: dividendsByTicker.get(stock.ticker) || null
+      technicalSignal: signalsByTicker.get(stock.ticker) || null,
+      dividendMetrics: combineDividendData(dividendsByTicker.get(stock.ticker),
+        eventsByTicker.get(stock.ticker), stock.price)
     }))
   };
 }
@@ -211,27 +247,13 @@ async function getCompany(environment, ticker) {
     return null;
   }
 
-  const [dividends, dividendMetrics, financials, candles] = await environment.DB.batch([
-    environment.DB.prepare(`
-      SELECT declaration_date AS declarationDate, ex_dividend_date AS exDividendDate,
-        record_date AS recordDate, payment_date AS paymentDate, amount, frequency,
-        is_confirmed AS isConfirmed
-      FROM dividend_events WHERE ticker = ?
-      ORDER BY COALESCE(ex_dividend_date, payment_date) DESC LIMIT 20
-    `).bind(ticker),
-    environment.DB.prepare(`
-      SELECT annual_dividend AS annualDividend, quarterly_dividend AS quarterlyDividend,
-        dividend_yield AS dividendYield, dividend_growth_years AS dividendGrowthYears,
-        dividend_growth_cagr_10y AS dividendGrowthCagr10y, next_ex_dividend_date AS nextExDividendDate,
-        next_date_status AS nextDateStatus, next_payment_date AS nextPaymentDate, calculated_at AS calculatedAt
-      FROM dividend_metrics WHERE ticker = ?
-    `).bind(ticker),
+  const [financials, candles, dividendEvents] = await environment.DB.batch([
     environment.DB.prepare(`
       SELECT period_type AS periodType, fiscal_period_end AS fiscalPeriodEnd, reported_date AS reportedDate,
         revenue, operating_income AS operatingIncome, net_income AS netIncome, eps,
         peg_ratio AS pegRatio, pe_ratio AS peRatio, ps_ratio AS psRatio, free_cash_flow AS freeCashFlow,
         roe, roic, gross_margin AS grossMargin, operating_margin AS operatingMargin, source, cached_at AS cachedAt
-      FROM financial_metrics WHERE ticker = ?
+      FROM financial_metrics WHERE ticker = ? AND source = 'SEC EDGAR'
       ORDER BY fiscal_period_end DESC LIMIT 50
     `).bind(ticker),
     environment.DB.prepare(`
@@ -239,33 +261,32 @@ async function getCompany(environment, ticker) {
         low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
       FROM price_candles WHERE ticker = ?
       ORDER BY candle_date DESC LIMIT 260
-    `).bind(ticker)
+    `).bind(ticker),
+    environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
+      ex_dividend_date AS exDividendDate, record_date AS recordDate,
+      payment_date AS paymentDate, amount, source
+      FROM dividend_events WHERE ticker=? AND source='FMP' ORDER BY ex_dividend_date DESC LIMIT 150`).bind(ticker)
   ]);
 
   const extra = await fundamentalDetails(environment, ticker);
-  const dividendSource = extra.collection.find(job => job.kind === 'dividends')?.details?.source;
+  const storedSignals = await readWilliamsSignals(environment, [ticker]);
   return {
     ...company,
     ...extra,
-    dividends: dividends.results,
-    dividendMetrics: dividendMetrics.results[0]
-      ? {
-          ...dividendMetrics.results[0],
-          // 이벤트가 있으면 FMP 원본, 집계만 있으면 SEC 공식 공시에서 계산한 값이다.
-          source: dividendSource || (dividends.results.length ? 'FMP' : 'SEC EDGAR')
-        }
-      : null,
+    // 기간별 배당금은 SEC, 개별 지급일·다음 일정은 FMP로 출처를 분리한다.
+    dividends: dividendEvents.results,
+    dividendMetrics: combineDividendData(summarizeSecDividendPeriods(extra.dividendHistory),
+      dividendEvents.results, company.currentPrice),
     financials: financials.results,
+    technicalSignal: storedSignals.get(ticker) || null,
     candles: candles.results.reverse()
   };
 }
 
 const syncIntervalsInMinutes = {
-  profile: 30 * 24 * 60,
   price: 30,
   candles: 24 * 60,
-  dividends: 24 * 60,
-  financials: 7 * 24 * 60
+  dividends: 24 * 60
 };
 
 function isSyncDue(syncState, intervalMinutes) {
@@ -275,77 +296,31 @@ function isSyncDue(syncState, intervalMinutes) {
   return !Number.isFinite(elapsed) || elapsed >= intervalMinutes * 60_000;
 }
 
-function isFinancialRefreshDue(syncState, schedule) {
-  if (syncState?.nextRetryAt && new Date(syncState.nextRetryAt).getTime() > Date.now()) return false;
-  if (isSyncDue(syncState, syncIntervalsInMinutes.financials)) return true;
-  if (!schedule?.nextEarningsDate) return false;
-
-  // 발표일 다음 평일부터 재무를 다시 읽는다.
-  const refreshDate = new Date(`${schedule.nextEarningsDate}T00:00:00Z`);
-  refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
-  while ([0, 6].includes(refreshDate.getUTCDay())) {
-    refreshDate.setUTCDate(refreshDate.getUTCDate() + 1);
-  }
-  const refreshDateText = refreshDate.toISOString().slice(0, 10);
-  return new Date().toISOString().slice(0, 10) >= refreshDateText
-    && String(syncState?.lastSuccessAt || '') < refreshDateText;
-}
-
 /**
  * 관심종목 전체를 작은 작업 단위로 나눈 뒤, 가장 오래 기다린 작업 하나만 선택한다.
  * 이 방식은 첫 적재에도 Cron 한 번당 외부 API 호출 묶음이 하나를 넘지 않게 한다.
  */
 async function findNextSyncJob(environment) {
-  const [watchlistResult, statesResult, schedulesResult, coverageResult] = await environment.DB.batch([
+  const [watchlistResult, statesResult] = await environment.DB.batch([
     environment.DB.prepare('SELECT ticker FROM user_watchlist WHERE user_id = ? ORDER BY display_order ASC')
       .bind(getWatchlistUserId()),
     environment.DB.prepare(`SELECT ticker, data_type AS dataType, last_success_at AS lastSuccessAt,
       last_attempt_at AS lastAttemptAt, next_retry_at AS nextRetryAt
-      FROM data_sync_state`),
-    environment.DB.prepare(`SELECT ticker, next_earnings_date AS nextEarningsDate
-      FROM earnings_schedule`),
-    environment.DB.prepare(`SELECT user_watchlist.ticker,
-      CASE WHEN EXISTS (
-        SELECT 1 FROM financial_metrics
-        WHERE financial_metrics.ticker = user_watchlist.ticker
-          AND financial_metrics.period_type = 'quarterly'
-          AND financial_metrics.fiscal_period_end >= date('now', '-18 months')
-          AND financial_metrics.revenue IS NOT NULL
-          AND financial_metrics.net_income IS NOT NULL
-      ) THEN 1 ELSE 0 END AS hasUsableFinancials,
-      CASE WHEN EXISTS (
-        SELECT 1 FROM dividend_metrics
-        WHERE dividend_metrics.ticker = user_watchlist.ticker
-          AND dividend_metrics.annual_dividend IS NOT NULL
-      ) THEN 1 ELSE 0 END AS hasDividendMetrics
-      FROM user_watchlist WHERE user_watchlist.user_id = ?`).bind(getWatchlistUserId())
+      FROM data_sync_state WHERE data_type IN ('price', 'candles', 'dividends')`)
   ]);
   const stateByKey = new Map(statesResult.results.map(state => [`${state.ticker}:${state.dataType}`, state]));
-  const scheduleByTicker = new Map(schedulesResult.results.map(schedule => [schedule.ticker, schedule]));
-  const coverageByTicker = new Map(coverageResult.results.map(coverage => [coverage.ticker, coverage]));
   const jobs = [];
   for (const { ticker } of watchlistResult.results) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
-      // 회사·재무·배당은 전용 큐로 옮긴다. 기존 시세/차트 수집 주기는 그대로 둔다.
-      if (!['price', 'candles'].includes(dataType)) continue;
       const state = stateByKey.get(`${ticker}:${dataType}`);
-      const coverage = coverageByTicker.get(ticker);
-      const needsRepair = (dataType === 'financials' && Number(coverage?.hasUsableFinancials) !== 1)
-        || (dataType === 'dividends' && Number(coverage?.hasDividendMetrics) !== 1);
-      const retryAllowed = !state?.nextRetryAt || new Date(state.nextRetryAt).getTime() <= Date.now();
-      const isNormallyDue = dataType === 'financials'
-        ? isFinancialRefreshDue(state, scheduleByTicker.get(ticker))
-        : isSyncDue(state, intervalMinutes);
-      // 과거 코드가 빈 응답을 성공으로 기록했어도, 실제 핵심 값이 없으면 한 작업씩 자동 복구한다.
-      const isDue = retryAllowed && (needsRepair || isNormallyDue);
-      if (isDue) {
+      if (isSyncDue(state, intervalMinutes)) {
         // 최초 적재 때는 모든 종목의 현재가를 먼저 채워 목록이 비어 보이지 않게 한다.
         // 일봉은 그 다음 순서로 저장해 API 호출을 한 작업씩 유지한다.
         jobs.push({
           ticker,
           dataType,
           lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z',
-          priority: dataType === 'price' ? 0 : 1
+          priority: dataType === 'price' ? 0 : dataType === 'candles' ? 1 : 2
         });
       }
     }
@@ -395,7 +370,7 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-22-tradingview-widget-1',
+        buildVersion: '2026-09-23-sec-fmp-hybrid-williams-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY)
@@ -474,7 +449,7 @@ export default {
         const watchlist = await listWatchlist(environment);
         // D1 저장값만 읽는 작업이므로 순차 처리해도 외부 API 호출·속도 제한이 발생하지 않는다.
         const results = [];
-        for (const stock of watchlist) results.push(await recalculateStoredDividendMetrics(environment, stock.ticker));
+        for (const stock of watchlist) results.push(await recalculateSecDividendMetrics(environment, stock.ticker));
         return jsonResponse(environment, 200, { results });
       } catch (error) {
         return jsonResponse(environment, 502, { error: `저장 배당수익률을 다시 계산하지 못했습니다: ${error.message}` });
@@ -503,9 +478,9 @@ export default {
       }
 
       try {
-        // 신규 종목은 먼저 회사 정보·현재가·3개월 일봉을 저장한다.
+        // 신규 종목은 회사 정보·현재가·3개월 일봉·FMP 배당 이벤트를 각각 저장한다.
         // 회사 테이블이 없는 상태에서 시세를 먼저 쓰면 외래 키 오류가 나므로 같은 순서로 묶는다.
-        const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles']);
+        const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles', 'dividends']);
         // 재무·배당은 장기 원본을 읽어야 하므로 전용 큐에서 제한된 속도로 이어서 처리한다.
         const fundamental = await runFundamentalBatch(environment, ticker);
         const result = { market, fundamental };

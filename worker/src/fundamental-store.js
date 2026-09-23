@@ -51,5 +51,5 @@ export async function blockFundamentalCall(environment, path, ticker, status) {
   await environment.DB.prepare(`INSERT INTO fundamental_api_blocks(resource, retry_at, reason) VALUES (?, ?, ?)
     ON CONFLICT(resource) DO UPDATE SET retry_at=excluded.retry_at, reason=excluded.reason`)
     .bind(status === 429 ? '*' : `${path}:${ticker}`, new Date(Date.now() + hours * 3600000).toISOString(),
-      `FMP HTTP ${status}: ${status === 402 ? '이 종목/API의 플랜 제한, SEC 대체 수집 사용' : '호출 제한, 24시간 대기'}`).run();
+      `FMP HTTP ${status}: ${status === 402 ? '이 종목/API 접근 제한, FMP 전용 항목은 미확보' : '호출 제한, 24시간 대기'}`).run();
 }

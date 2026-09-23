@@ -40,7 +40,7 @@
     cell.appendChild(detail);
   }
 
-  function createJobCell(job) {
+  function createJobCell(job, dividendEvents = null) {
     const cell = document.createElement('td');
     cell.className = 'fundamental-data-cell';
     if (!job) {
@@ -54,7 +54,9 @@
       details.source,
       details.annualCount != null ? `연간 ${details.annualCount}개` : '',
       details.quarterlyCount != null ? `분기 ${details.quarterlyCount}개` : '',
-      details.eventCount != null ? `이벤트 ${details.eventCount}개` : '',
+      details.latestFilingPending ? '새 공시 반영 대기 · 기존 저장값 유지' : '',
+      job.kind === 'dividends' ? `FMP 지급 이벤트 ${Number(dividendEvents?.count || 0)}개` : '',
+      job.kind === 'dividends' && dividendEvents?.error ? `FMP: ${dividendEvents.error}` : '',
       // 화면을 종목별 한 줄로 유지하기 위해 일반 안내문은 생략하고, 재시도 원인만 표시한다.
       job.error || ''
     ].filter(Boolean).join(' · ');
@@ -96,7 +98,7 @@
       row.appendChild(createMarketCell(stock));
       row.appendChild(createJobCell(stock.jobs?.profile));
       row.appendChild(createJobCell(stock.jobs?.financials));
-      row.appendChild(createJobCell(stock.jobs?.dividends));
+      row.appendChild(createJobCell(stock.jobs?.dividends, stock.dividendEvents));
 
       const nextCell = document.createElement('td');
       nextCell.className = 'fundamental-next-check';

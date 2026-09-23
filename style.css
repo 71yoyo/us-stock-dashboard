@@ -536,7 +536,10 @@ body.modal-open {
 .overview-company-cell span, .overview-price-cell span, .overview-value-label { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.72rem; }
 .overview-company-cell span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .overview-sparkline { width: 110px; height: 35px; }
-.overview-sparkline polyline { fill: none; stroke: var(--accent-cyan); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.overview-sparkline polyline { fill: none; stroke: #facc15; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.overview-sparkline.buy polyline { stroke: #34d399; stroke-width: 2.2; }
+.overview-sparkline.sell polyline { stroke: #fb7185; stroke-width: 2.2; }
+.overview-sparkline.pending polyline { stroke: var(--text-muted); }
 .overview-williams-value { display: block; font-weight: 800; }
 .overview-signal { display: inline-flex; width: fit-content; padding: 4px 7px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; }
 .overview-signal.buy { color: #34d399; background: rgba(16, 185, 129, 0.14); }
