@@ -70,7 +70,9 @@ export async function fundamentalStatus(environment) {
       dividend_state.last_attempt_at AS eventsLastAttemptAt,
       dividend_state.next_retry_at AS eventsNextRetryAt,
       dividend_state.last_error AS eventsLastError,
-      (SELECT COUNT(*) FROM dividend_events events WHERE events.ticker = w.ticker AND events.source = 'FMP') AS eventCount
+      (SELECT COUNT(*) FROM massive_dividend_events events WHERE events.ticker = w.ticker) AS eventCount,
+      (SELECT source FROM price_candles candles WHERE candles.ticker = w.ticker
+        ORDER BY candle_date DESC LIMIT 1) AS candleSource
       FROM user_watchlist w
       LEFT JOIN price_quotes ON price_quotes.ticker = w.ticker
       LEFT JOIN data_sync_state price_state
@@ -139,6 +141,7 @@ export async function fundamentalStatus(environment) {
     const candles = {
       status: marketStorageStatus(hasCandles, candlesState),
       count: Number(stock.candleCount || 0),
+      source: stock.candleSource || null,
       updatedAt: stock.candlesCachedAt || candlesState.lastSuccessAt || null,
       nextRunAt: nextMarketCheck(candlesState, day),
       error: candlesState.lastError || null
@@ -148,7 +151,8 @@ export async function fundamentalStatus(environment) {
       nextRetryAt: stock.eventsNextRetryAt, lastError: stock.eventsLastError
     };
     const dividendEvents = {
-      status: marketStorageStatus(Number(stock.eventCount || 0) > 0, eventState),
+      // 빈 성공 응답은 무배당 종목의 정상 상태이며 이벤트 0개도 저장 완료로 본다.
+      status: marketStorageStatus(Number(stock.eventCount || 0) > 0 || Boolean(eventState.lastSuccessAt), eventState),
       count: Number(stock.eventCount || 0),
       nextRunAt: nextMarketCheck(eventState, day),
       error: eventState.lastError || null
@@ -195,6 +199,12 @@ export async function fundamentalStatus(environment) {
     stored: stocks.filter(stock => stock.candles.status === 'ready').length,
     pending: stocks.filter(stock => ['pending', 'partial'].includes(stock.candles.status)).length
   };
+  summary.dividends.stored = stocks.filter(stock => stock.jobs.dividends?.status === 'ready'
+    && stock.dividendEvents.status === 'ready').length;
+  summary.dividends.processed = stocks.filter(stock => stock.jobs.dividends?.checkedAt
+    && stock.dividendEvents.status !== 'pending').length;
+  summary.dividends.pending = stocks.filter(stock => ['pending', 'running'].includes(stock.jobs.dividends?.status)
+    || stock.dividendEvents.status === 'pending').length;
   return { summary, jobs: rows, stocks, checkedAt: new Date().toISOString(), scope: [...kinds, 'price', 'candles'] };
 }
 
@@ -239,15 +249,23 @@ async function financialTask(environment, ticker, previous) {
 }
 
 async function dividendTask(environment, ticker) {
-  // SEC는 연간·분기 주당배당금만 담당한다. FMP 이벤트 실패가 이 작업의 저장 상태를 바꾸지 않는다.
-  const details = await syncDividendsFromSec(environment, ticker);
-  return { ...details, note: 'SEC 주당배당금 이력 저장. 지급 이벤트·일정은 FMP에서 별도로 확인합니다.' };
+  // SEC는 장기 통계용 연간·분기 주당배당금만 담당한다. Massive 이벤트는 독립 큐에서 수집한다.
+  try {
+    const details = await syncDividendsFromSec(environment, ticker);
+    return { ...details, note: 'SEC 주당배당금 이력 저장. 지급 이벤트·일정은 Massive에서 별도로 확인합니다.' };
+  } catch (error) {
+    if (!String(error.message || error).includes('주당 배당금 공시를 찾지 못했습니다')) throw error;
+    // 무배당 종목은 수집 실패로 반복 표시하지 않는다. Massive 이벤트 조회가 별도로 완료되어야 최종 저장 상태가 된다.
+    return { source: 'SEC EDGAR', annualCount: 0, quarterlyCount: 0,
+      note: 'SEC 주당배당금 공시 없음. Massive 지급 이벤트 확인 결과와 함께 표시합니다.' };
+  }
 }
 
 export function classifyFundamental(kind, details) {
   if (kind === 'profile') return 'ready';
   // 저장 상태는 공급원이 제공한 이력의 확보 여부만 나타낸다. 개별 지표의 공란은 별도 안내한다.
   if (details?.source !== 'SEC EDGAR') return 'partial';
+  if (kind === 'dividends' && details.annualCount === 0 && details.quarterlyCount === 0) return 'ready';
   return details.annualCount > 0 || details.quarterlyCount > 0 ? 'ready' : 'partial';
 }
 

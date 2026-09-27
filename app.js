@@ -251,8 +251,7 @@ async function updateStockProfileFromCloudflare(ticker) {
 }
 
 /**
- * 신규 종목은 Worker에 최초 수집을 요청한다. Worker는 한 번에 한 데이터 종류만 처리하고,
- * 나머지는 Cron이 순차적으로 채운다. 이 방식은 무료 API의 호출 제한을 넘지 않기 위한 것이다.
+ * 신규 종목만 Worker에 최초 수집을 요청한다. 이후 갱신은 무료 API 한도에 맞춘 Cron에 맡긴다.
  */
 async function synchronizeStockDataWithCloudflare(ticker) {
   const apiUrl = getCloudflareApiUrl('/api/sync');
@@ -426,7 +425,7 @@ function syncTradingViewControlState() {
     button.setAttribute('aria-pressed', String(isActive));
   });
 
-  // FMP 저장값은 일봉이므로 분·시간·주봉 화면에 섞어 보이지 않게 일봉일 때만 노출한다.
+  // D1 저장값은 일봉이므로 분·시간·주봉 화면에 섞어 보이지 않게 일봉일 때만 노출한다.
   const ohlcBar = document.getElementById('chartOhlcBar');
   if (ohlcBar) ohlcBar.classList.toggle('hidden', interval !== 'D');
 }
@@ -506,7 +505,8 @@ function normalizeChartCandles(company) {
     high: Number(candle.high),
     low: Number(candle.low),
     close: Number(candle.close),
-    volume: Number(candle.volume) || 0
+    volume: Number(candle.volume) || 0,
+    source: candle.source || null
   })).filter(candle => candle.time && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
 }
 
@@ -546,7 +546,7 @@ async function fetchCompanyFromCloudflare(ticker) {
 }
 
 /**
- * 차트 자체는 TradingView가 표시하고, FMP 3개월 일봉은 Williams %R·목록·최신 OHLC에 계속 사용한다.
+ * 차트 자체는 TradingView가 표시하고, FMP/Massive 3개월 일봉은 Williams %R·목록·최신 OHLC에 사용한다.
  * 신규 종목은 거래소 조회를 기다리지 않고 티커로 먼저 표시한 뒤 회사 프로필이 도착하면 자동 보정한다.
  */
 async function loadStockChart(ticker) {
@@ -579,6 +579,9 @@ async function loadStockChart(ticker) {
 
   const candles = normalizeChartCandles(company);
   const latestCandle = candles.at(-1);
+  const sourceLabel = document.querySelector('#chartOhlcBar .chart-data-source');
+  if (sourceLabel) sourceLabel.textContent = latestCandle?.source
+    ? `${latestCandle.source} 최신 저장 일봉` : '저장 일봉 대기';
   const latestValues = {
     ohlcOpen: latestCandle ? formatUsdValue(latestCandle.open) : '데이터 없음',
     ohlcHigh: latestCandle ? formatUsdValue(latestCandle.high) : '데이터 없음',
@@ -798,20 +801,21 @@ function getStoredWilliams(stock) {
   return getWilliamsSummary(normalizeChartCandles(stock.marketData), stock.marketData?.technicalSignal);
 }
 
-/** 배당 화면은 SEC 기간 집계와 별도 FMP 지급 이벤트를 항목별로 표시한다. */
+/** 배당 화면은 SEC 장기 통계와 Massive 지급 이벤트를 항목별로 표시한다. */
 function getStoredDividendInfo(stock) {
   const dividend = stock.marketData?.dividendMetrics;
-  const annualDividend = toNullableNumber(dividend?.annualDividend);
+  const secAnnualDividend = toNullableNumber(dividend?.secAnnualDividend);
   const yieldValue = toNullableNumber(dividend?.dividendYield);
   const paymentDate = dividend?.nextPaymentDate;
   const nextDate = paymentDate || dividend?.nextExDividendDate;
-  const status = ['confirmed', 'estimated'].includes(dividend?.nextDateStatus)
-    ? dividend.nextDateStatus : 'unknown';
+  const candidateStatus = paymentDate ? dividend?.nextPaymentDateStatus : dividend?.nextExDateStatus;
+  const status = ['confirmed', 'estimated'].includes(candidateStatus)
+    ? candidateStatus : 'unknown';
   return {
     yieldRate: yieldValue === null ? '—' : `${yieldValue.toFixed(2)}%`,
     yieldDetail: yieldValue !== null
-      ? `FMP 실제 지급 ${dividend.trailingPayoutCount}회 · 저장 현재가 기준`
-      : annualDividend === null ? '배당수익률 미확보' : `수익률 미확보 · SEC 연간 ${formatSecDividendAmount(annualDividend)}`,
+      ? `Massive 실제 지급 ${dividend.trailingPayoutCount}회 · ${dividend.yieldPriceSource || '저장 가격'} 기준`
+      : secAnnualDividend === null ? '배당수익률 미확보' : `Massive 지급 이력 대기 · SEC 연간 ${formatSecDividendAmount(secAnnualDividend)}`,
     nextDate: nextDate ? formatMonthDay(nextDate) : '미정',
     daysLeft: nextDate ? formatWeekdayCountdown(nextDate) : '—',
     status,
@@ -938,18 +942,30 @@ function renderCompanyDetailData(company) {
   const dividend = company.dividendMetrics;
   const yieldValue = toNullableNumber(dividend?.dividendYield);
   const nextStatus = dividend?.nextDateStatus || 'unknown';
+  const exStatus = dividend?.nextExDateStatus || 'unknown';
+  const paymentStatus = dividend?.nextPaymentDateStatus || 'unknown';
+  const frequencyLabels = { 0: '비정기', 1: '연 1회', 2: '반기', 3: '연 3회', 4: '분기', 12: '월', 52: '주', 104: '주 2회' };
+  const distributionLabels = { recurring: '정기', special: '특별', supplemental: '추가', irregular: '비정기', unknown: '미분류' };
   const dividendEntries = [
     ['최근 실제 지급 1년 배당수익률', yieldValue === null ? '미확보' : `${yieldValue.toFixed(2)}%`,
-      yieldValue === null ? 'FMP 지급 이벤트 또는 저장 현재가 미확보' : `FMP 실제 지급 ${dividend.trailingPayoutCount}회 합계 ÷ 저장 현재가`, yieldValue === null ? 'unknown' : 'confirmed'],
-    ['SEC 최근 연간 주당배당금', formatSecDividendAmount(dividend?.annualDividend), dividend?.annualPeriodEnd || '기간 미확보'],
-    ['SEC 최근 분기 주당배당금', formatSecDividendAmount(dividend?.quarterlyDividend), dividend?.quarterlyPeriodEnd || '기간 미확보'],
+      yieldValue === null ? 'Massive 지급 이벤트 또는 저장 가격 미확보' : `Massive 실제 지급 ${dividend.trailingPayoutCount}회 합계 ÷ ${dividend.yieldPriceSource || '저장 가격'} · 특별배당 포함`, yieldValue === null ? 'unknown' : 'confirmed'],
+    ['최근 1년 실제 지급액', formatSecDividendAmount(dividend?.annualDividend), 'Massive 지급일 기준 · 분할 조정액 우선'],
+    ['최근 3개월 실제 지급액', formatSecDividendAmount(dividend?.quarterlyDividend), 'Massive 지급일 기준 · 분할 조정액 우선'],
+    ['SEC 최근 연간 주당배당금', formatSecDividendAmount(dividend?.secAnnualDividend), dividend?.annualPeriodEnd || '기간 미확보'],
+    ['SEC 최근 분기 주당배당금', formatSecDividendAmount(dividend?.secQuarterlyDividend), dividend?.quarterlyPeriodEnd || '기간 미확보'],
     ['마지막 실제 지급 배당금', formatSecDividendAmount(dividend?.lastPaidAmount),
-      dividend?.lastPaymentDate || 'FMP 지급 이벤트 미확보', dividend?.lastPaidAmount == null ? 'unknown' : 'confirmed'],
-    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년'], ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '%'],
+      dividend?.lastPaymentDate ? `${dividend.lastPaymentDate} · 당시 주당 지급액` : 'Massive 지급 이벤트 미확보', dividend?.lastPaidAmount == null ? 'unknown' : 'confirmed'],
+    ['마지막 배당 종류', distributionLabels[dividend?.lastDistributionType] || '미확보', 'Massive distribution_type'],
+    ['정기 배당 빈도', frequencyLabels[dividend?.frequency] || (dividend?.frequency == null ? '미확보' : `연 ${dividend.frequency}회`), 'Massive frequency'],
+    ['마지막 배당 선언일', dividend?.lastDeclarationDate || '미확보', 'Massive declaration_date'],
+    ['마지막 배당 기록일', dividend?.lastRecordDate || '미확보', 'Massive record_date'],
+    ['다음 배당 선언일', dividend?.nextDeclarationDate || '미확보', 'Massive 발표 기록'],
+    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년 · SEC 공시 기준'],
+    ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '% · SEC 공시 기준'],
     ['다음 배당락일', dividend?.nextExDividendDate || '미확보',
-      dividend?.nextExDividendDate ? `${dividend.nextDateSource || 'FMP 일정'} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}` : 'FMP 미래 일정 미확보', nextStatus],
+      dividend?.nextExDividendDate ? `${dividend.nextDateSource || 'Massive 일정'} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}` : 'Massive 미래 일정 미확보', exStatus],
     ['다음 배당 지급일', dividend?.nextPaymentDate || '미확보',
-      dividend?.nextPaymentDate ? `FMP 일정 · ${formatWeekdayCountdown(dividend.nextPaymentDate)}` : '지급일 공시 미확보', dividend?.nextPaymentDate ? nextStatus : 'unknown'],
+      dividend?.nextPaymentDate ? `Massive 일정 · ${formatWeekdayCountdown(dividend.nextPaymentDate)}` : '지급일 공시 미확보', paymentStatus],
     ['날짜 상태', nextStatus === 'confirmed' ? '확정' : nextStatus === 'estimated' ? '미확정' : '미확보',
       nextStatus === 'confirmed' ? '공시일 확인' : '확정 공시 없음', nextStatus]
   ];
@@ -958,7 +974,7 @@ function renderCompanyDetailData(company) {
     const detail = suffix && typeof value === 'string' ? `<small>${escapeHtml(suffix)}</small>` : '';
     return `<div class="company-metric${status ? ` dividend-date ${status}` : ''}"><span>${label}</span><strong>${escapeHtml(displayValue)}</strong>${detail}</div>`;
   }).join('');
-  document.getElementById('detailDividendSource').textContent = `연·분기 배당금과 성장: SEC EDGAR · 실제 지급 수익률과 배당락일: FMP 지급 이벤트${dividend?.eventCount ? ` ${dividend.eventCount}개` : ' 미확보'}. 현재가가 없거나 FMP 접근이 제한된 종목은 계산하지 않습니다.`;
+  document.getElementById('detailDividendSource').textContent = `성장 통계: SEC EDGAR · 실제 지급액·빈도·종류·날짜: Massive 이벤트${dividend?.eventCount ? ` ${dividend.eventCount}개` : ' 미확보'}. Massive 무료 요금제는 최근 2년까지만 제공합니다. SEC 성장 통계는 주식분할 조정 여부를 별도 확인해야 합니다.`;
 }
 
 /**
@@ -1556,8 +1572,7 @@ function openCompanyDetailModal() {
   requestAnimationFrame(() => {
     renderActiveTradingViewChart();
   });
-  // 상세창에 저장값을 먼저 보여준 뒤, 누락 데이터가 있으면 Worker가 SEC 대체 경로로 즉시 보완한다.
-  if (state.selectedTicker) void synchronizeStockDataWithCloudflare(state.selectedTicker);
+  // 상세창은 저장값을 읽기만 한다. 열 때마다 외부 API를 다시 호출하면 Massive 분당 한도가 빨리 소진된다.
 }
 
 function closeCompanyDetailModal() {

@@ -55,12 +55,14 @@
       details.annualCount != null ? `연간 ${details.annualCount}개` : '',
       details.quarterlyCount != null ? `분기 ${details.quarterlyCount}개` : '',
       details.latestFilingPending ? '새 공시 반영 대기 · 기존 저장값 유지' : '',
-      job.kind === 'dividends' ? `FMP 지급 이벤트 ${Number(dividendEvents?.count || 0)}개` : '',
-      job.kind === 'dividends' && dividendEvents?.error ? `FMP: ${dividendEvents.error}` : '',
+      job.kind === 'dividends' ? `Massive 지급 이벤트 ${Number(dividendEvents?.count || 0)}개` : '',
+      job.kind === 'dividends' && dividendEvents?.error ? `Massive: ${dividendEvents.error}` : '',
       // 화면을 종목별 한 줄로 유지하기 위해 일반 안내문은 생략하고, 재시도 원인만 표시한다.
       job.error || ''
     ].filter(Boolean).join(' · ');
-    cell.appendChild(createStatusBadge(job.status));
+    const status = job.kind === 'dividends' && dividendEvents?.status !== 'ready' && job.status === 'ready'
+      ? 'partial' : job.status;
+    cell.appendChild(createStatusBadge(status));
     appendDetail(cell, range || '최초 수집 대기');
     return cell;
   }
@@ -71,7 +73,7 @@
     const candles = stock.candles || {};
     // 현재가는 목록·포트폴리오에만 표시한다. 이 표는 긴 저장 상태를 압축하는 용도다.
     cell.appendChild(createStatusBadge(candles.status || 'pending'));
-    appendDetail(cell, `3개월 일봉 ${Number(candles.count || 0)}개`);
+    appendDetail(cell, `3개월 일봉 ${Number(candles.count || 0)}개${candles.source ? ` · ${candles.source}` : ''}`);
     appendDetail(cell, `갱신 ${formatDateTime(candles.updatedAt)}`, 'fundamental-cell-time');
     if (candles.status === 'error') {
       appendDetail(cell, candles.error || '자동 재시도 대기', 'fundamental-cell-error');

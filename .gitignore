@@ -5,6 +5,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
 
 # 로컬 D1 에뮬레이터와 개인 백업 파일은 GitHub에 보관하지 않습니다.
 .wrangler/

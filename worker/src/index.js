@@ -88,6 +88,8 @@ async function listWatchlist(environment) {
       -- D1에 실제로 저장된 현재가만 모든 기기의 공통 기준으로 반환한다.
       price_quotes.current_price AS price,
       price_quotes.change_amount AS change,
+      price_quotes.market_updated_at AS quoteUpdatedAt,
+      price_quotes.cached_at AS quoteCachedAt,
       -- 공급원이 등락률을 주지 않은 경우에도 현재가·전일 종가라는 D1 원본으로만 계산한다.
       COALESCE(
         price_quotes.change_percent,
@@ -107,6 +109,19 @@ async function listWatchlist(environment) {
   return result.results;
 }
 
+/** FMP 현재가가 비어도 최근 일봉 종가로 배당수익률을 계산하되 출처를 명확히 남긴다. */
+function dividendReferencePrice(quotePrice, latestCandle, quoteUpdatedAt = null) {
+  const freshSince = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
+  if (quotePrice !== null && quotePrice !== undefined && Number(quotePrice) > 0
+    && String(quoteUpdatedAt || '').slice(0, 10) >= freshSince) {
+    return { price: Number(quotePrice), source: '저장 현재가' };
+  }
+  if (latestCandle?.candleDate >= freshSince && Number(latestCandle.close) > 0) {
+    return { price: Number(latestCandle.close), source: '최근 저장 일봉 종가' };
+  }
+  return { price: null, source: null };
+}
+
 /**
  * 잠금 해제 직후 필요한 화면 요약만 한 번에 반환한다.
  * 재무 10년 원본은 상세 분석 탭을 열 때만 가져와, 초기 화면에서 종목 수만큼
@@ -123,7 +138,7 @@ async function getDashboardSummary(environment) {
     WHERE type = 'table' AND name = 'dividend_periods'`).first();
   const queries = [environment.DB.prepare(`
       SELECT ticker, candle_date AS candleDate, open_price AS open, high_price AS high,
-      low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
+      low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume, source
       FROM price_candles
       WHERE ticker IN (${placeholders})
         AND candle_date >= date('now', '-120 days')
@@ -138,8 +153,10 @@ async function getDashboardSummary(environment) {
       SELECT ticker, periodType, periodEnd, amount FROM latest WHERE rank = 1
     `).bind(...tickers));
   queries.push(environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
-    ex_dividend_date AS exDividendDate, payment_date AS paymentDate, amount, source
-    FROM dividend_events WHERE ticker IN (${placeholders}) AND source='FMP'
+    ex_dividend_date AS exDividendDate, payment_date AS paymentDate, amount,
+    split_adjusted_amount AS adjustedAmount, distribution_type AS distributionType, frequency,
+    'MASSIVE' AS source
+    FROM massive_dividend_events WHERE ticker IN (${placeholders})
       AND (payment_date >= date('now', '-13 months') OR ex_dividend_date >= date('now'))
     ORDER BY ticker, ex_dividend_date`).bind(...tickers));
   const results = await environment.DB.batch(queries);
@@ -178,7 +195,11 @@ async function getDashboardSummary(environment) {
 
   return {
     watchlist,
-    stocks: watchlist.map(stock => ({
+    stocks: watchlist.map(stock => {
+      const candles = candlesByTicker.get(stock.ticker) || [];
+      const reference = dividendReferencePrice(stock.price, candles.at(-1),
+        stock.quoteUpdatedAt || stock.quoteCachedAt);
+      return {
       ticker: stock.ticker,
       name: stock.name,
       sector: stock.sector,
@@ -186,11 +207,12 @@ async function getDashboardSummary(environment) {
       currentPrice: stock.price,
       changeAmount: stock.change,
       changePercent: stock.changePct,
-      candles: candlesByTicker.get(stock.ticker) || [],
+      candles,
       technicalSignal: signalsByTicker.get(stock.ticker) || null,
       dividendMetrics: combineDividendData(dividendsByTicker.get(stock.ticker),
-        eventsByTicker.get(stock.ticker), stock.price)
-    }))
+        eventsByTicker.get(stock.ticker), reference.price, undefined, reference.source)
+      };
+    })
   };
 }
 
@@ -258,25 +280,28 @@ async function getCompany(environment, ticker) {
     `).bind(ticker),
     environment.DB.prepare(`
       SELECT candle_date AS candleDate, open_price AS open, high_price AS high,
-        low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume
+        low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume, source
       FROM price_candles WHERE ticker = ?
       ORDER BY candle_date DESC LIMIT 260
     `).bind(ticker),
     environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
       ex_dividend_date AS exDividendDate, record_date AS recordDate,
-      payment_date AS paymentDate, amount, source
-      FROM dividend_events WHERE ticker=? AND source='FMP' ORDER BY ex_dividend_date DESC LIMIT 150`).bind(ticker)
+      payment_date AS paymentDate, amount, split_adjusted_amount AS adjustedAmount,
+      distribution_type AS distributionType, frequency, 'MASSIVE' AS source
+      FROM massive_dividend_events WHERE ticker=? ORDER BY ex_dividend_date DESC LIMIT 5000`).bind(ticker)
   ]);
 
   const extra = await fundamentalDetails(environment, ticker);
   const storedSignals = await readWilliamsSignals(environment, [ticker]);
+  const reference = dividendReferencePrice(company.currentPrice, candles.results[0],
+    company.quoteUpdatedAt || company.quoteCachedAt);
   return {
     ...company,
     ...extra,
-    // 기간별 배당금은 SEC, 개별 지급일·다음 일정은 FMP로 출처를 분리한다.
+    // 장기 성장 통계는 SEC, 개별 지급일·다음 일정과 수익률은 Massive 이벤트로 계산한다.
     dividends: dividendEvents.results,
     dividendMetrics: combineDividendData(summarizeSecDividendPeriods(extra.dividendHistory),
-      dividendEvents.results, company.currentPrice),
+      dividendEvents.results, reference.price, undefined, reference.source),
     financials: financials.results,
     technicalSignal: storedSignals.get(ticker) || null,
     candles: candles.results.reverse()
@@ -370,10 +395,11 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-23-sec-fmp-hybrid-williams-1',
+        buildVersion: '2026-09-23-fmp-massive-sec-hybrid-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
-          && Boolean(environment.MARKET_DATA_API_KEY)
+          && Boolean(environment.MARKET_DATA_API_KEY),
+        massiveConfigured: Boolean(environment.MASSIVE_API_KEY)
       });
     }
 
@@ -478,10 +504,10 @@ export default {
       }
 
       try {
-        // 신규 종목은 회사 정보·현재가·3개월 일봉·FMP 배당 이벤트를 각각 저장한다.
+        // 신규 종목은 회사 정보·현재가·3개월 일봉·Massive 배당 이벤트를 각각 저장한다.
         // 회사 테이블이 없는 상태에서 시세를 먼저 쓰면 외래 키 오류가 나므로 같은 순서로 묶는다.
         const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles', 'dividends']);
-        // 재무·배당은 장기 원본을 읽어야 하므로 전용 큐에서 제한된 속도로 이어서 처리한다.
+        // SEC 재무·10년 배당 통계는 장기 공시 원본을 읽어야 하므로 전용 큐에서 제한된 속도로 처리한다.
         const fundamental = await runFundamentalBatch(environment, ticker);
         const result = { market, fundamental };
         const marketFailed = Object.values(market).some(value => value !== 'ok');

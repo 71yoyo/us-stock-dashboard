@@ -10,11 +10,11 @@ Williams %R 신호의 현재 규칙, 결정 이력, 앞으로 추가할 책 연�
 
 1-2. 종목을 누르면 차트·재무·배당 탭이 있는 상세 모달을 엽니다.
 
-상세 1-1과 메인 2번 차트는 TradingView Advanced Chart 위젯을 사용합니다. 기본 구성은 일봉·거래량·MA20·Williams %R(14)이며, 화면에 보이는 위젯 하나만 생성합니다. FMP 3개월 일봉은 위젯과 별개로 D1에 유지하여 목록의 Williams %R, 최신 OHLC, 분석 및 장애 시 대체 데이터로 사용합니다.
+상세 1-1과 메인 2번 차트는 TradingView Advanced Chart 위젯을 사용합니다. 기본 구성은 일봉·거래량·MA20·Williams %R(14)이며, 화면에 보이는 위젯 하나만 생성합니다. 분석용 3개월 일봉은 FMP를 우선 조회하고 실패·빈 응답이면 Massive에서 받아 D1에 유지합니다.
 
 1-3. 주식 목록 관리 화면에서 배당 투자 목록과 주가 투자 목록을 각각 관리합니다.
 
-1-4. 현재 가격·Williams %R은 저장된 시세·일봉을 사용합니다. 배당의 연·분기 이력은 SEC, 실제 지급 이벤트·일정은 FMP 저장값을 사용합니다. 근거가 없는 수익률·일정은 미확보로 표시합니다.
+1-4. 현재 가격·Williams %R은 저장된 시세·일봉을 사용합니다. SEC 연·분기 배당 이력은 10년 성장 통계에 사용하고, 실제 지급액·배당 종류·빈도·공시일·배당락일·지급일은 Massive에서 저장합니다. 근거가 없는 수익률·일정은 미확보로 표시합니다.
 
 1-5. 관심종목 목록은 PIN 인증 뒤 Cloudflare D1과 동기화합니다. 처음 동기화할 때만 현재 브라우저 목록을 D1에 옮기며, 이후에는 D1 목록이 모든 브라우저의 기준이 됩니다.
 
@@ -92,6 +92,8 @@ npx wrangler d1 migrations apply us-stock-pro --remote --config worker/wrangler.
 
 ### 5-3. Worker 배포와 Secret 등록
 
+로컬에서 Massive 수집을 시험할 때는 `worker/.dev.vars`에 `MASSIVE_API_KEY`를 설정합니다. 이 파일은 Git에서 제외되며 Cloudflare 운영 Worker로 자동 전송되지 않습니다. `wrangler secret put`은 새 Worker 버전을 즉시 배포하므로, 홈페이지 업데이트를 요청받기 전에는 실행하지 않습니다.
+
 관심종목 동기화용 PIN도 Worker Secret으로 등록해야 합니다. `APP_PIN`은 현재 화면 잠금에 사용할 4자리 숫자이며, GitHub에는 절대 저장하지 않습니다. PIN은 편의 잠금이므로 금융계좌 비밀번호처럼 중요한 비밀번호를 사용하면 안 됩니다.
 
 ```powershell
@@ -102,6 +104,7 @@ npx wrangler secret put APP_PIN --config worker/wrangler.jsonc
 
 ```powershell
 npx wrangler secret put MARKET_DATA_API_KEY --config worker/wrangler.jsonc
+npx wrangler secret put MASSIVE_API_KEY --config worker/wrangler.jsonc
 npx wrangler secret put MARKET_DATA_PROVIDER --config worker/wrangler.jsonc
 npx wrangler deploy --config worker/wrangler.jsonc
 ```
@@ -116,17 +119,17 @@ npx wrangler secret put ALLOWED_ORIGIN --config worker/wrangler.jsonc
 
 ## 6. 자동 갱신 방식
 
-회사·재무·배당 전용 큐는 24시간 5분 간격으로 최대 2종목을 처리합니다. `5-3. 회사·재무·배당 데이터 수집`의 버튼은 한 묶음의 응답이 끝나면 다음 묶음을 바로 실행합니다. 실행시간이 길면 나머지는 다음 요청/Cron으로 넘깁니다. `저장됨`은 SEC가 제공한 기간별 이력이 D1에 있다는 뜻이며 모든 지표가 완성됐다는 뜻은 아닙니다.
+회사·재무·SEC 장기 배당 통계 큐는 24시간 5분 간격으로 최대 2종목을 처리합니다. Massive 지급 이벤트와 FMP/Massive 일봉은 별도 자동 큐에서 한 번에 한 종목·항목씩 처리합니다. `5-3`의 버튼은 SEC 큐를 수동으로 진행합니다. 배당 `저장됨`은 SEC 장기 통계 확인과 Massive 이벤트 조회가 모두 끝난 상태를 뜻합니다.
 
 1. 회사 정보는 기존 CIK가 있으면 재사용하고 30일 주기로 확인합니다.
 2. 재무는 SEC 제출 이력을 하루 한 번 확인합니다. 신규/정정 10-K·10-Q가 있을 때만 Company Facts를 다시 읽습니다. 원문이 아직 반영되지 않았다면 다음날 재시도합니다.
-3. 연간·분기 배당금과 성장 이력은 SEC 공시를 수집하고, FMP 종목별 배당 API는 개별 지급 이벤트·배당락일만 별도로 수집합니다. 실제 지급일이 확인된 최근 1년 배당금만 저장 현재가로 나눠 수익률을 계산합니다. FMP가 402를 반환하면 SEC 저장 상태는 유지하고 FMP 항목만 미확보로 둡니다.
-4. 시세·3개월 차트의 수집 경로와 기존 Cron 시간은 이번 개편에 포함하지 않았습니다. 전용 큐/수동 수집은 시세·일봉 API를 호출하지 않습니다.
+3. 연간·분기 주당배당금과 성장 이력은 SEC 공시에서 보존합니다. Massive `/stocks/v1/dividends`는 원래 지급액과 분할 조정액, 배당 종류·빈도·선언일·배당락일·지급일을 별도로 저장합니다. 최근 1년 실제 지급액을 저장 현재가로 나눠 수익률을 계산하고, 현재가가 없으면 7일 이내 저장 일봉 종가를 출처와 함께 사용합니다.
+4. 3개월 일봉은 FMP를 먼저 조회합니다. 402·빈 응답·네트워크 실패 시 Massive 일봉으로 보완하며, FMP 402 종목은 7일간 같은 실패를 반복하지 않습니다. Massive 무료 한도 5회/분은 D1에서 공유합니다.
 
-`fundamental-store.js`는 첫 실행에서 추가 테이블을 `CREATE TABLE IF NOT EXISTS`로 준비합니다. 회사·재무·배당 원본은 D1에, UI 설정은 기존 localStorage 형식에 저장됩니다. 임대로 중복 실행을 차단합니다. FMP는 회사 정보·시세·일봉·종목별 배당 이벤트에 사용하며, FMP 재무·실적 캘린더는 호출하지 않습니다.
+`fundamental-store.js`는 첫 실행에서 추가 테이블을 `CREATE TABLE IF NOT EXISTS`로 준비합니다. 회사·재무·배당 원본은 D1에, UI 설정은 기존 localStorage 형식에 저장됩니다. 임대로 중복 실행을 차단합니다. FMP는 회사 정보·시세·우선 일봉, Massive는 배당 이벤트·보조 일봉에 사용합니다.
 
-배포할 때는 Worker 코드보다 먼저 `0007_dividend_event_source.sql` D1 마이그레이션을 적용해야 합니다. 기존 배당 이벤트는 삭제하지 않고 `legacy`로 보존하며, 새로 확인된 FMP 이벤트만 계산에 사용합니다.
+배포할 때는 Worker 코드보다 먼저 `0008_massive_sources.sql`까지 D1 마이그레이션을 적용해야 합니다. SEC 배당 기간 이력과 이전 FMP 이벤트는 보존합니다. 새 화면과 계산은 Massive 전용 테이블만 읽으며, 수집 실패 시 기존 Massive 저장값을 유지합니다.
 
-SEC로 부족한 PER·PEG·ROIC는 미확보로 표시합니다. SEC 연간·분기 주당배당금은 지급 이벤트가 아니므로 수익률이나 배당락일로 바꿔 표시하지 않습니다. FMP 지급 이벤트 또는 저장 현재가가 없으면 수익률도 미확보로 표시합니다. 미래 공시 일정에 공시일이 있으면 확정, 그렇지 않거나 과거 이벤트에서 유추했으면 예상으로 구분합니다. 10년 CAGR은 10년 간격의 양 끝 값이 있을 때만 계산하고, 배당 성장 연수는 확보한 연간 이력 내 엄격한 증가/연속 연도로 제한합니다. SEC 분기 누적 현금흐름은 차감해 개별 분기로 변환하며 EPS는 누적값을 단순 차감하지 않습니다.
+SEC로 부족한 PER·PEG·ROIC는 미확보로 표시합니다. SEC 연간·분기 주당배당금은 지급 이벤트가 아니므로 수익률이나 배당락일로 바꿔 표시하지 않습니다. Massive 지급 이벤트 또는 저장 가격이 없으면 수익률도 미확보로 표시합니다. 미래 일정에 선언일이 있으면 확정, 그렇지 않거나 과거 이벤트에서 유추했으면 예상으로 구분합니다. 무료 Massive Basic은 최근 2년 배당 이력만 제공하므로 10년 성장 통계는 SEC 이력에서 계산합니다. SEC 주당배당금 통계는 분할 조정을 별도 검증해야 합니다. SEC 분기 누적 현금흐름은 차감해 개별 분기로 변환하며 EPS는 누적값을 단순 차감하지 않습니다.
 
 `npm run check`와 `npm test`(Node 24)는 문법, 기간 구분, 원문 재사용, 중복 실행, 호출 예산, 시세·차트 미호출을 검증합니다. GitHub에서도 동일 검사를 실행합니다.
