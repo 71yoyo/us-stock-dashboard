@@ -98,15 +98,16 @@ export function summarizeAlphaDividendHistory(events, today = new Date().toISOSt
 }
 
 async function reserveAlphaCall(environment) {
-  for (let attempt = 0; attempt < 16; attempt += 1) {
+  for (let attempt = 0; attempt < 35; attempt += 1) {
     const now = new Date();
     const reserved = await environment.DB.prepare(`INSERT INTO alpha_api_throttle(name, next_allowed_at)
       VALUES ('global', ?)
       ON CONFLICT(name) DO UPDATE SET next_allowed_at=excluded.next_allowed_at
       WHERE alpha_api_throttle.next_allowed_at <= ? RETURNING name`)
-      .bind(new Date(now.getTime() + 1500).toISOString(), now.toISOString()).first();
+      // 공급원의 초당 1회 제한은 네트워크 지연·서버 시계 차이를 고려해 3초 간격으로 지킨다.
+      .bind(new Date(now.getTime() + 3000).toISOString(), now.toISOString()).first();
     if (reserved) break;
-    if (attempt === 15) throw new Error('Alpha Vantage 초당 호출 간격 대기 초과: 잠시 후 다시 시도합니다.');
+    if (attempt === 34) throw new Error('Alpha Vantage 초당 호출 간격 대기 초과: 잠시 후 다시 시도합니다.');
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   const day = new Date().toISOString().slice(0, 10);
@@ -132,8 +133,12 @@ async function fetchAlphaData(environment, ticker, functionName) {
   try { payload = await response.json(); }
   catch { throw new Error(`Alpha Vantage ${functionName} JSON 응답을 읽지 못했습니다.`); }
   if (payload?.Information || payload?.Note) {
-    // 원문 메시지는 키/제한 세부 정보를 포함할 수 있어 화면과 로그에 그대로 남기지 않는다.
-    throw new Error('Alpha Vantage 호출 제한 또는 권한 안내를 받았습니다. 다음날 다시 확인합니다.');
+    // 공급원 원문은 키 등의 정보를 포함할 수 있어 저장하지 않고 재시도 기준만 분류한다.
+    const notice = String(payload.Information || payload.Note).toLowerCase();
+    if (/1 request per second|per-second|spreading out|burst limit/.test(notice)) {
+      throw new Error('Alpha Vantage 초당 호출 제한: 15분 후 다시 확인합니다.');
+    }
+    throw new Error('Alpha Vantage 일일 호출 제한 또는 권한 안내를 받았습니다. 다음날 다시 확인합니다.');
   }
   if (payload?.['Error Message'] || !Array.isArray(payload?.data)) {
     throw new Error(`Alpha Vantage ${functionName} 이력을 받지 못했습니다. 종목·권한을 확인해 주세요.`);
