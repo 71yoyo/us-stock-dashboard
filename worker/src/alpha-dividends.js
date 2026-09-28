@@ -133,8 +133,12 @@ async function fetchAlphaData(environment, ticker, functionName) {
   try { payload = await response.json(); }
   catch { throw new Error(`Alpha Vantage ${functionName} JSON 응답을 읽지 못했습니다.`); }
   if (payload?.Information || payload?.Note) {
-    // 공급원 원문은 키 등의 정보를 포함할 수 있어 저장하지 않고 재시도 기준만 분류한다.
-    const notice = String(payload.Information || payload.Note).toLowerCase();
+    // 원문에서 키와 링크를 제거한 짧은 진단만 운영 로그에 남겨 제한·권한 오류를 구분한다.
+    const safeNotice = String(payload.Information || payload.Note)
+      .replaceAll(environment.ALPHA_VANTAGE_API_KEY, '[비공개]')
+      .replace(/https?:\/\/\S+/g, '[링크]').slice(0, 350);
+    console.warn(`Alpha Vantage ${functionName} 안내 (${ticker}): ${safeNotice}`);
+    const notice = safeNotice.toLowerCase();
     if (/1 request per second|per-second|spreading out|burst limit/.test(notice)) {
       throw new Error('Alpha Vantage 초당 호출 제한: 15분 후 다시 확인합니다.');
     }
