@@ -2,6 +2,8 @@
 (() => {
   let running = false;
   let timer = null;
+  let lastDisplayedDashboardRevision = null;
+  let dashboardDisplayRefresh = null;
   const message = document.getElementById('fundamentalMessage');
   const runButton = document.getElementById('fundamentalRunBtn');
   const labels = { ready: '저장됨', partial: '일부 저장', pending: '대기', running: '수집 중', error: '재시도 대기' };
@@ -21,7 +23,10 @@
 
   function formatDateTime(value, fallback = '확인 대기') {
     if (!value) return fallback;
-    const date = new Date(value);
+    // D1 CURRENT_TIMESTAMP는 UTC지만 시간대 접미사가 없으므로 명시적으로 UTC로 해석한다.
+    const timestamp = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)
+      ? `${value.replace(' ', 'T')}Z` : value;
+    const date = new Date(timestamp);
     return Number.isFinite(date.getTime()) ? date.toLocaleString('ko-KR') : fallback;
   }
 
@@ -40,6 +45,16 @@
     cell.appendChild(detail);
   }
 
+  /** 배당의 완료 여부는 SEC 작업 이력이 아니라 Alpha 배당·분할 저장 완료로만 판단한다. */
+  function dividendStorageStatus(job, dividendEvents) {
+    if (!job) return 'pending';
+    if (job.details?.source === 'ALPHA_VANTAGE' && job.status === 'ready'
+      && dividendEvents?.status === 'ready') return 'ready';
+    if (job.status === 'running') return 'running';
+    if (job.status === 'error' && /Alpha Vantage/i.test(job.error || dividendEvents?.error || '')) return 'error';
+    return Number(dividendEvents?.count || 0) > 0 ? 'partial' : 'pending';
+  }
+
   function createJobCell(job, dividendEvents = null) {
     const cell = document.createElement('td');
     cell.className = 'fundamental-data-cell';
@@ -49,20 +64,26 @@
       return cell;
     }
 
+    if (job.kind === 'dividends') {
+      const status = dividendStorageStatus(job, dividendEvents);
+      const count = Number(dividendEvents?.count || 0);
+      cell.appendChild(createStatusBadge(status));
+      appendDetail(cell, `Alpha Vantage 배당 이벤트 ${count}개${status === 'ready' && count === 0 ? ' · 무배당 확인' : ''}`);
+      if (status === 'partial') appendDetail(cell, '배당·분할 저장 완료 확인 대기');
+      if (status === 'error') appendDetail(cell, job.error || dividendEvents?.error, 'fundamental-cell-error');
+      return cell;
+    }
+
     const details = job.details || {};
     const range = [
       details.source,
       details.annualCount != null ? `연간 ${details.annualCount}개` : '',
       details.quarterlyCount != null ? `분기 ${details.quarterlyCount}개` : '',
       details.latestFilingPending ? '새 공시 반영 대기 · 기존 저장값 유지' : '',
-      job.kind === 'dividends' ? `Massive 지급 이벤트 ${Number(dividendEvents?.count || 0)}개` : '',
-      job.kind === 'dividends' && dividendEvents?.error ? `Massive: ${dividendEvents.error}` : '',
       // 화면을 종목별 한 줄로 유지하기 위해 일반 안내문은 생략하고, 재시도 원인만 표시한다.
       job.error || ''
     ].filter(Boolean).join(' · ');
-    const status = job.kind === 'dividends' && dividendEvents?.status !== 'ready' && job.status === 'ready'
-      ? 'partial' : job.status;
-    cell.appendChild(createStatusBadge(status));
+    cell.appendChild(createStatusBadge(job.status));
     appendDetail(cell, range || '최초 수집 대기');
     return cell;
   }
@@ -71,12 +92,20 @@
     const cell = document.createElement('td');
     cell.className = 'fundamental-data-cell fundamental-market-cell';
     const candles = stock.candles || {};
+    // 화면만 먼저 업데이트한 로컬 환경에서는 이전 Worker가 날짜 필드를 주지 않을 수 있어 요약 일봉으로 보완한다.
+    const fallbackDate = state.watchlist?.find(item => item.ticker === stock.ticker)
+      ?.marketData?.candles?.at(-1)?.candleDate;
+    const latestDate = candles.latestDate || fallbackDate || '확인 대기';
     // 현재가는 목록·포트폴리오에만 표시한다. 이 표는 긴 저장 상태를 압축하는 용도다.
-    cell.appendChild(createStatusBadge(candles.status || 'pending'));
+    const badge = createStatusBadge(candles.status || 'pending');
+    if (candles.conversionPending) badge.textContent = '전환 대기';
+    cell.appendChild(badge);
     appendDetail(cell, `3개월 일봉 ${Number(candles.count || 0)}개${candles.source ? ` · ${candles.source}` : ''}`);
-    appendDetail(cell, `갱신 ${formatDateTime(candles.updatedAt)}`, 'fundamental-cell-time');
-    if (candles.status === 'error') {
-      appendDetail(cell, candles.error || '자동 재시도 대기', 'fundamental-cell-error');
+    appendDetail(cell, `최신 일봉 ${latestDate}`);
+    appendDetail(cell, `저장 확인 ${formatDateTime(candles.updatedAt)}`, 'fundamental-cell-time');
+    if (candles.conversionPending || candles.status === 'error') {
+      appendDetail(cell, candles.error || (candles.conversionPending
+        ? '기존 일봉 유지 · Massive 자동 전환 대기' : '자동 재시도 대기'), 'fundamental-cell-error');
     }
     return cell;
   }
@@ -118,19 +147,52 @@
     const candles = getSummary(summary, 'candles');
     const profile = getSummary(summary, 'profile');
     const financials = getSummary(summary, 'financials');
-    const dividends = getSummary(summary, 'dividends');
-    const text = `저장 확인 ${processed}/${total} · 3개월 일봉 ${candles.stored}/${candles.total} · 회사 ${profile.stored}/${profile.total} · 재무 ${financials.stored}/${financials.total} · 배당 ${dividends.stored}/${dividends.total}`;
+    const stocks = Array.isArray(status.stocks) ? status.stocks : [];
+    const savedDividends = stocks.filter(stock => dividendStorageStatus(stock.jobs?.dividends,
+      stock.dividendEvents) === 'ready').length;
+    const dividends = { ...getSummary(summary, 'dividends'), total: stocks.length,
+      stored: savedDividends, processed: savedDividends };
+    // 5-3의 총 진행률도 실제 저장 완료 종목 수와 맞춘다.
+    const verifiedProcessed = processed - getSummary(summary, 'dividends').processed + dividends.processed;
+    const text = `저장 확인 ${verifiedProcessed}/${total} · 3개월 일봉 ${candles.stored}/${candles.total} · 회사 ${profile.stored}/${profile.total} · 재무 ${financials.stored}/${financials.total} · 배당 ${dividends.stored}/${dividends.total}`;
     document.getElementById('fundamentalSummary').textContent = `${text} · 자세한 내용: 5-3 메뉴`;
     message.textContent = running ? `${text} — 회사·재무·배당 수집 중` : text;
     const progress = document.getElementById('fundamentalProgress');
     progress.max = total || 1;
-    progress.value = processed;
+    progress.value = verifiedProcessed;
     renderRows(status);
+  }
+
+  /** 일봉·가격·배당 중 하나라도 바뀌면 종합 화면을 다시 읽어 열린 탭의 날짜를 갱신한다. */
+  async function refreshDashboardViewsIfChanged(status) {
+    const revision = (Array.isArray(status.stocks) ? status.stocks : [])
+      .map(stock => `${stock.ticker}:${stock.price?.updatedAt || ''}:${stock.candles?.latestDate || ''}`
+        + `:${stock.candles?.updatedAt || ''}:${stock.jobs?.dividends?.checkedAt || ''}`)
+      .sort().join('|');
+    if (lastDisplayedDashboardRevision === null) {
+      lastDisplayedDashboardRevision = revision;
+      return;
+    }
+    if (revision === lastDisplayedDashboardRevision || dashboardDisplayRefresh) return;
+    dashboardDisplayRefresh = refreshStoredDashboardViews();
+    try {
+      await dashboardDisplayRefresh;
+      lastDisplayedDashboardRevision = revision;
+    } catch (error) {
+      // 실패한 갱신은 확정하지 않아 다음 30초 확인에서 재시도한다.
+      console.warn('저장된 종합 화면 갱신에 실패했습니다.', error);
+    } finally {
+      dashboardDisplayRefresh = null;
+    }
   }
 
   async function refresh() {
     if (!state.apiPin || document.hidden || mainApp.classList.contains('hidden')) return;
-    try { render(await request('/api/fundamentals/status')); }
+    try {
+      const status = await request('/api/fundamentals/status');
+      render(status);
+      await refreshDashboardViewsIfChanged(status);
+    }
     catch (error) { message.textContent = error.message; }
   }
 
@@ -143,6 +205,7 @@
         if (!state.apiPin || mainApp.classList.contains('hidden')) break;
         const result = await request('/api/fundamentals/run', 'POST');
         render(result.status);
+        await refreshDashboardViewsIfChanged(result.status);
         if (!result.results.length) break;
         // 각 응답 뒤에 다음 묶음을 요청해 병렬 호출과 무제한 재시도를 만들지 않는다.
         const due = result.status.jobs.some(job => !job.nextRunAt || new Date(job.nextRunAt).getTime() <= Date.now());

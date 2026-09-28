@@ -514,7 +514,7 @@ body.modal-open {
 .overview-section-note { margin-left: 10px; color: var(--text-muted); font-size: 0.75rem; }
 .overview-stock-row {
   display: grid;
-  grid-template-columns: minmax(125px, 0.85fr) minmax(92px, 0.55fr) 110px 115px minmax(95px, 0.62fr) minmax(92px, 0.65fr) minmax(78px, 0.5fr) minmax(84px, 0.5fr);
+  grid-template-columns: minmax(125px, 0.85fr) minmax(92px, 0.55fr) 110px 115px minmax(95px, 0.62fr) minmax(165px, 0.9fr) minmax(84px, 0.5fr);
   align-items: center;
   gap: 12px;
   width: 100%;
@@ -534,8 +534,13 @@ body.modal-open {
 }
 .overview-company-cell strong, .overview-price-cell strong { display: block; }
 .overview-company-cell span, .overview-price-cell span, .overview-value-label { display: block; margin-top: 3px; color: var(--text-muted); font-size: 0.72rem; }
+.saved-close-label { color: var(--text-muted); font-size: 0.72rem; font-weight: 500; line-height: 1.3; }
+.overview-price-cell .saved-close-label { display: block; margin-top: 2px; }
 .overview-company-cell span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .overview-sparkline { width: 110px; height: 35px; }
+.overview-sparkline-guide { stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.7; }
+.overview-sparkline-guide.overbought { stroke: #fb7185; }
+.overview-sparkline-guide.oversold { stroke: #34d399; }
 .overview-sparkline polyline { fill: none; stroke: #facc15; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .overview-sparkline.buy polyline { stroke: #34d399; stroke-width: 2.2; }
 .overview-sparkline.sell polyline { stroke: #fb7185; stroke-width: 2.2; }
@@ -547,10 +552,11 @@ body.modal-open {
 .overview-signal.sell { color: #fb7185; background: rgba(244, 63, 94, 0.14); }
 .overview-dividend-cell strong { display: block; }
 .overview-dividend-cell span { color: var(--text-muted); font-size: 0.75rem; }
-.overview-next-dividend-cell strong, .overview-dividend-day-cell strong { display: block; }
-.overview-next-dividend-cell span, .overview-dividend-day-cell span { display: block; margin-top: 3px; font-size: 0.7rem; }
-.overview-next-dividend-cell.confirmed, .overview-dividend-day-cell.confirmed { color: var(--color-up); }
-.overview-next-dividend-cell.estimated, .overview-dividend-day-cell.estimated { color: #fb923c; }
+.overview-ex-dividend-cell strong { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+.overview-ex-dividend-cell > span { display: block; margin-top: 3px; font-size: 0.7rem; }
+.overview-ex-countdown { font-size: 0.78rem; }
+.overview-ex-dividend-cell.confirmed { color: var(--color-up); }
+.overview-ex-dividend-cell.estimated { color: #fb923c; }
 
 .company-back-btn { width: 32px; height: 32px; }
 .company-detail-price { text-align: right; }
@@ -1449,7 +1455,7 @@ body.modal-open {
   .company-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .overview-stock-row { grid-template-columns: minmax(130px, 1fr) 110px 110px minmax(90px, 0.7fr) minmax(85px, 0.6fr); }
   .overview-stock-row.price-stock-row { grid-template-columns: minmax(140px, 1fr) 110px 120px minmax(90px, 0.7fr); }
-  .overview-stock-row .overview-price-cell, .overview-stock-row .overview-dividend-cell, .overview-stock-row .overview-dividend-day-cell { display: none; }
+  .overview-stock-row .overview-price-cell, .overview-stock-row .overview-dividend-cell { display: none; }
 }
 
 @media (max-width: 768px) {
@@ -1483,8 +1489,7 @@ body.modal-open {
   .overview-stock-row .overview-sparkline { display: none; }
   .overview-stock-row .overview-price-cell,
   .overview-stock-row .overview-dividend-cell,
-  .overview-stock-row .overview-next-dividend-cell,
-  .overview-stock-row .overview-dividend-day-cell { display: block; }
+  .overview-stock-row .overview-ex-dividend-cell { display: block; }
   .company-detail-modal { padding: 3vh 3vw; }
   .company-detail-modal .company-detail-section { width: 94vw; height: 94vh; padding: 14px; }
   .william-r-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }

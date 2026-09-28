@@ -1,5 +1,6 @@
 import { ensureFundamentalStore } from './fundamental-store.js';
-import { syncProfile, syncFinancialsFromSec, syncDividendsFromSec } from './fmp-sync.js';
+import { syncProfile, syncFinancialsFromSec } from './fmp-sync.js';
+import { syncAlphaDividends } from './alpha-dividends.js';
 
 const kinds = ['profile', 'financials', 'dividends'];
 const labels = { profile: '회사 정보', financials: '재무', dividends: '배당' };
@@ -65,12 +66,19 @@ export async function fundamentalStatus(environment) {
       candle_state.next_retry_at AS candlesNextRetryAt,
       candle_state.last_error AS candlesLastError,
       (SELECT COUNT(*) FROM price_candles candles WHERE candles.ticker = w.ticker) AS candleCount,
+      (SELECT COUNT(*) FROM price_candles candles WHERE candles.ticker = w.ticker
+        AND candles.source = 'MASSIVE') AS massiveCandleCount,
+      (SELECT COUNT(*) FROM price_candles candles WHERE candles.ticker = w.ticker
+        AND candles.source = 'FMP') AS fmpCandleCount,
+      EXISTS(SELECT 1 FROM massive_candle_backfills backfills
+        WHERE backfills.ticker = w.ticker) AS massiveBackfillComplete,
       (SELECT MAX(cached_at) FROM price_candles candles WHERE candles.ticker = w.ticker) AS candlesCachedAt,
+      (SELECT MAX(candle_date) FROM price_candles candles WHERE candles.ticker = w.ticker) AS latestCandleDate,
       dividend_state.last_success_at AS eventsLastSuccessAt,
       dividend_state.last_attempt_at AS eventsLastAttemptAt,
       dividend_state.next_retry_at AS eventsNextRetryAt,
       dividend_state.last_error AS eventsLastError,
-      (SELECT COUNT(*) FROM massive_dividend_events events WHERE events.ticker = w.ticker) AS eventCount,
+      (SELECT COUNT(*) FROM alpha_dividend_events events WHERE events.ticker = w.ticker) AS eventCount,
       (SELECT source FROM price_candles candles WHERE candles.ticker = w.ticker
         ORDER BY candle_date DESC LIMIT 1) AS candleSource
       FROM user_watchlist w
@@ -79,29 +87,32 @@ export async function fundamentalStatus(environment) {
         ON price_state.ticker = w.ticker AND price_state.data_type = 'price'
       LEFT JOIN data_sync_state candle_state
         ON candle_state.ticker = w.ticker AND candle_state.data_type = 'candles'
-      LEFT JOIN data_sync_state dividend_state
-        ON dividend_state.ticker = w.ticker AND dividend_state.data_type = 'dividends'
+      LEFT JOIN alpha_dividend_sync dividend_state ON dividend_state.ticker = w.ticker
       WHERE w.user_id = 'primary'
       ORDER BY w.display_order`),
     environment.DB.prepare(`SELECT ticker,
       SUM(CASE WHEN period_type = 'annual' THEN 1 ELSE 0 END) AS annualCount,
       SUM(CASE WHEN period_type = 'quarterly' THEN 1 ELSE 0 END) AS quarterlyCount
       FROM financial_metrics WHERE source = 'SEC EDGAR' GROUP BY ticker`),
-    environment.DB.prepare(`SELECT ticker,
-      SUM(CASE WHEN period_type = 'annual' THEN 1 ELSE 0 END) AS annualCount,
-      SUM(CASE WHEN period_type = 'quarterly' THEN 1 ELSE 0 END) AS quarterlyCount
-      FROM dividend_periods WHERE source = 'SEC EDGAR' GROUP BY ticker`)
+    environment.DB.prepare(`SELECT ticker, event_count AS eventCount, status,
+      last_success_at AS lastSuccessAt, last_attempt_at AS lastAttemptAt,
+      next_retry_at AS nextRetryAt, last_error AS lastError
+      FROM alpha_dividend_sync`)
   ]);
   const financialByTicker = new Map(financialCoverage.results.map(row => [row.ticker, row]));
   const dividendByTicker = new Map(dividendCoverage.results.map(row => [row.ticker, row]));
+  const storedAlphaCounts = new Map(marketResult.results.map(row => [row.ticker, Number(row.eventCount || 0)]));
   const rows = jobResult.results.map(job => {
     let status = job.status === 'running' && job.lease_until < new Date().toISOString() ? 'pending' : job.status;
     let details = readDetails(job.details);
     let error = job.error;
+    let checkedAt = job.checked_at;
+    let nextRunAt = job.next_run_at;
     const coverage = job.kind === 'financials' ? financialByTicker.get(job.ticker)
       : job.kind === 'dividends' ? dividendByTicker.get(job.ticker) : null;
-    const hasSecHistory = coverage && (Number(coverage.annualCount) > 0 || Number(coverage.quarterlyCount) > 0);
-    // 이전 버전의 '일부 저장'은 실제 SEC 행이 있으면 바로 정정한다. 신규 공시 반영 대기는 기존 저장값을 유지한다.
+    const hasSecHistory = job.kind === 'financials' && coverage
+      && (Number(coverage.annualCount) > 0 || Number(coverage.quarterlyCount) > 0);
+    // 재무의 기존 SEC 이력만 완료로 복구한다. 이전 SEC 배당 성공을 Alpha Vantage 성공으로 오인하지 않는다.
     const latestFilingPending = job.kind === 'financials' && /새 공시 원문 반영 대기/.test(error || '');
     if (hasSecHistory && (status === 'partial' || latestFilingPending)) {
       status = 'ready';
@@ -110,8 +121,23 @@ export async function fundamentalStatus(environment) {
         note: latestFilingPending ? '기존 SEC 이력 저장됨 · 새 공시 원문은 다음날 재확인' : details.note };
       if (latestFilingPending) error = null;
     }
+    if (job.kind === 'dividends') {
+      const actualCount = storedAlphaCounts.get(job.ticker) || 0;
+      // SEC 작업 상태·오류를 배당 완료로 오인하지 않는다. 두 Alpha 응답을 모두 저장한 동기화 기록과 원본 건수가 일치해야 한다.
+      const alphaReady = coverage?.status === 'ready' && Boolean(coverage.lastSuccessAt)
+        && Number(coverage.eventCount) === actualCount;
+      const alphaError = coverage?.lastError || (/Alpha Vantage/i.test(job.error || '') ? job.error : null);
+      status = alphaReady ? 'ready' : status === 'running' ? 'running'
+        : alphaError ? 'error' : actualCount > 0 ? 'partial' : 'pending';
+      details = { source: 'ALPHA_VANTAGE', eventCount: actualCount };
+      error = alphaReady ? null : alphaError;
+      checkedAt = coverage?.lastSuccessAt || coverage?.lastAttemptAt || null;
+      // 예전 SEC 작업의 다음 확인 시각이 배당 수집을 계속 미루지 않도록 Alpha 상태만 전달한다.
+      nextRunAt = alphaReady || /Alpha Vantage/i.test(job.error || '')
+        ? job.next_run_at : coverage?.nextRetryAt || null;
+    }
     return { ticker: job.ticker, kind: job.kind, label: labels[job.kind], status,
-      checkedAt: job.checked_at, nextRunAt: job.next_run_at, details, error };
+      checkedAt, nextRunAt, details, error };
   });
   const jobsByTicker = new Map();
   rows.forEach(job => {
@@ -130,6 +156,11 @@ export async function fundamentalStatus(environment) {
     };
     const hasQuote = stock.currentPrice !== null && Number.isFinite(Number(stock.currentPrice));
     const hasCandles = Number(stock.candleCount || 0) > 0;
+    const massiveCandleCount = Number(stock.massiveCandleCount || 0);
+    const fmpCandleCount = Number(stock.fmpCandleCount || 0);
+    // 기존 FMP 이력만 있는 종목을 Massive 전환 완료로 세지 않는다.
+    const massiveCandlesReady = Boolean(stock.massiveBackfillComplete)
+      && massiveCandleCount > 0 && fmpCandleCount === 0;
     const price = {
       status: marketStorageStatus(hasQuote, priceState),
       currentPrice: hasQuote ? Number(stock.currentPrice) : null,
@@ -139,23 +170,28 @@ export async function fundamentalStatus(environment) {
       error: priceState.lastError || null
     };
     const candles = {
-      status: marketStorageStatus(hasCandles, candlesState),
+      status: massiveCandlesReady ? 'ready' : hasCandles ? 'partial' : marketStorageStatus(false, candlesState),
       count: Number(stock.candleCount || 0),
-      source: stock.candleSource || null,
+      latestDate: stock.latestCandleDate || null,
+      source: massiveCandleCount && fmpCandleCount ? `MASSIVE ${massiveCandleCount}개 · FMP ${fmpCandleCount}개`
+        : stock.candleSource || null,
+      conversionPending: hasCandles && !massiveCandlesReady,
       updatedAt: stock.candlesCachedAt || candlesState.lastSuccessAt || null,
       nextRunAt: nextMarketCheck(candlesState, day),
       error: candlesState.lastError || null
     };
+    const jobs = jobsByTicker.get(stock.ticker) || {};
     const eventState = {
       lastSuccessAt: stock.eventsLastSuccessAt, lastAttemptAt: stock.eventsLastAttemptAt,
       nextRetryAt: stock.eventsNextRetryAt, lastError: stock.eventsLastError
     };
     const dividendEvents = {
-      // 빈 성공 응답은 무배당 종목의 정상 상태이며 이벤트 0개도 저장 완료로 본다.
-      status: marketStorageStatus(Number(stock.eventCount || 0) > 0 || Boolean(eventState.lastSuccessAt), eventState),
+      // 원본 이벤트가 0개여도 Alpha 배당·분할 응답을 정상 저장했다면 무배당 확인 완료다.
+      status: jobs.dividends?.status || 'pending',
+      source: 'ALPHA_VANTAGE',
       count: Number(stock.eventCount || 0),
       nextRunAt: nextMarketCheck(eventState, day),
-      error: eventState.lastError || null
+      error: jobs.dividends?.error || null
     };
     const marketStatus = price.status === 'ready' && candles.status === 'ready'
       ? 'ready'
@@ -164,7 +200,6 @@ export async function fundamentalStatus(environment) {
         : price.status === 'pending' && candles.status === 'pending'
           ? 'pending'
           : 'partial';
-    const jobs = jobsByTicker.get(stock.ticker) || {};
     return {
       ticker: stock.ticker,
       price,
@@ -195,14 +230,12 @@ export async function fundamentalStatus(environment) {
   };
   summary.candles = {
     total: stocks.length,
-    processed: stocks.filter(stock => stock.candles.updatedAt).length,
+    processed: stocks.filter(stock => stock.candles.status === 'ready').length,
     stored: stocks.filter(stock => stock.candles.status === 'ready').length,
     pending: stocks.filter(stock => ['pending', 'partial'].includes(stock.candles.status)).length
   };
-  summary.dividends.stored = stocks.filter(stock => stock.jobs.dividends?.status === 'ready'
-    && stock.dividendEvents.status === 'ready').length;
-  summary.dividends.processed = stocks.filter(stock => stock.jobs.dividends?.checkedAt
-    && stock.dividendEvents.status !== 'pending').length;
+  summary.dividends.stored = stocks.filter(stock => stock.dividendEvents.status === 'ready').length;
+  summary.dividends.processed = stocks.filter(stock => stock.dividendEvents.status === 'ready').length;
   summary.dividends.pending = stocks.filter(stock => ['pending', 'running'].includes(stock.jobs.dividends?.status)
     || stock.dividendEvents.status === 'pending').length;
   return { summary, jobs: rows, stocks, checkedAt: new Date().toISOString(), scope: [...kinds, 'price', 'candles'] };
@@ -249,23 +282,17 @@ async function financialTask(environment, ticker, previous) {
 }
 
 async function dividendTask(environment, ticker) {
-  // SEC는 장기 통계용 연간·분기 주당배당금만 담당한다. Massive 이벤트는 독립 큐에서 수집한다.
-  try {
-    const details = await syncDividendsFromSec(environment, ticker);
-    return { ...details, note: 'SEC 주당배당금 이력 저장. 지급 이벤트·일정은 Massive에서 별도로 확인합니다.' };
-  } catch (error) {
-    if (!String(error.message || error).includes('주당 배당금 공시를 찾지 못했습니다')) throw error;
-    // 무배당 종목은 수집 실패로 반복 표시하지 않는다. Massive 이벤트 조회가 별도로 완료되어야 최종 저장 상태가 된다.
-    return { source: 'SEC EDGAR', annualCount: 0, quarterlyCount: 0,
-      note: 'SEC 주당배당금 공시 없음. Massive 지급 이벤트 확인 결과와 함께 표시합니다.' };
-  }
+  const details = await syncAlphaDividends(environment, ticker);
+  return { ...details, note: details.eventCount
+    ? 'Alpha Vantage 배당·분할 이력 저장. 미확보 성장률은 완전한 비교 연도가 없음을 뜻합니다.'
+    : 'Alpha Vantage 배당 이력 0건. 무배당 종목으로 저장했습니다.' };
 }
 
 export function classifyFundamental(kind, details) {
   if (kind === 'profile') return 'ready';
   // 저장 상태는 공급원이 제공한 이력의 확보 여부만 나타낸다. 개별 지표의 공란은 별도 안내한다.
+  if (kind === 'dividends') return details?.source === 'ALPHA_VANTAGE' ? 'ready' : 'partial';
   if (details?.source !== 'SEC EDGAR') return 'partial';
-  if (kind === 'dividends' && details.annualCount === 0 && details.quarterlyCount === 0) return 'ready';
   return details.annualCount > 0 || details.quarterlyCount > 0 ? 'ready' : 'partial';
 }
 
@@ -279,7 +306,7 @@ async function executeJob(environment, job) {
     .bind(token, after(120000), job.ticker, job.kind, now, now).first();
   if (!claimed) return { ticker: job.ticker, kind: job.kind, status: 'skipped' };
   let status, details = readDetails(job.details), error = null;
-  let nextRun = after(job.kind === 'profile' ? 30 * day : day);
+  let nextRun = after(job.kind === 'profile' ? 30 * day : job.kind === 'dividends' ? 14 * day : day);
   try {
     if (job.kind === 'profile') {
       const existing = await environment.DB.prepare('SELECT cik, updated_at FROM companies WHERE ticker=?').bind(job.ticker).first();
@@ -339,68 +366,7 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
 
 export async function fundamentalDetails(environment, ticker) {
   await ensureFundamentalStore(environment);
-  const [jobs, history] = await environment.DB.batch([
-    environment.DB.prepare('SELECT kind, status, details, error FROM fundamental_jobs WHERE ticker=?').bind(ticker),
-    environment.DB.prepare(`SELECT period_type AS periodType, period_end AS periodEnd, amount, source
-      FROM dividend_periods WHERE ticker=? ORDER BY period_end DESC`).bind(ticker)
-  ]);
-  return { collection: jobs.results.map(job => ({ ...job, details: readDetails(job.details) })), dividendHistory: history.results };
-}
-
-/** SEC의 기간별 주당배당금만 요약한다. 지급일별 이벤트나 배당수익률은 만들어 내지 않는다. */
-export function summarizeSecDividendPeriods(history) {
-  const periods = (Array.isArray(history) ? history : [])
-    .filter(row => row.source === 'SEC EDGAR' && Number.isFinite(Number(row.amount)));
-  const annual = periods.filter(row => row.periodType === 'annual')
-    .sort((left, right) => String(left.periodEnd).localeCompare(String(right.periodEnd)));
-  const quarterly = periods.filter(row => row.periodType === 'quarterly')
-    .sort((left, right) => String(left.periodEnd).localeCompare(String(right.periodEnd)));
-  if (!annual.length && !quarterly.length) return null;
-
-  let dividendGrowthYears = 0;
-  for (let index = annual.length - 1; index > 0; index -= 1) {
-    const current = annual[index];
-    const previous = annual[index - 1];
-    if (Number(current.periodEnd.slice(0, 4)) - Number(previous.periodEnd.slice(0, 4)) !== 1
-      || Number(current.amount) <= Number(previous.amount) + 1e-9) break;
-    dividendGrowthYears += 1;
-  }
-  const latestAnnual = annual.at(-1);
-  const startYear = Number(latestAnnual?.periodEnd.slice(0, 4)) - 10;
-  const firstAnnual = annual.find(row => Number(row.periodEnd.slice(0, 4)) === startYear);
-  const dividendGrowthCagr10y = Number(firstAnnual?.amount) > 0 && Number(latestAnnual?.amount) > 0
-    ? (Math.pow(Number(latestAnnual.amount) / Number(firstAnnual.amount), 1 / 10) - 1) * 100 : null;
-  return {
-    annualDividend: latestAnnual ? Number(latestAnnual.amount) : null,
-    quarterlyDividend: quarterly.length ? Number(quarterly.at(-1).amount) : null,
-    dividendYield: null,
-    dividendGrowthYears,
-    dividendGrowthCagr10y,
-    nextExDividendDate: null,
-    nextDateStatus: 'unknown',
-    nextPaymentDate: null,
-    annualPeriodEnd: latestAnnual?.periodEnd || null,
-    quarterlyPeriodEnd: quarterly.at(-1)?.periodEnd || null,
-    source: 'SEC EDGAR'
-  };
-}
-
-/** 계산식 변경 뒤에도 외부 호출 없이 저장된 SEC 이력에서 집계만 다시 만들 수 있다. */
-export async function recalculateSecDividendMetrics(environment, ticker) {
-  const { dividendHistory } = await fundamentalDetails(environment, ticker);
-  const metrics = summarizeSecDividendPeriods(dividendHistory);
-  if (!metrics) return { ticker, status: 'skipped', reason: '저장된 SEC 배당 이력 없음' };
-  await environment.DB.prepare(`INSERT INTO dividend_metrics
-    (ticker, annual_dividend, quarterly_dividend, dividend_yield, dividend_growth_years, dividend_growth_cagr_10y,
-      next_ex_dividend_date, next_date_status, next_payment_date, calculated_at)
-    VALUES (?, ?, ?, NULL, ?, ?, NULL, 'unknown', NULL, CURRENT_TIMESTAMP)
-    ON CONFLICT(ticker) DO UPDATE SET annual_dividend=excluded.annual_dividend,
-      quarterly_dividend=excluded.quarterly_dividend, dividend_yield=NULL,
-      dividend_growth_years=excluded.dividend_growth_years,
-      dividend_growth_cagr_10y=excluded.dividend_growth_cagr_10y,
-      next_ex_dividend_date=NULL, next_date_status='unknown', next_payment_date=NULL,
-      calculated_at=CURRENT_TIMESTAMP`)
-    .bind(ticker, metrics.annualDividend, metrics.quarterlyDividend,
-      metrics.dividendGrowthYears, metrics.dividendGrowthCagr10y).run();
-  return { ticker, status: 'updated', source: 'SEC EDGAR' };
+  const jobs = await environment.DB.prepare('SELECT kind, status, details, error FROM fundamental_jobs WHERE ticker=?')
+    .bind(ticker).all();
+  return { collection: jobs.results.map(job => ({ ...job, details: readDetails(job.details) })) };
 }

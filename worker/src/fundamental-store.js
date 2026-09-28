@@ -11,11 +11,6 @@ export const fundamentalSchema = [
   `CREATE TABLE IF NOT EXISTS sec_filing_checks (
     ticker TEXT PRIMARY KEY, accession TEXT, checked_at TEXT, report_date TEXT
   )`,
-  `CREATE TABLE IF NOT EXISTS dividend_periods (
-    ticker TEXT NOT NULL, period_type TEXT NOT NULL, period_end TEXT NOT NULL,
-    amount REAL NOT NULL, source TEXT NOT NULL, reported_date TEXT,
-    PRIMARY KEY(ticker, period_type, period_end)
-  )`,
   `CREATE TABLE IF NOT EXISTS fundamental_api_budget (
     day TEXT PRIMARY KEY, calls INTEGER NOT NULL DEFAULT 0
   )`,

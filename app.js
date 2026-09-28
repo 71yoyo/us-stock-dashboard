@@ -190,6 +190,34 @@ async function fetchDashboardSummaryFromCloudflare() {
   return response.json();
 }
 
+/** 일봉·현재가·배당 중 하나가 바뀌면 저장 요약을 한 번만 다시 읽어 모든 종합 화면에 반영한다. */
+async function refreshStoredDashboardViews() {
+  const dashboard = await fetchDashboardSummaryFromCloudflare();
+  if (!Array.isArray(dashboard?.stocks)) throw new Error('저장된 종합 데이터를 읽지 못했습니다. 잠시 후 다시 확인해 주세요.');
+  const summaryByTicker = new Map(dashboard.stocks.map(company => [company.ticker, company]));
+  state.watchlist.forEach(stock => applyStoredCompanyToStock(stock, summaryByTicker.get(stock.ticker)));
+  renderWatchlist();
+  renderCompanyOverview();
+  renderPortfolio();
+  // 트레이딩뷰 위젯은 자체 시세를 쓰지만, 옆의 저장 OHLC 표시는 새 D1 일봉에 맞춰 갱신한다.
+  if (state.currentView === 'chart') {
+    const selectedStock = state.watchlist.find(stock => stock.ticker === state.selectedTicker);
+    renderStoredOhlc(selectedStock?.marketData);
+  }
+
+  // 상세 원본은 창이 열려 있을 때만 읽어 불필요한 종목별 요청을 피한다.
+  const selectedTicker = state.selectedTicker;
+  if (selectedTicker && isCompanyDetailOpen()) {
+    const company = await fetchCompanyFromCloudflare(selectedTicker);
+    if (!company) throw new Error('상세 데이터를 다시 읽지 못했습니다. 다음 확인에서 재시도합니다.');
+    if (company && selectedTicker === state.selectedTicker && isCompanyDetailOpen()) {
+      const stock = state.watchlist.find(item => item.ticker === selectedTicker);
+      applyStoredCompanyToStock(stock, company);
+      renderCompanyDetailData(company);
+    }
+  }
+}
+
 function applyStoredCompanyToStock(stock, company) {
   if (!stock || !company) return;
   stock.name = company.name || stock.name || stock.ticker;
@@ -199,14 +227,15 @@ function applyStoredCompanyToStock(stock, company) {
   const previousClose = toNullableNumber(company.previousClose);
   const changeAmount = toNullableNumber(company.changeAmount);
   const changePercent = toNullableNumber(company.changePercent);
-  stock.price = currentPrice ?? stock.price;
-  stock.change = changeAmount ?? stock.change;
+  // D1에 현재가가 없으면 예전 브라우저 값도 비워, 일봉 종가와 현재가를 혼동하지 않는다.
+  stock.price = currentPrice !== null && currentPrice > 0 ? currentPrice : null;
+  stock.change = stock.price === null ? null : changeAmount;
   // 공급원이 등락률을 비워도 D1에 있는 현재가·전일 종가로만 계산할 수 있다.
   // 두 원본 중 하나라도 없으면 숫자를 만들지 않고 그대로 미확보로 남긴다.
-  stock.changePct = changePercent
+  stock.changePct = stock.price === null ? null : (changePercent
     ?? (currentPrice !== null && previousClose !== null && previousClose !== 0
       ? ((currentPrice - previousClose) / previousClose) * 100
-      : stock.changePct);
+      : null));
   // 재무·배당·일봉 원본은 localStorage에 저장하지 않고, 현재 세션에서만 사용한다.
   stock.marketData = company;
 }
@@ -510,6 +539,46 @@ function normalizeChartCandles(company) {
   })).filter(candle => candle.time && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite));
 }
 
+/** 현재가가 없으면 최근 두 거래일의 저장 종가로 등락률을 표시한다. 손익 계산용 현재가에는 넣지 않는다. */
+function getStoredPricePresentation(stock) {
+  const quotePrice = toNullableNumber(stock?.price);
+  if (quotePrice !== null && quotePrice > 0) {
+    return {
+      price: formatCurrency(quotePrice),
+      overviewDetail: formatPercent(stock.changePct),
+      detailDetail: formatPercent(stock.changePct),
+      chartDetail: formatPriceChange(stock.change, stock.changePct),
+      directionClass: getChangeDirectionClass(stock.change),
+      isStoredClose: false
+    };
+  }
+
+  const candles = normalizeChartCandles(stock?.marketData);
+  const latestCandle = candles.at(-1);
+  if (latestCandle?.close > 0 && /^\d{4}-\d{2}-\d{2}$/.test(latestCandle.time)) {
+    const sourceLabel = `${latestCandle.time} 저장 일봉 종가`;
+    // 비교 기준은 달력상 전날이 아니라 실제로 저장된 직전 거래일이다.
+    const previousCandle = candles.slice(0, -1).findLast(candle =>
+      candle.time < latestCandle.time && candle.close > 0);
+    const changeAmount = previousCandle ? latestCandle.close - previousCandle.close : null;
+    const changePercent = previousCandle ? (changeAmount / previousCandle.close) * 100 : null;
+    const shortSourceLabel = `${formatMonthDay(latestCandle.time)} 종가 기준`;
+    return {
+      price: formatCurrency(latestCandle.close),
+      overviewDetail: changePercent === null ? sourceLabel : formatPercent(changePercent),
+      overviewSource: changePercent === null ? '' : shortSourceLabel,
+      sourceLabel,
+      detailDetail: changePercent === null ? sourceLabel : `${formatPercent(changePercent)} · ${shortSourceLabel}`,
+      chartDetail: changePercent === null ? sourceLabel : `${formatPriceChange(changeAmount, changePercent)} · ${shortSourceLabel}`,
+      directionClass: getChangeDirectionClass(changeAmount),
+      isStoredClose: true
+    };
+  }
+
+  return { price: '데이터 없음', overviewDetail: '일봉 저장 대기', detailDetail: '—',
+    chartDetail: '변동 데이터 없음', directionClass: 'unknown', isStoredClose: false };
+}
+
 /** 저장된 신호가 같은 일봉까지 계산되었으면 D1 상태를 우선해 기기별 표시를 일치시킨다. */
 function getWilliamsSummary(candles, storedSummary = null) {
   const localSummary = window.WilliamsSignalEngine?.summarize(candles);
@@ -553,12 +622,13 @@ async function loadStockChart(ticker) {
   const stock = state.watchlist.find(item => item.ticker === ticker);
   if (!stock) return;
 
+  const initialPrice = getStoredPricePresentation(stock);
   document.getElementById('chartTicker').textContent = stock.ticker;
   document.getElementById('chartCompanyName').textContent = stock.name;
-  document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
+  document.getElementById('chartPrice').textContent = initialPrice.price;
   const initialChangeElement = document.getElementById('chartChange');
-  initialChangeElement.className = `price-change ${getChangeDirectionClass(stock.change)}`;
-  initialChangeElement.textContent = formatPriceChange(stock.change, stock.changePct);
+  initialChangeElement.className = `price-change ${initialPrice.directionClass}`;
+  initialChangeElement.textContent = initialPrice.chartDetail;
   renderActiveTradingViewChart(stock);
 
   const company = await fetchCompanyFromCloudflare(ticker);
@@ -570,18 +640,17 @@ async function loadStockChart(ticker) {
   renderDetailCharts(company);
   updateCompanySummary();
 
-  document.getElementById('chartTicker').textContent = stock.ticker;
-  document.getElementById('chartCompanyName').textContent = stock.name;
-  document.getElementById('chartPrice').textContent = formatCurrency(stock.price);
-  const changeElem = document.getElementById('chartChange');
-  changeElem.className = `price-change ${getChangeDirectionClass(stock.change)}`;
-  changeElem.textContent = formatPriceChange(stock.change, stock.changePct);
+  renderStoredOhlc(company);
+  renderActiveTradingViewChart(stock);
+}
 
+/** 저장된 최신 일봉의 OHLC를 차트 보조 표시에만 반영한다. */
+function renderStoredOhlc(company) {
   const candles = normalizeChartCandles(company);
   const latestCandle = candles.at(-1);
   const sourceLabel = document.querySelector('#chartOhlcBar .chart-data-source');
   if (sourceLabel) sourceLabel.textContent = latestCandle?.source
-    ? `${latestCandle.source} 최신 저장 일봉` : '저장 일봉 대기';
+    ? `${latestCandle.source} ${latestCandle.time} 저장 일봉` : '저장 일봉 대기';
   const latestValues = {
     ohlcOpen: latestCandle ? formatUsdValue(latestCandle.open) : '데이터 없음',
     ohlcHigh: latestCandle ? formatUsdValue(latestCandle.high) : '데이터 없음',
@@ -593,7 +662,6 @@ async function loadStockChart(ticker) {
     const element = document.getElementById(id);
     if (element) element.textContent = value;
   });
-  renderActiveTradingViewChart(stock);
 }
 
 // ========================================================
@@ -769,20 +837,19 @@ function renderOverviewStockRows(container, stocks, emptyMessage, showDividendDe
     const williams = getStoredWilliams(stock);
     const signal = williams?.signal || { label: '일봉 저장 대기', className: 'pending' };
     const dividend = getStoredDividendInfo(stock);
-    const priceDirection = getChangeDirectionClass(stock.change);
+    const displayPrice = getStoredPricePresentation(stock);
     const sparkline = createStoredSparkline(stock, williams);
     const item = document.createElement('button');
     item.type = 'button';
     item.className = `overview-stock-row ${shouldShowDividendDetails ? '' : 'price-stock-row'} ${stock.ticker === state.selectedTicker ? 'active' : ''}`;
     item.innerHTML = `
       <span class="overview-company-cell"><strong>${escapeHtml(stock.ticker)}</strong><span title="${escapeHtml(stock.name || stock.ticker)}">${escapeHtml(stock.name || '회사 정보 저장 대기')}</span></span>
-      <span class="overview-price-cell"><strong>${formatCurrency(stock.price)}</strong><span class="${priceDirection}">${formatPercent(stock.changePct)}</span></span>
+      <span class="overview-price-cell"><strong>${displayPrice.price}</strong><span class="${displayPrice.directionClass}${displayPrice.isStoredClose && !displayPrice.overviewSource ? ' saved-close-label' : ''}">${displayPrice.overviewDetail}</span>${displayPrice.overviewSource ? `<small class="saved-close-label" title="${escapeHtml(displayPrice.sourceLabel)}">${escapeHtml(displayPrice.overviewSource)}</small>` : ''}</span>
       ${sparkline || `<span class="overview-sparkline overview-pending-sparkline">일봉 저장 대기</span>`}
       <span class="overview-williams-cell"><span class="overview-williams-value">${williams ? williams.value.toFixed(1) : '—'}</span><span class="overview-value-label">Williams %R (14일)</span></span>
       <span class="overview-signal-cell"><span class="overview-signal ${signal.className}">${escapeHtml(signal.label)}</span><span class="overview-value-label">${escapeHtml(signal.since ? `${formatMonthDay(signal.since)} 일봉 신호` : '저장 일봉 기준')}</span></span>
       ${shouldShowDividendDetails ? `
-        <span class="overview-next-dividend-cell ${dividend.status}"><strong>${dividend.nextDate}</strong><span>${dividend.statusLabel}</span></span>
-        <span class="overview-dividend-day-cell ${dividend.status}"><strong>${dividend.daysLeft}</strong><span>주말 제외 남은 일수</span></span>
+        <span class="overview-ex-dividend-cell ${dividend.status}"><strong>${dividend.nextDate}<span class="overview-ex-countdown">${dividend.daysLeft}</span></strong><span>${dividend.statusLabel} · 주말 제외</span></span>
         <span class="overview-dividend-cell"><strong>${dividend.yieldRate}</strong><span>${dividend.yieldDetail}</span></span>
       ` : ''}
     `;
@@ -801,26 +868,32 @@ function getStoredWilliams(stock) {
   return getWilliamsSummary(normalizeChartCandles(stock.marketData), stock.marketData?.technicalSignal);
 }
 
-/** 배당 화면은 SEC 장기 통계와 Massive 지급 이벤트를 항목별로 표시한다. */
+/** 종합 화면 배당락일만 두 자리 월·일로 표시하고 다른 날짜 형식은 바꾸지 않는다. */
+function formatExDividendMonthDay(value) {
+  const match = /^\d{4}-(\d{2})-(\d{2})$/.exec(String(value || ''));
+  return match ? `${match[1]}월 ${match[2]}일` : '미정';
+}
+
+/** 종합 화면의 날짜와 D-day는 지급일이 아닌 다음 배당락일 하나를 기준으로 맞춘다. */
 function getStoredDividendInfo(stock) {
-  const dividend = stock.marketData?.dividendMetrics;
-  const secAnnualDividend = toNullableNumber(dividend?.secAnnualDividend);
+  const savedDividend = stock.marketData?.dividendMetrics;
+  // 서버 전환 중에도 오래된 SEC·Massive 응답을 배당 수치로 다시 표시하지 않는다.
+  const dividend = savedDividend?.source === 'ALPHA_VANTAGE'
+    || savedDividend?.eventSource === 'ALPHA_VANTAGE' ? savedDividend : null;
   const yieldValue = toNullableNumber(dividend?.dividendYield);
-  const paymentDate = dividend?.nextPaymentDate;
-  const nextDate = paymentDate || dividend?.nextExDividendDate;
-  const candidateStatus = paymentDate ? dividend?.nextPaymentDateStatus : dividend?.nextExDateStatus;
-  const status = ['confirmed', 'estimated'].includes(candidateStatus)
-    ? candidateStatus : 'unknown';
+  const nextDate = dividend?.nextExDividendDate;
+  const candidateStatus = dividend?.nextExDateStatus;
+  const status = nextDate && ['confirmed', 'estimated'].includes(candidateStatus) ? candidateStatus : 'unknown';
   return {
     yieldRate: yieldValue === null ? '—' : `${yieldValue.toFixed(2)}%`,
     yieldDetail: yieldValue !== null
-      ? `Massive 실제 지급 ${dividend.trailingPayoutCount}회 · ${dividend.yieldPriceSource || '저장 가격'} 기준`
-      : secAnnualDividend === null ? '배당수익률 미확보' : `Massive 지급 이력 대기 · SEC 연간 ${formatSecDividendAmount(secAnnualDividend)}`,
-    nextDate: nextDate ? formatMonthDay(nextDate) : '미정',
+      ? `Alpha Vantage 실제 지급 ${dividend.trailingPayoutCount}회 · ${dividend.yieldPriceSource || '저장 가격'} 기준`
+      : 'Alpha Vantage 배당수익률 미확보',
+    nextDate: formatExDividendMonthDay(nextDate),
     daysLeft: nextDate ? formatWeekdayCountdown(nextDate) : '—',
     status,
-    statusLabel: status === 'confirmed' ? (paymentDate ? '확정 지급일' : '확정 배당락일')
-      : status === 'estimated' ? (paymentDate ? '미확정 지급일' : '예상 배당락일') : '배당일 미확보'
+    statusLabel: status === 'confirmed' ? '확정 배당락일'
+      : status === 'estimated' ? '추정 배당락일' : '배당락일 미확보'
   };
 }
 
@@ -840,20 +913,19 @@ function formatWeekdayCountdown(nextDate) {
   return `D-${weekdays}`;
 }
 
-/** 최근 13개 저장 종가의 추이를 그리되, 선 색은 현재 14일 Williams %R 구간으로 표시한다. */
+/** 최근 13개 Williams %R 값을 고정된 -100~0 축에 표시해 기준선과 선의 높이가 실제 수치에 대응하게 한다. */
 function createStoredSparkline(stock, williams) {
-  const closes = normalizeChartCandles(stock.marketData).map(candle => candle.close).slice(-13);
-  if (closes.length < 2) return '';
-  const lowest = Math.min(...closes);
-  const highest = Math.max(...closes);
-  const range = highest - lowest || 1;
-  const points = closes.map((close, index) => {
-    const x = (index / (closes.length - 1)) * 110;
-    const y = 31 - ((close - lowest) / range) * 27;
+  const readings = (window.WilliamsSignalEngine?.calculate(normalizeChartCandles(stock.marketData)) || [])
+    .filter(reading => Number.isFinite(reading.value)).slice(-13);
+  if (readings.length < 2) return '';
+  const points = readings.map((reading, index) => {
+    const x = (index / (readings.length - 1)) * 110;
+    const boundedValue = Math.max(-100, Math.min(0, reading.value));
+    const y = 31 - ((boundedValue + 100) / 100) * 27;
     return `${x.toFixed(2)},${y.toFixed(2)}`;
   }).join(' ');
   const zoneClass = ['buy', 'hold', 'sell'].includes(williams?.zoneClass) ? williams.zoneClass : 'pending';
-  return `<svg class="overview-sparkline ${zoneClass}" viewBox="0 0 110 35" role="img" aria-label="${escapeHtml(stock.ticker)} 최근 ${closes.length}거래일 주가 추이, ${escapeHtml(williams?.status || '지표 계산 대기')}"><polyline points="${points}"></polyline></svg>`;
+  return `<svg class="overview-sparkline ${zoneClass}" viewBox="0 0 110 35" role="img" aria-label="${escapeHtml(stock.ticker)} 최근 ${readings.length}거래일 Williams %R 추이, 과매수 -20과 과매도 -80 기준선, ${escapeHtml(williams?.status || '지표 계산 대기')}"><line class="overview-sparkline-guide overbought" x1="0" x2="110" y1="9.4" y2="9.4" aria-hidden="true"></line><line class="overview-sparkline-guide oversold" x1="0" x2="110" y1="25.6" y2="25.6" aria-hidden="true"></line><polyline points="${points}"></polyline></svg>`;
 }
 
 function updateCompanySummary() {
@@ -864,21 +936,21 @@ function updateCompanySummary() {
     return;
   }
 
-  const directionClass = getChangeDirectionClass(stock.change);
-  const changeText = formatPriceChange(stock.change, stock.changePct);
+  const displayPrice = getStoredPricePresentation(stock);
+  const directionClass = displayPrice.directionClass;
   const summaryFields = {
     overviewTicker: stock.ticker,
     overviewCompanyName: stock.name,
-    overviewPrice: formatCurrency(stock.price),
-    overviewChange: changeText,
+    overviewPrice: displayPrice.price,
+    overviewChange: displayPrice.chartDetail,
     detailTicker: stock.ticker,
     detailCompanyName: stock.name,
-    detailPrice: formatCurrency(stock.price),
-    detailChange: formatPercent(stock.changePct),
+    detailPrice: displayPrice.price,
+    detailChange: displayPrice.detailDetail,
     chartTicker: stock.ticker,
     chartCompanyName: stock.name,
-    chartPrice: formatCurrency(stock.price),
-    chartChange: changeText
+    chartPrice: displayPrice.price,
+    chartChange: displayPrice.chartDetail
   };
 
   Object.entries(summaryFields).forEach(([id, value]) => {
@@ -911,13 +983,13 @@ function formatMetricValue(value, suffix = '') {
   return number === null ? '데이터 없음' : `${number.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
 }
 
-/** SEC 주당배당금은 0.001달러 단위도 있으므로 일반 재무 카드보다 정밀하게 표시한다. */
-function formatSecDividendAmount(value) {
+/** 주당 배당금은 0.001달러 단위도 있으므로 일반 재무 카드보다 정밀하게 표시한다. */
+function formatDividendAmount(value) {
   const amount = toNullableNumber(value);
   return amount === null ? '데이터 없음' : `$${amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}`;
 }
 
-/** 상세 모달의 재무·배당 카드는 D1 원본 집계값만 표시한다. */
+/** 상세 모달의 배당 값은 Alpha Vantage 저장·계산 결과만 표시한다. */
 function renderCompanyDetailData(company) {
   const financialContainer = document.getElementById('detailFinancialMetrics');
   const dividendContainer = document.getElementById('detailDividendMetrics');
@@ -939,42 +1011,72 @@ function renderCompanyDetailData(company) {
     ? `${financial.periodType === 'quarterly' ? '분기' : '연간'} ${financial.fiscalPeriodEnd} · ${financial.source} 저장값 · 미확보 지표/이력 범위는 5-3 수집 현황에서 확인`
     : '아직 저장된 재무 데이터가 없습니다.';
 
-  const dividend = company.dividendMetrics;
+  const savedDividend = company.dividendMetrics;
+  const dividend = savedDividend?.source === 'ALPHA_VANTAGE'
+    || savedDividend?.eventSource === 'ALPHA_VANTAGE' ? savedDividend : null;
   const yieldValue = toNullableNumber(dividend?.dividendYield);
-  const nextStatus = dividend?.nextDateStatus || 'unknown';
   const exStatus = dividend?.nextExDateStatus || 'unknown';
-  const paymentStatus = dividend?.nextPaymentDateStatus || 'unknown';
   const frequencyLabels = { 0: '비정기', 1: '연 1회', 2: '반기', 3: '연 3회', 4: '분기', 12: '월', 52: '주', 104: '주 2회' };
+  // 배당금 계산에는 Alpha만 쓰되, 구형 Worker가 전달한 Massive 원본도 이 두 카드에만 허용한다.
+  const massiveEvents = (Array.isArray(company.dividends) ? company.dividends : [])
+    .filter(event => event.source === 'MASSIVE' && event.exDividendDate)
+    .sort((left, right) => right.exDividendDate.localeCompare(left.exDividendDate));
+  const today = new Date().toISOString().slice(0, 10);
+  const lastPaidMassiveEvent = massiveEvents
+    .filter(event => event.paymentDate && event.paymentDate <= today)
+    .sort((left, right) => right.paymentDate.localeCompare(left.paymentDate))[0] || null;
+  const latestRegularMassiveEvent = massiveEvents.find(event => event.distributionType === 'recurring'
+    && toNullableNumber(event.frequency) > 0) || null;
+  const massiveFrequencyRecord = company.regularDividendFrequency?.source === 'MASSIVE'
+    ? company.regularDividendFrequency : latestRegularMassiveEvent;
+  const massiveFrequency = toNullableNumber(massiveFrequencyRecord?.frequency);
+  const regularFrequency = Number.isInteger(massiveFrequency) && massiveFrequency > 0
+    ? massiveFrequency : null;
+  const frequencyDetail = regularFrequency === null
+    ? 'Massive 정기 배당 빈도 미확보 · 저장 이력 확인 필요'
+    : `Massive 저장 정기 배당 · 최근 배당락일 ${massiveFrequencyRecord?.exDividendDate || '날짜 미확보'}`;
   const distributionLabels = { recurring: '정기', special: '특별', supplemental: '추가', irregular: '비정기', unknown: '미분류' };
+  const legacyMassiveMetrics = company.dividendMetrics?.eventSource === 'MASSIVE'
+    ? company.dividendMetrics : null;
+  const massiveTypeRecord = company.lastMassiveDividendType?.source === 'MASSIVE'
+    ? company.lastMassiveDividendType : lastPaidMassiveEvent;
+  const lastDistributionType = massiveTypeRecord?.distributionType
+    || legacyMassiveMetrics?.lastDistributionType;
+  const distributionDetail = lastDistributionType
+    ? `Massive 저장 배당 · 최근 배당락일 ${massiveTypeRecord?.exDividendDate || '날짜 미확보'}`
+    : 'Massive 배당 종류 미확보 · 저장 이력 확인 필요';
+  const formatGrowthRate = value => {
+    const number = toNullableNumber(value);
+    return number === null ? '미확보' : `${number.toFixed(2)}%`;
+  };
+  const sourceLabel = 'Alpha Vantage';
+  const growthSummary = `1년 ${formatGrowthRate(dividend?.dividendGrowth1y)} · 5년 ${formatGrowthRate(dividend?.dividendGrowthCagr5y)} · 10년 ${formatGrowthRate(dividend?.dividendGrowthCagr10y)}`;
+  // 배당 빈도와 종류를 맨 앞에 두고, 요청한 세 지표는 화면에서만 숨긴다.
   const dividendEntries = [
+    ['정기 배당 빈도', regularFrequency === null ? '미확보'
+      : frequencyLabels[regularFrequency] || `연 ${regularFrequency}회`, frequencyDetail],
+    ['마지막 배당 종류', distributionLabels[lastDistributionType] || '미확보', distributionDetail],
     ['최근 실제 지급 1년 배당수익률', yieldValue === null ? '미확보' : `${yieldValue.toFixed(2)}%`,
-      yieldValue === null ? 'Massive 지급 이벤트 또는 저장 가격 미확보' : `Massive 실제 지급 ${dividend.trailingPayoutCount}회 합계 ÷ ${dividend.yieldPriceSource || '저장 가격'} · 특별배당 포함`, yieldValue === null ? 'unknown' : 'confirmed'],
-    ['최근 1년 실제 지급액', formatSecDividendAmount(dividend?.annualDividend), 'Massive 지급일 기준 · 분할 조정액 우선'],
-    ['최근 3개월 실제 지급액', formatSecDividendAmount(dividend?.quarterlyDividend), 'Massive 지급일 기준 · 분할 조정액 우선'],
-    ['SEC 최근 연간 주당배당금', formatSecDividendAmount(dividend?.secAnnualDividend), dividend?.annualPeriodEnd || '기간 미확보'],
-    ['SEC 최근 분기 주당배당금', formatSecDividendAmount(dividend?.secQuarterlyDividend), dividend?.quarterlyPeriodEnd || '기간 미확보'],
-    ['마지막 실제 지급 배당금', formatSecDividendAmount(dividend?.lastPaidAmount),
-      dividend?.lastPaymentDate ? `${dividend.lastPaymentDate} · 당시 주당 지급액` : 'Massive 지급 이벤트 미확보', dividend?.lastPaidAmount == null ? 'unknown' : 'confirmed'],
-    ['마지막 배당 종류', distributionLabels[dividend?.lastDistributionType] || '미확보', 'Massive distribution_type'],
-    ['정기 배당 빈도', frequencyLabels[dividend?.frequency] || (dividend?.frequency == null ? '미확보' : `연 ${dividend.frequency}회`), 'Massive frequency'],
-    ['마지막 배당 선언일', dividend?.lastDeclarationDate || '미확보', 'Massive declaration_date'],
-    ['마지막 배당 기록일', dividend?.lastRecordDate || '미확보', 'Massive record_date'],
-    ['다음 배당 선언일', dividend?.nextDeclarationDate || '미확보', 'Massive 발표 기록'],
-    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년 · SEC 공시 기준'],
-    ['10년 배당 성장률', dividend?.dividendGrowthCagr10y, '% · SEC 공시 기준'],
+      yieldValue === null ? `${sourceLabel} 지급 이벤트 또는 저장 가격 미확보` : `${sourceLabel} 실제 지급 ${dividend.trailingPayoutCount}회 합계 ÷ ${dividend.yieldPriceSource || '저장 가격'} · 전체 배당 포함`, yieldValue === null ? 'unknown' : 'confirmed'],
+    ['최근 1년 실제 지급액', formatDividendAmount(dividend?.annualDividend), `${sourceLabel} 지급일 기준 · 분할 조정액 우선`],
+    ['마지막 실제 지급 배당금', formatDividendAmount(dividend?.lastPaidAmount),
+      dividend?.lastPaymentDate ? `${dividend.lastPaymentDate} · 당시 주당 지급액` : `${sourceLabel} 지급 이벤트 미확보`, dividend?.lastPaidAmount == null ? 'unknown' : 'confirmed'],
+    ['다음 배당 선언일', dividend?.nextDeclarationDate || '미확보', `${sourceLabel} 발표 기록`],
+    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년 · Alpha Vantage 기준'],
+    ['배당 성장률', growthSummary, 'Alpha Vantage 완료 연도별 분할 조정 주당배당금 · 1년 전년 대비, 5·10년 CAGR'],
     ['다음 배당락일', dividend?.nextExDividendDate || '미확보',
-      dividend?.nextExDividendDate ? `${dividend.nextDateSource || 'Massive 일정'} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}` : 'Massive 미래 일정 미확보', exStatus],
-    ['다음 배당 지급일', dividend?.nextPaymentDate || '미확보',
-      dividend?.nextPaymentDate ? `Massive 일정 · ${formatWeekdayCountdown(dividend.nextPaymentDate)}` : '지급일 공시 미확보', paymentStatus],
-    ['날짜 상태', nextStatus === 'confirmed' ? '확정' : nextStatus === 'estimated' ? '미확정' : '미확보',
-      nextStatus === 'confirmed' ? '공시일 확인' : '확정 공시 없음', nextStatus]
+      dividend?.nextExDividendDate
+        ? `${exStatus === 'confirmed' ? '확정' : exStatus === 'estimated' ? '추정' : '상태 미확보'} · ${dividend.nextDateSource || `${sourceLabel} 일정`} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}`
+        : `${sourceLabel} 미래 일정 미확보`, exStatus]
   ];
   dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix, status]) => {
     const displayValue = typeof value === 'string' ? value : formatMetricValue(value, suffix);
     const detail = suffix && typeof value === 'string' ? `<small>${escapeHtml(suffix)}</small>` : '';
     return `<div class="company-metric${status ? ` dividend-date ${status}` : ''}"><span>${label}</span><strong>${escapeHtml(displayValue)}</strong>${detail}</div>`;
   }).join('');
-  document.getElementById('detailDividendSource').textContent = `성장 통계: SEC EDGAR · 실제 지급액·빈도·종류·날짜: Massive 이벤트${dividend?.eventCount ? ` ${dividend.eventCount}개` : ' 미확보'}. Massive 무료 요금제는 최근 2년까지만 제공합니다. SEC 성장 통계는 주식분할 조정 여부를 별도 확인해야 합니다.`;
+  document.getElementById('detailDividendSource').textContent = dividend?.source === 'ALPHA_VANTAGE'
+    ? `정기 배당 빈도·마지막 배당 종류: Massive 저장값${regularFrequency === null || !lastDistributionType ? ' 일부 미확보' : ''}. 배당 이력·날짜·성장률: Alpha Vantage ${dividend?.eventCount ?? 0}건. 1·5·10년 성장률은 완료된 역년의 배당락일 기준 총액으로 계산합니다. 과거 지급액은 주식분할을 조정합니다.${dividend?.skippedZeroCount ? ` 공급원 0원 기록 ${dividend.skippedZeroCount}건은 합계에서 제외했습니다.` : ''}`
+    : '정기 배당 빈도·마지막 배당 종류는 Massive 저장값이며, Alpha Vantage 배당 이력은 아직 저장하지 못했습니다. 5-3 저장 상태를 확인해 주세요.';
 }
 
 /**
@@ -1199,6 +1301,7 @@ function renderPortfolioToTarget(tbodyId, totalValId, totalValKrwId, totalPnlId,
     // 현재가는 반드시 D1에 저장된 값만 사용한다. 값이 없을 때 임의 수익률을 적용하면
     // 포트폴리오 손익이 실제처럼 오해될 수 있으므로, 해당 보유분은 평가 대기로 남긴다.
     const currentPrice = toNullableNumber(stock?.price);
+    const displayPrice = getStoredPricePresentation(stock);
 
     const buyVal = holding.qty * holding.buyPrice;
     const curVal = currentPrice === null ? null : holding.qty * currentPrice;
@@ -1218,7 +1321,7 @@ function renderPortfolioToTarget(tbodyId, totalValId, totalValKrwId, totalPnlId,
       <td><strong>${escapeHtml(holding.ticker)}</strong></td>
       <td>${holding.qty}주</td>
       <td>${formatUsdValue(holding.buyPrice)}</td>
-      <td>${formatCurrency(currentPrice)}</td>
+      <td>${displayPrice.price}${displayPrice.isStoredClose ? `<br><small class="saved-close-label">${escapeHtml(displayPrice.sourceLabel)}</small>` : ''}</td>
       <td class="${directionClass}">
         <strong>${pnl === null ? '현재가 저장 대기' : formatPriceChange(pnl, pnlPct)}</strong>
         ${pnl === null ? '<br><small>저장된 현재가가 도착하면 계산합니다.</small>' : ''}
@@ -1448,6 +1551,7 @@ function setupModals() {
   document.getElementById('currencyToggleBtn').addEventListener('click', () => {
     state.isKrwView = !state.isKrwView;
     renderWatchlist();
+    renderCompanyOverview();
     renderPortfolio();
     loadStockChart(state.selectedTicker);
   });
@@ -1600,7 +1704,8 @@ function initDashboard() {
   renderWatchlist();
   renderPortfolio();
   showDashboardView('overview');
-  void synchronizeWatchlistWithCloudflare();
+  // 첫 저장 데이터 로딩 뒤에 수집 상태 감시를 시작해 PIN 진입 속도를 유지한다.
+  void synchronizeWatchlistWithCloudflare().finally(() => window.FundamentalProgress?.start());
 }
 
 // DOM 준비 완료 시 구동

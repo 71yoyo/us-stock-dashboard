@@ -1,4 +1,4 @@
-/** SEC 장기 성장 통계와 Massive 지급 이벤트를 항목별로 결합한다. */
+/** Alpha Vantage 배당 이력과 저장 주가만 결합한다. 미수집 종목은 미확보로 둔다. */
 function validAmount(value) {
   if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
@@ -31,6 +31,21 @@ function daysBetween(left, right) {
   return (Date.parse(`${right}T00:00:00Z`) - Date.parse(`${left}T00:00:00Z`)) / 86_400_000;
 }
 
+/** Alpha Vantage는 지급 빈도를 제공하지 않으므로 최근 배당락일 간격의 중앙값만 추정치로 사용한다. */
+function inferredFrequency(events) {
+  const dates = [...new Set(events.map(row => row.exDividendDate))].sort().slice(-7);
+  if (dates.length < 3) return null;
+  const gaps = dates.slice(1).map((date, index) => daysBetween(dates[index], date))
+    .filter(gap => gap > 0 && gap < 500).sort((left, right) => left - right);
+  const median = gaps[Math.floor(gaps.length / 2)];
+  if (median >= 5 && median <= 10) return 52;
+  if (median >= 20 && median <= 40) return 12;
+  if (median >= 65 && median <= 115) return 4;
+  if (median >= 150 && median <= 215) return 2;
+  if (median >= 315 && median <= 405) return 1;
+  return null;
+}
+
 /** 다음 일정이 없을 때만 전월(월배당) 또는 전년 같은 시기 이벤트로 보수적으로 예측한다. */
 function estimateNextExDate(pastEvents, today) {
   const dates = [...new Set(pastEvents.map(row => row.exDividendDate))].sort();
@@ -58,10 +73,12 @@ function estimateNextExDate(pastEvents, today) {
   return candidates[0] || null;
 }
 
-export function combineDividendData(secMetrics, rawEvents, currentPrice,
+export function combineDividendData(sourceMetrics, rawEvents, currentPrice,
   today = new Date().toISOString().slice(0, 10), yieldPriceSource = '저장 현재가') {
+  // 과거 공급원의 요약이 우연히 전달되더라도 성장률과 지급액에 섞이지 않게 한다.
+  const alphaMetrics = sourceMetrics?.source === 'ALPHA_VANTAGE' ? sourceMetrics : null;
   const events = (Array.isArray(rawEvents) ? rawEvents : [])
-    .filter(row => row.source === 'MASSIVE')
+    .filter(row => row.source === 'ALPHA_VANTAGE')
     .map(row => ({ ...row, amount: validAmount(row.amount), exDividendDate: validDate(row.exDividendDate),
       adjustedAmount: validAmount(row.adjustedAmount), paymentDate: validDate(row.paymentDate),
       declarationDate: validDate(row.declarationDate), recordDate: validDate(row.recordDate),
@@ -69,6 +86,9 @@ export function combineDividendData(secMetrics, rawEvents, currentPrice,
         && Number.isInteger(Number(row.frequency)) ? Number(row.frequency) : null }))
     .filter(row => row.amount !== null && row.exDividendDate)
     .sort((left, right) => left.exDividendDate.localeCompare(right.exDividendDate));
+  const eventSource = events[0]?.source || null;
+  const frequency = inferredFrequency(events);
+  for (const event of events) if (event.frequency == null) event.frequency = frequency;
   const paid = events.filter(row => row.paymentDate && row.paymentDate <= today)
     .sort((left, right) => left.paymentDate.localeCompare(right.paymentDate));
   const lastPaid = paid.at(-1) || null;
@@ -85,8 +105,8 @@ export function combineDividendData(secMetrics, rawEvents, currentPrice,
   const dividendYield = trailingPaidAmount !== null && price !== null
     ? trailingPaidAmount / price * 100 : null;
   const upcoming = events.find(row => row.exDividendDate >= today) || null;
-  const recurringPast = events.filter(row => row.exDividendDate < today
-    && !['special', 'supplemental', 'irregular'].includes(row.distributionType));
+  // 이 API에는 배당 종류 구분이 없으므로 모든 과거 배당락일을 추정 입력으로 사용한다.
+  const recurringPast = events.filter(row => row.exDividendDate < today);
   const estimatedDate = upcoming ? null : estimateNextExDate(recurringPast, today);
   // 공급원에 미래 날짜가 있더라도 선언일이 확인되지 않으면 확정 공시로 표시하지 않는다.
   const confirmed = upcoming && upcoming.declarationDate && upcoming.declarationDate <= today;
@@ -98,11 +118,11 @@ export function combineDividendData(secMetrics, rawEvents, currentPrice,
     ? (futurePayment.declarationDate && futurePayment.declarationDate <= today ? 'confirmed' : 'estimated')
     : 'unknown';
   return {
-    ...(secMetrics || {}),
-    dividendGrowthYears: secMetrics?.dividendGrowthYears ?? null,
-    dividendGrowthCagr10y: secMetrics?.dividendGrowthCagr10y ?? null,
-    secAnnualDividend: secMetrics?.annualDividend ?? null,
-    secQuarterlyDividend: secMetrics?.quarterlyDividend ?? null,
+    ...(alphaMetrics || {}),
+    dividendGrowthYears: alphaMetrics?.dividendGrowthYears ?? null,
+    dividendGrowth1y: alphaMetrics?.dividendGrowth1y ?? null,
+    dividendGrowthCagr5y: alphaMetrics?.dividendGrowthCagr5y ?? null,
+    dividendGrowthCagr10y: alphaMetrics?.dividendGrowthCagr10y ?? null,
     annualDividend: trailingPaidAmount,
     quarterlyDividend: trailingQuarterAmount,
     dividendYield,
@@ -114,19 +134,21 @@ export function combineDividendData(secMetrics, rawEvents, currentPrice,
     lastPaymentDate: lastPaid?.paymentDate ?? null,
     lastRecordDate: lastPaid?.recordDate ?? null,
     lastDeclarationDate: lastPaid?.declarationDate ?? null,
-    lastDistributionType: lastPaid?.distributionType || null,
-    frequency: events.filter(row => row.distributionType === 'recurring').at(-1)?.frequency
-      ?? lastPaid?.frequency ?? events.at(-1)?.frequency ?? null,
-    specialPayoutCount: payouts.filter(row => row.distributionType === 'special').length,
+    lastDistributionType: null,
+    frequency,
+    frequencySource: events.length ? '배당락일 간격 추정' : null,
+    specialPayoutCount: null,
     nextExDividendDate: upcoming?.exDividendDate || estimatedDate || null,
     nextPaymentDate: futurePayment?.paymentDate || null,
-    nextDeclarationDate: upcoming?.declarationDate || futurePayment?.declarationDate || null,
+    // 이미 배당락일이 지난 건의 선언일을 '다음' 선언일로 다시 표시하지 않는다.
+    nextDeclarationDate: upcoming?.declarationDate || null,
     nextExDateStatus,
     nextPaymentDateStatus,
     nextDateStatus: futurePayment ? nextPaymentDateStatus : nextExDateStatus,
-    nextDateSource: upcoming ? 'Massive 일정' : estimatedDate ? 'Massive 과거 이벤트 추정' : null,
-    eventSource: events.length ? 'MASSIVE' : null,
-    eventCount: events.length,
-    yieldSource: dividendYield === null ? null : 'Massive 지급 이벤트 + 저장 현재가'
+    nextDateSource: upcoming ? 'Alpha Vantage 발표 일정'
+      : estimatedDate ? 'Alpha Vantage 과거 이력 추정' : null,
+    eventSource,
+    eventCount: alphaMetrics?.eventCount ?? events.length,
+    yieldSource: dividendYield === null ? null : 'Alpha Vantage 지급 이벤트 + 저장 현재가'
   };
 }

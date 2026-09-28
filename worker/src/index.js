@@ -1,8 +1,9 @@
 import { syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
-import { runFundamentalBatch, fundamentalStatus, fundamentalDetails,
-  summarizeSecDividendPeriods, recalculateSecDividendMetrics } from './fundamental-sync.js';
+import { syncGroupedCandlesFromMassive } from './massive-sync.js';
+import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
 import { readWilliamsSignals } from './williams-store.js';
 import { combineDividendData } from './dividend-view.js';
+import { completedUsSessionDate, isUsSessionCompleteToday } from './us-market-session.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -133,9 +134,6 @@ async function getDashboardSummary(environment) {
 
   const tickers = watchlist.map(item => item.ticker);
   const placeholders = tickers.map(() => '?').join(', ');
-  // 아직 전용 수집을 시작하지 않은 DB에서는 배당 테이블 자체가 없을 수 있다. 로그인마다 CREATE를 반복하지 않는다.
-  const hasDividendHistory = await environment.DB.prepare(`SELECT 1 FROM sqlite_master
-    WHERE type = 'table' AND name = 'dividend_periods'`).first();
   const queries = [environment.DB.prepare(`
       SELECT ticker, candle_date AS candleDate, open_price AS open, high_price AS high,
       low_price AS low, close_price AS close, adjusted_close AS adjustedClose, volume, source
@@ -144,25 +142,19 @@ async function getDashboardSummary(environment) {
         AND candle_date >= date('now', '-120 days')
       ORDER BY ticker ASC, candle_date ASC
     `).bind(...tickers)];
-  if (hasDividendHistory) queries.push(environment.DB.prepare(`
-      WITH latest AS (
-        SELECT ticker, period_type AS periodType, period_end AS periodEnd, amount,
-          ROW_NUMBER() OVER (PARTITION BY ticker, period_type ORDER BY period_end DESC) AS rank
-        FROM dividend_periods WHERE ticker IN (${placeholders}) AND source = 'SEC EDGAR'
-      )
-      SELECT ticker, periodType, periodEnd, amount FROM latest WHERE rank = 1
-    `).bind(...tickers));
+  queries.push(environment.DB.prepare(`SELECT ticker, status, event_count AS eventCount, metrics_json AS metricsJson
+    FROM alpha_dividend_sync WHERE ticker IN (${placeholders}) AND status='ready'`).bind(...tickers));
   queries.push(environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
-    ex_dividend_date AS exDividendDate, payment_date AS paymentDate, amount,
-    split_adjusted_amount AS adjustedAmount, distribution_type AS distributionType, frequency,
-    'MASSIVE' AS source
-    FROM massive_dividend_events WHERE ticker IN (${placeholders})
-      AND (payment_date >= date('now', '-13 months') OR ex_dividend_date >= date('now'))
+    ex_dividend_date AS exDividendDate, record_date AS recordDate,
+    payment_date AS paymentDate, amount, split_adjusted_amount AS adjustedAmount,
+    'ALPHA_VANTAGE' AS source FROM alpha_dividend_events
+    WHERE ticker IN (${placeholders})
+      AND (payment_date >= date('now', '-13 months') OR ex_dividend_date >= date('now', '-36 months'))
     ORDER BY ticker, ex_dividend_date`).bind(...tickers));
   const results = await environment.DB.batch(queries);
   const candleResult = results[0];
-  const dividendResult = hasDividendHistory ? results[1] : { results: [] };
-  const eventResult = results[hasDividendHistory ? 2 : 1];
+  const alphaStateResult = results[1];
+  const alphaEventResult = results[2];
 
   const candlesByTicker = new Map();
   for (const candle of candleResult.results) {
@@ -170,26 +162,16 @@ async function getDashboardSummary(environment) {
     candles.push(candle);
     candlesByTicker.set(candle.ticker, candles);
   }
-  const dividendsByTicker = new Map();
-  for (const period of dividendResult.results) {
-    const metrics = dividendsByTicker.get(period.ticker) || {
-      source: 'SEC EDGAR', annualDividend: null, quarterlyDividend: null,
-      dividendYield: null, nextExDividendDate: null, nextDateStatus: 'unknown'
-    };
-    if (period.periodType === 'annual') {
-      metrics.annualDividend = period.amount;
-      metrics.annualPeriodEnd = period.periodEnd;
-    } else {
-      metrics.quarterlyDividend = period.amount;
-      metrics.quarterlyPeriodEnd = period.periodEnd;
-    }
-    dividendsByTicker.set(period.ticker, metrics);
-  }
-  const eventsByTicker = new Map();
-  for (const event of eventResult.results) {
-    const events = eventsByTicker.get(event.ticker) || [];
+  const alphaByTicker = new Map(alphaStateResult.results.map(row => {
+    let metrics = {};
+    try { metrics = JSON.parse(row.metricsJson || '{}'); } catch { /* 손상된 요약은 비워 두고 원본 이벤트를 보존한다. */ }
+    return [row.ticker, { ...metrics, source: 'ALPHA_VANTAGE', eventCount: row.eventCount }];
+  }));
+  const alphaEventsByTicker = new Map();
+  for (const event of alphaEventResult.results) {
+    const events = alphaEventsByTicker.get(event.ticker) || [];
     events.push(event);
-    eventsByTicker.set(event.ticker, events);
+    alphaEventsByTicker.set(event.ticker, events);
   }
   const signalsByTicker = await readWilliamsSignals(environment, tickers);
 
@@ -209,8 +191,10 @@ async function getDashboardSummary(environment) {
       changePercent: stock.changePct,
       candles,
       technicalSignal: signalsByTicker.get(stock.ticker) || null,
-      dividendMetrics: combineDividendData(dividendsByTicker.get(stock.ticker),
-        eventsByTicker.get(stock.ticker), reference.price, undefined, reference.source)
+      // Alpha 적재 전에는 오래된 SEC·Massive 배당을 대신 보여주지 않는다.
+      dividendMetrics: combineDividendData(alphaByTicker.get(stock.ticker),
+        alphaEventsByTicker.get(stock.ticker),
+        reference.price, undefined, reference.source)
       };
     })
   };
@@ -269,7 +253,8 @@ async function getCompany(environment, ticker) {
     return null;
   }
 
-  const [financials, candles, dividendEvents] = await environment.DB.batch([
+  const [financials, candles, alphaState, alphaEvents, massiveRegularFrequency,
+    latestMassiveDividendType] = await environment.DB.batch([
     environment.DB.prepare(`
       SELECT period_type AS periodType, fiscal_period_end AS fiscalPeriodEnd, reported_date AS reportedDate,
         revenue, operating_income AS operatingIncome, net_income AS netIncome, eps,
@@ -284,24 +269,57 @@ async function getCompany(environment, ticker) {
       FROM price_candles WHERE ticker = ?
       ORDER BY candle_date DESC LIMIT 260
     `).bind(ticker),
+    environment.DB.prepare(`SELECT event_count AS eventCount, metrics_json AS metricsJson
+      FROM alpha_dividend_sync WHERE ticker=? AND status='ready'`).bind(ticker),
     environment.DB.prepare(`SELECT ticker, declaration_date AS declarationDate,
       ex_dividend_date AS exDividendDate, record_date AS recordDate,
       payment_date AS paymentDate, amount, split_adjusted_amount AS adjustedAmount,
-      distribution_type AS distributionType, frequency, 'MASSIVE' AS source
-      FROM massive_dividend_events WHERE ticker=? ORDER BY ex_dividend_date DESC LIMIT 5000`).bind(ticker)
+      'ALPHA_VANTAGE' AS source FROM alpha_dividend_events
+      WHERE ticker=? AND (payment_date >= date('now', '-13 months')
+        OR ex_dividend_date >= date('now', '-36 months'))
+      ORDER BY ex_dividend_date DESC`).bind(ticker),
+    // 정기 배당 빈도만 Massive의 최근 정기 이벤트에서 읽는다. 특별·비정기 이벤트는 제외한다.
+    environment.DB.prepare(`SELECT frequency, ex_dividend_date AS exDividendDate,
+      source_updated_at AS storedAt FROM massive_dividend_events
+      WHERE ticker=? AND distribution_type='recurring' AND frequency > 0
+      ORDER BY ex_dividend_date DESC, source_updated_at DESC LIMIT 1`).bind(ticker),
+    // 마지막 배당 종류는 정기 빈도와 별개로 실제 지급된 가장 최근 이벤트에서 읽는다.
+    environment.DB.prepare(`SELECT distribution_type AS distributionType,
+      ex_dividend_date AS exDividendDate, payment_date AS paymentDate,
+      source_updated_at AS storedAt FROM massive_dividend_events
+      WHERE ticker=? AND distribution_type IS NOT NULL
+        AND payment_date IS NOT NULL AND payment_date <= date('now')
+      ORDER BY payment_date DESC, ex_dividend_date DESC LIMIT 1`).bind(ticker)
   ]);
 
   const extra = await fundamentalDetails(environment, ticker);
   const storedSignals = await readWilliamsSignals(environment, [ticker]);
   const reference = dividendReferencePrice(company.currentPrice, candles.results[0],
     company.quoteUpdatedAt || company.quoteCachedAt);
+  let alphaMetrics = null;
+  if (alphaState.results[0]) {
+    try { alphaMetrics = { ...JSON.parse(alphaState.results[0].metricsJson || '{}'),
+      source: 'ALPHA_VANTAGE', eventCount: alphaState.results[0].eventCount }; }
+    catch { alphaMetrics = { source: 'ALPHA_VANTAGE', eventCount: alphaState.results[0].eventCount }; }
+  }
   return {
     ...company,
     ...extra,
-    // 장기 성장 통계는 SEC, 개별 지급일·다음 일정과 수익률은 Massive 이벤트로 계산한다.
-    dividends: dividendEvents.results,
-    dividendMetrics: combineDividendData(summarizeSecDividendPeriods(extra.dividendHistory),
-      dividendEvents.results, reference.price, undefined, reference.source),
+    // 배당금·날짜·성장률은 Alpha만 사용하고, 빈도·종류 두 항목만 Massive 원본에서 분리해 전달한다.
+    dividends: alphaEvents.results,
+    dividendMetrics: combineDividendData(alphaMetrics,
+      alphaEvents.results, reference.price, undefined, reference.source),
+    regularDividendFrequency: massiveRegularFrequency.results[0]
+      ? { frequency: Number(massiveRegularFrequency.results[0].frequency),
+        exDividendDate: massiveRegularFrequency.results[0].exDividendDate,
+        storedAt: massiveRegularFrequency.results[0].storedAt, source: 'MASSIVE' }
+      : null,
+    lastMassiveDividendType: latestMassiveDividendType.results[0]
+      ? { distributionType: latestMassiveDividendType.results[0].distributionType,
+        exDividendDate: latestMassiveDividendType.results[0].exDividendDate,
+        paymentDate: latestMassiveDividendType.results[0].paymentDate,
+        storedAt: latestMassiveDividendType.results[0].storedAt, source: 'MASSIVE' }
+      : null,
     financials: financials.results,
     technicalSignal: storedSignals.get(ticker) || null,
     candles: candles.results.reverse()
@@ -310,8 +328,7 @@ async function getCompany(environment, ticker) {
 
 const syncIntervalsInMinutes = {
   price: 30,
-  candles: 24 * 60,
-  dividends: 24 * 60
+  candles: 24 * 60
 };
 
 function isSyncDue(syncState, intervalMinutes) {
@@ -331,21 +348,21 @@ async function findNextSyncJob(environment) {
       .bind(getWatchlistUserId()),
     environment.DB.prepare(`SELECT ticker, data_type AS dataType, last_success_at AS lastSuccessAt,
       last_attempt_at AS lastAttemptAt, next_retry_at AS nextRetryAt
-      FROM data_sync_state WHERE data_type IN ('price', 'candles', 'dividends')`)
+      FROM data_sync_state WHERE data_type IN ('price', 'candles')`)
   ]);
   const stateByKey = new Map(statesResult.results.map(state => [`${state.ticker}:${state.dataType}`, state]));
   const jobs = [];
   for (const { ticker } of watchlistResult.results) {
     for (const [dataType, intervalMinutes] of Object.entries(syncIntervalsInMinutes)) {
+      if (dataType === 'price' && !environment.MARKET_DATA_API_KEY) continue;
       const state = stateByKey.get(`${ticker}:${dataType}`);
       if (isSyncDue(state, intervalMinutes)) {
-        // 최초 적재 때는 모든 종목의 현재가를 먼저 채워 목록이 비어 보이지 않게 한다.
-        // 일봉은 그 다음 순서로 저장해 API 호출을 한 작업씩 유지한다.
+        // 신규 종목은 분석에 필요한 3개월 일봉을 먼저 채운다. 기존 현재가 표시 방식은 바꾸지 않는다.
         jobs.push({
           ticker,
           dataType,
           lastAttemptAt: state?.lastAttemptAt || '1970-01-01T00:00:00.000Z',
-          priority: dataType === 'price' ? 0 : dataType === 'candles' ? 1 : 2
+          priority: dataType === 'candles' ? 0 : dataType === 'price' ? 1 : 2
         });
       }
     }
@@ -355,13 +372,82 @@ async function findNextSyncJob(environment) {
   return jobs[0] || null;
 }
 
+/** 장중 수집을 당일 완료로 보지 않고, 미 동부 정규장 종료 후 빠진 일봉을 한 종목씩 확인한다. */
+export async function findNextPostCloseCandleJob(environment, now = new Date()) {
+  const sessionDate = completedUsSessionDate(now);
+  if (!sessionDate) return null;
+  const result = await environment.DB.prepare(`SELECT w.ticker,
+    (SELECT MAX(candle_date) FROM price_candles WHERE ticker=w.ticker) AS latestCandleDate,
+    s.last_attempt_at AS lastAttemptAt,
+    s.next_retry_at AS nextRetryAt
+    FROM user_watchlist w
+    LEFT JOIN data_sync_state s ON s.ticker = w.ticker AND s.data_type = 'candles'
+    WHERE w.user_id = ?
+    ORDER BY COALESCE(s.last_attempt_at, '1970-01-01T00:00:00.000Z'), w.display_order`)
+    .bind(getWatchlistUserId()).all();
+  // 요청 성공 시각이 아니라 실제 일봉 날짜로 판단해야 이전 거래일을 재수집한 성공도 놓치지 않는다.
+  return result.results.find(row => (!row.latestCandleDate || row.latestCandleDate < sessionDate)
+    && (!row.nextRetryAt || new Date(row.nextRetryAt).getTime() <= now.getTime())) || null;
+}
+
+/** 무료 Massive 전체 시장 일봉은 날짜당 한 번만 받고, 누락 종목은 개별 요청으로 보완한다. */
+export async function synchronizePostCloseCandles(environment, now = new Date()) {
+  const marketDate = completedUsSessionDate(now);
+  if (!marketDate) return;
+  const eligible = await environment.DB.prepare(`SELECT w.ticker FROM user_watchlist w
+    JOIN data_sync_state s ON s.ticker=w.ticker AND s.data_type='candles'
+    JOIN massive_candle_backfills b ON b.ticker=w.ticker
+    WHERE w.user_id=? AND s.last_success_at IS NOT NULL ORDER BY w.display_order`)
+    .bind(getWatchlistUserId()).all();
+  let groupedReady = eligible.results.length === 0;
+  if (eligible.results.length && environment.MASSIVE_API_KEY) {
+    const nowIso = now.toISOString();
+    const leaseUntil = new Date(now.getTime() + 15 * 60_000).toISOString();
+    const claim = await environment.DB.prepare(`INSERT INTO massive_daily_market_sync
+      (market_date, status, last_attempt_at, lease_until) VALUES (?, 'running', ?, ?)
+      ON CONFLICT(market_date) DO UPDATE SET status='running', last_attempt_at=excluded.last_attempt_at,
+        lease_until=excluded.lease_until
+      WHERE massive_daily_market_sync.status!='success'
+        AND (massive_daily_market_sync.lease_until IS NULL OR massive_daily_market_sync.lease_until<?)
+      RETURNING market_date`).bind(marketDate, nowIso, leaseUntil, nowIso).first();
+    if (claim) {
+      try {
+        const result = await syncGroupedCandlesFromMassive(environment, marketDate,
+          eligible.results.map(row => row.ticker));
+        await environment.DB.prepare(`UPDATE massive_daily_market_sync SET status='success',
+          completed_at=?, lease_until=NULL, last_error=NULL WHERE market_date=?`)
+          .bind(new Date().toISOString(), marketDate).run();
+        await environment.DB.prepare(`INSERT INTO sync_runs (data_type, status, message, completed_at)
+          VALUES ('grouped_candles', 'success', ?, CURRENT_TIMESTAMP)`)
+          .bind(JSON.stringify({ marketDate, count: result.count, missing: result.missing })).run();
+        groupedReady = true;
+      } catch (error) {
+        await environment.DB.prepare(`UPDATE massive_daily_market_sync SET status='retry',
+          lease_until=?, last_error=? WHERE market_date=?`)
+          .bind(new Date(Date.now() + 15 * 60_000).toISOString(), String(error).slice(0, 500), marketDate).run();
+      }
+    } else {
+      const state = await environment.DB.prepare(`SELECT status FROM massive_daily_market_sync
+        WHERE market_date=?`).bind(marketDate).first();
+      groupedReady = state?.status === 'success';
+    }
+  }
+  if (!groupedReady) return;
+  const job = await findNextPostCloseCandleJob(environment, now);
+  if (!job) return;
+  const result = await syncTickerDataType(environment, job.ticker, 'candles', { minimumCandleDate: marketDate });
+  await environment.DB.prepare(`INSERT INTO sync_runs (data_type, ticker, status, message, completed_at)
+    VALUES ('post_close_candles', ?, ?, ?, CURRENT_TIMESTAMP)`)
+    .bind(job.ticker, result.candles === 'ok' ? 'success' : 'partial', JSON.stringify(result)).run();
+}
+
 /**
  * Cron 한 번에는 한 종목의 한 데이터 종류만 갱신한다.
  * 장기 이력은 여러 번에 나누어 D1에 채우고, 이미 정상 저장된 값은 유지한다.
  */
 async function synchronizeMarketData(environment) {
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
-  if (provider !== 'FMP' || !environment.MARKET_DATA_API_KEY) {
+  if (!['FMP', 'MASSIVE'].includes(provider) || (!environment.MARKET_DATA_API_KEY && !environment.MASSIVE_API_KEY)) {
     await environment.DB.prepare(`INSERT INTO sync_runs (data_type, status, message, completed_at)
       VALUES ('scheduled_market_sync', 'skipped', '금융 API 공급자 또는 Secret이 설정되지 않아 동기화를 건너뜀', CURRENT_TIMESTAMP)`).run();
     return;
@@ -395,11 +481,12 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-23-fmp-massive-sec-hybrid-1',
+        buildVersion: '2026-09-29-market-candle-refresh-local-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY),
-        massiveConfigured: Boolean(environment.MASSIVE_API_KEY)
+        massiveConfigured: Boolean(environment.MASSIVE_API_KEY),
+        alphaVantageConfigured: Boolean(environment.ALPHA_VANTAGE_API_KEY)
       });
     }
 
@@ -468,20 +555,6 @@ export default {
       }
     }
 
-    if (url.pathname === '/api/dividends/recalculate') {
-      if (request.method !== 'POST') return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
-      if (!isPinAuthorized(request, environment)) return jsonResponse(environment, 401, { error: 'PIN 인증이 필요합니다.' });
-      try {
-        const watchlist = await listWatchlist(environment);
-        // D1 저장값만 읽는 작업이므로 순차 처리해도 외부 API 호출·속도 제한이 발생하지 않는다.
-        const results = [];
-        for (const stock of watchlist) results.push(await recalculateSecDividendMetrics(environment, stock.ticker));
-        return jsonResponse(environment, 200, { results });
-      } catch (error) {
-        return jsonResponse(environment, 502, { error: `저장 배당수익률을 다시 계산하지 못했습니다: ${error.message}` });
-      }
-    }
-
     if (url.pathname === '/api/sync') {
       if (request.method !== 'POST') {
         return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
@@ -504,10 +577,10 @@ export default {
       }
 
       try {
-        // 신규 종목은 회사 정보·현재가·3개월 일봉·Massive 배당 이벤트를 각각 저장한다.
+        // 신규 종목은 회사 정보·현재가·3개월 일봉을 저장하고 배당은 별도 Alpha Vantage 큐에서 처리한다.
         // 회사 테이블이 없는 상태에서 시세를 먼저 쓰면 외래 키 오류가 나므로 같은 순서로 묶는다.
-        const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles', 'dividends']);
-        // SEC 재무·10년 배당 통계는 장기 공시 원본을 읽어야 하므로 전용 큐에서 제한된 속도로 처리한다.
+        const market = await syncTickerFromFmp(environment, ticker, ['profile', 'price', 'candles']);
+        // SEC 재무와 Alpha Vantage 배당 이력은 전용 큐에서 제한된 속도로 처리한다.
         const fundamental = await runFundamentalBatch(environment, ticker);
         const result = { market, fundamental };
         const marketFailed = Object.values(market).some(value => value !== 'ok');
@@ -549,7 +622,11 @@ export default {
   },
 
   async scheduled(controller, environment, executionContext) {
+    const now = new Date(controller.scheduledTime || Date.now());
+    const isPostCloseCandleSweep = ['*/5 21-23 * * 1-5', '*/5 0-6 * * 2-6'].includes(controller.cron)
+      || (controller.cron === '*/5 13-20 * * 1-5' && isUsSessionCompleteToday(now));
     executionContext.waitUntil(controller.cron === '1-59/5 * * * *'
-      ? runFundamentalBatch(environment) : synchronizeMarketData(environment));
+      ? runFundamentalBatch(environment)
+      : isPostCloseCandleSweep ? synchronizePostCloseCandles(environment, now) : synchronizeMarketData(environment));
   }
 };

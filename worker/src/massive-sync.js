@@ -1,8 +1,13 @@
-import { refreshWilliamsSignal } from './williams-store.js';
+import { refreshWilliamsSignal, refreshWilliamsSignals } from './williams-store.js';
 
 const BASE_URL = 'https://api.massive.com';
 const TICKER_PATTERN = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+/** 공급원 데이터가 없거나 불완전할 때만 FMP 보조 경로를 열기 위한 오류 구분이다. */
+export class MassiveCandleUnavailableError extends Error {}
+/** 장은 끝났지만 해당 거래일 일봉이 아직 공개되지 않은 상태다. FMP 오류로 오인해 우회하지 않는다. */
+export class MassiveCandlePendingError extends Error {}
 
 function finiteNumber(value) {
   if (value === null || value === undefined || value === '') return null;
@@ -17,6 +22,35 @@ function isoDate(value) {
 
 function dayBefore(days) {
   return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** 공급자 응답에서 완전한 일봉만 골라, 저장 전 원본 형식과 가격 범위를 검증한다. */
+function normalizeCandle(row) {
+  const timestamp = Number(row?.t);
+  const dateValue = Number.isFinite(timestamp) && timestamp > 0 ? new Date(timestamp) : null;
+  const date = dateValue && Number.isFinite(dateValue.getTime()) ? dateValue.toISOString().slice(0, 10) : null;
+  const open = finiteNumber(row?.o);
+  const high = finiteNumber(row?.h);
+  const low = finiteNumber(row?.l);
+  const close = finiteNumber(row?.c);
+  const volume = finiteNumber(row?.v);
+  if (!date || [open, high, low, close, volume].some(value => value === null)
+    || low <= 0 || high < Math.max(open, close) || low > Math.min(open, close)
+    || open <= 0 || close <= 0 || volume < 0) return null;
+  return { date, open, high, low, close, volume };
+}
+
+function candleUpsert(environment, ticker, rows) {
+  return environment.DB.prepare(`INSERT INTO price_candles
+    (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, source, cached_at)
+    SELECT ?, json_extract(value, '$.date'), json_extract(value, '$.open'),
+      json_extract(value, '$.high'), json_extract(value, '$.low'), json_extract(value, '$.close'),
+      json_extract(value, '$.close'), json_extract(value, '$.volume'), 'MASSIVE', CURRENT_TIMESTAMP
+    FROM json_each(?) WHERE 1
+    ON CONFLICT(ticker, candle_date) DO UPDATE SET open_price=excluded.open_price,
+      high_price=excluded.high_price, low_price=excluded.low_price, close_price=excluded.close_price,
+      adjusted_close=excluded.adjusted_close, volume=excluded.volume, source=excluded.source,
+      cached_at=CURRENT_TIMESTAMP`).bind(ticker, JSON.stringify(rows));
 }
 
 /** 무료 Basic의 분당 5회 상한을 Worker 인스턴스가 달라도 D1에서 원자적으로 공유한다. */
@@ -48,30 +82,90 @@ async function getJson(environment, url) {
   return body;
 }
 
-/** FMP 일봉에 실패했을 때만 100일 범위를 조회하고 유효한 OHLCV만 저장한다. */
-export async function syncCandlesFromMassive(environment, ticker) {
+/** 신규·기존 종목의 3개월치를 Massive에서 먼저 확인한 뒤, FMP 혼합 구간을 한 번에 교체한다. */
+export async function syncCandlesFromMassive(environment, ticker, minimumDate = null) {
   if (!TICKER_PATTERN.test(ticker)) throw new Error('Massive 일봉 조회 티커가 올바르지 않습니다.');
-  const url = new URL(`${BASE_URL}/v2/aggs/ticker/${encodeURIComponent(ticker)}/range/1/day/${dayBefore(100)}/${dayBefore(0)}`);
+  const fromDate = dayBefore(100);
+  const url = new URL(`${BASE_URL}/v2/aggs/ticker/${encodeURIComponent(ticker)}/range/1/day/${fromDate}/${dayBefore(0)}`);
   url.searchParams.set('adjusted', 'true');
   url.searchParams.set('sort', 'asc');
   url.searchParams.set('limit', '500');
+  let payload;
+  try { payload = await getJson(environment, url); }
+  catch (error) {
+    if (/Massive 분당 5회 요청 한도/.test(String(error))) throw error;
+    throw new MassiveCandleUnavailableError(String(error.message || error));
+  }
+  if (payload.adjusted === false) throw new MassiveCandleUnavailableError('Massive 분할 조정 일봉이 아닙니다.');
+  const rows = [...new Map(payload.results.map(normalizeCandle).filter(Boolean)
+    .map(row => [row.date, row])).values()].sort((left, right) => left.date.localeCompare(right.date));
+  if (!rows.length) throw new MassiveCandleUnavailableError('Massive에서 저장 가능한 3개월 일봉을 받지 못했습니다.');
+  const previous = await environment.DB.prepare(`SELECT COUNT(*) AS count, MAX(candle_date) AS latestDate
+    FROM price_candles WHERE ticker=? AND source='FMP' AND candle_date>=?`).bind(ticker, fromDate).first();
+  const latestMassiveDate = rows.at(-1)?.date;
+  // 기존에 충분한 FMP 이력이 있으면 지나치게 짧거나 오래된 Massive 응답으로 덮지 않는다.
+  if (Number(previous?.count) >= 20 && rows.length < Math.ceil(Number(previous.count) * 0.8)) {
+    throw new MassiveCandleUnavailableError('Massive 일봉 범위가 기존 저장 이력보다 짧아 기존 값을 유지합니다.');
+  }
+  if (previous?.latestDate && previous.latestDate > latestMassiveDate) {
+    throw new MassiveCandleUnavailableError('Massive 최신 일봉 날짜가 기존 저장값보다 오래되어 기존 값을 유지합니다.');
+  }
+  // 장 마감 확인 작업에서 이전 거래일만 돌아오면 기존 일봉을 다시 쓰지 않고 15분 뒤 확인한다.
+  if (minimumDate && latestMassiveDate < minimumDate) {
+    throw new MassiveCandlePendingError(`${minimumDate} Massive 일봉 공개 대기 · 최근 제공 ${latestMassiveDate}`);
+  }
+  await environment.DB.batch([
+    // 마이그레이션 이후 추가된 FMP 보조 일봉까지 복구용으로 남기고, 검증 성공 후에만 활성 값을 교체한다.
+    environment.DB.prepare(`INSERT OR IGNORE INTO archived_fmp_candles
+      (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, cached_at)
+      SELECT ticker, candle_date, open_price, high_price, low_price, close_price,
+        adjusted_close, volume, cached_at FROM price_candles WHERE ticker=? AND source='FMP'`).bind(ticker),
+    environment.DB.prepare("DELETE FROM price_candles WHERE ticker=? AND source='FMP'").bind(ticker),
+    candleUpsert(environment, ticker, rows)
+  ]);
+  await refreshWilliamsSignal(environment, ticker);
+  await environment.DB.prepare(`INSERT INTO massive_candle_backfills(ticker, completed_at)
+    VALUES (?, CURRENT_TIMESTAMP)
+    ON CONFLICT(ticker) DO UPDATE SET completed_at=CURRENT_TIMESTAMP`).bind(ticker).run();
+  return { source: 'MASSIVE', count: rows.length };
+}
+
+/** 전체 시장 한 날짜를 한 번 조회하되, 이미 3개월 적재를 마친 관심종목만 추려 저장한다. */
+export async function syncGroupedCandlesFromMassive(environment, marketDate, eligibleTickers) {
+  if (!isoDate(marketDate) || !eligibleTickers?.length) throw new Error('전체 시장 일봉 날짜 또는 대상 종목이 없습니다.');
+  const tickerSet = new Set(eligibleTickers.filter(ticker => TICKER_PATTERN.test(ticker)));
+  if (!tickerSet.size) throw new Error('전체 시장 일봉에 저장할 유효한 종목이 없습니다.');
+  const url = new URL(`${BASE_URL}/v2/aggs/grouped/locale/us/market/stocks/${marketDate}`);
+  url.searchParams.set('adjusted', 'true');
   const payload = await getJson(environment, url);
-  const rows = payload.results.map(row => ({
-    date: Number.isFinite(Number(row.t)) ? new Date(Number(row.t)).toISOString().slice(0, 10) : null,
-    open: finiteNumber(row.o), high: finiteNumber(row.h), low: finiteNumber(row.l),
-    close: finiteNumber(row.c), volume: finiteNumber(row.v)
-  })).filter(row => row.date && [row.open, row.high, row.low, row.close].every(value => value !== null));
-  if (!rows.length) throw new Error('Massive에서 저장 가능한 3개월 일봉을 받지 못했습니다.');
-  await environment.DB.batch(rows.map(row => environment.DB.prepare(`INSERT INTO price_candles
+  if (payload.adjusted === false) throw new Error('Massive 전체 시장 일봉의 분할 조정 상태를 확인해 주세요.');
+  const matched = payload.results.flatMap(row => {
+    if (!tickerSet.has(row.T)) return [];
+    const candle = normalizeCandle(row);
+    return candle?.date === marketDate ? [{ ticker: row.T, ...candle }] : [];
+  });
+  if (!matched.length) throw new Error(`${marketDate} 전체 시장 일봉이 아직 제공되지 않았습니다. 기존 값을 유지합니다.`);
+  // 한 번의 SQL로 관심종목만 쓰므로 무료 Worker의 호출당 D1 쿼리 한도를 넘지 않는다.
+  await environment.DB.prepare(`INSERT INTO price_candles
     (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, source, cached_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'MASSIVE', CURRENT_TIMESTAMP)
+    SELECT json_extract(value, '$.ticker'), json_extract(value, '$.date'),
+      json_extract(value, '$.open'), json_extract(value, '$.high'), json_extract(value, '$.low'),
+      json_extract(value, '$.close'), json_extract(value, '$.close'),
+      json_extract(value, '$.volume'), 'MASSIVE', CURRENT_TIMESTAMP
+    FROM json_each(?) WHERE 1
     ON CONFLICT(ticker, candle_date) DO UPDATE SET open_price=excluded.open_price,
       high_price=excluded.high_price, low_price=excluded.low_price, close_price=excluded.close_price,
       adjusted_close=excluded.adjusted_close, volume=excluded.volume, source=excluded.source,
-      cached_at=CURRENT_TIMESTAMP`).bind(ticker, row.date, row.open, row.high, row.low,
-    row.close, row.close, row.volume)));
-  await refreshWilliamsSignal(environment, ticker);
-  return { source: 'MASSIVE', count: rows.length };
+      cached_at=CURRENT_TIMESTAMP`).bind(JSON.stringify(matched)).run();
+  const updatedTickers = [...new Set(matched.map(row => row.ticker))];
+  await refreshWilliamsSignals(environment, updatedTickers);
+  const now = new Date().toISOString();
+  await environment.DB.prepare(`UPDATE data_sync_state SET last_success_at=?, last_attempt_at=?,
+    next_retry_at=NULL, failure_count=0, last_error=NULL
+    WHERE data_type='candles' AND last_success_at IS NOT NULL
+      AND ticker IN (SELECT value FROM json_each(?))`).bind(now, now, JSON.stringify(updatedTickers)).run();
+  return { source: 'MASSIVE', marketDate, count: updatedTickers.length,
+    missing: [...tickerSet].filter(ticker => !updatedTickers.includes(ticker)) };
 }
 
 /** 모든 페이지를 받은 뒤에만 해당 종목의 Massive 캐시를 교체한다. 빈 응답은 무배당 종목으로 취급한다. */

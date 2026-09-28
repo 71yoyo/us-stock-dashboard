@@ -1,6 +1,6 @@
 import { reserveFundamentalCall, blockFundamentalCall, ensureFundamentalStore } from './fundamental-store.js';
 import { refreshWilliamsSignal } from './williams-store.js';
-import { syncCandlesFromMassive, syncDividendsFromMassive } from './massive-sync.js';
+import { MassiveCandlePendingError, MassiveCandleUnavailableError, syncCandlesFromMassive } from './massive-sync.js';
 
 const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
 const SEC_FACTS_BASE_URL = 'https://data.sec.gov/api/xbrl/companyfacts';
@@ -49,7 +49,7 @@ async function fetchFmp(environment, path, params = {}) {
 
 /**
  * SEC Company Facts 요청을 한곳에서 처리한다.
- * SEC 공식 공시 원문은 재무와 기간별 배당금의 기준 출처로 사용한다.
+ * SEC 공식 공시 원문은 재무 지표의 기준 출처로만 사용한다.
  */
 async function fetchSecCompanyFacts(environment, ticker) {
   if (environment.secFacts?.has(ticker)) return environment.secFacts.get(ticker);
@@ -85,13 +85,13 @@ async function markSyncState(environment, ticker, dataType, error = null) {
     FROM data_sync_state WHERE ticker = ? AND data_type = ?`).bind(ticker, dataType).first();
   const failureCount = Number(previousState?.failureCount || 0) + 1;
   const errorMessage = String(error).slice(0, 500);
-  // 일봉은 Massive까지 실패한 원인으로 재시도 간격을 정한다. 선행 FMP 402가 대체 공급원의 일시 오류를 가리지 않는다.
+  // 일봉의 재시도 시각은 기본 공급원 Massive 오류를 기준으로 정하고, 보조 FMP 402는 별도 기록한다.
   const retryError = errorMessage.startsWith('일봉 수집 실패: ')
-    ? errorMessage.split('; FMP 선행 실패:')[0] : errorMessage;
+    ? errorMessage.split('; FMP 보조 실패:')[0] : errorMessage;
   const httpStatus = retryError.match(/HTTP\s+(\d{3})/)?.[1];
   // 402·429는 플랜 또는 호출 제한일 수 있다. 짧은 간격으로 재시도하면 같은 실패를 반복하므로
   // 하루 동안 보류한다. SEC의 403은 공정 사용 제한 가능성을 고려해 6시간 뒤 다시 시도한다.
-  const retryMinutes = httpStatus === '402'
+  const retryMinutes = error instanceof MassiveCandlePendingError ? 15 : httpStatus === '402'
     ? 30 * 24 * 60
     : httpStatus === '429'
       ? 24 * 60
@@ -130,105 +130,68 @@ async function syncQuote(environment, ticker) {
   ).bind(ticker, pickNumber(quote, ['price']), pickNumber(quote, ['previousClose']), pickNumber(quote, ['change']), pickNumber(quote, ['changesPercentage']), quote.timestamp ? new Date(quote.timestamp * 1000).toISOString() : null).run();
 }
 
-async function syncCandles(environment, ticker) {
-  // 로컬 시험처럼 FMP 키가 없는 환경에서도 Massive 일봉은 독립적으로 수집할 수 있다.
-  if (!environment.MARKET_DATA_API_KEY) return syncCandlesFromMassive(environment, ticker);
-  const block = await environment.DB.prepare(`SELECT retry_at AS retryAt FROM fmp_candle_blocks
-    WHERE ticker=?`).bind(ticker).first();
-  if (block?.retryAt && block.retryAt > new Date().toISOString()) return syncCandlesFromMassive(environment, ticker);
-  let records;
+async function syncCandles(environment, ticker, minimumDate = null) {
+  // Massive가 기본 일봉 공급원이다. 무료 호출 예산이 찬 경우에는 FMP로 우회하지 않고 다음 주기를 기다린다.
   try {
-    records = asRecords(await fetchFmp(environment, 'historical-price-eod/full', { symbol: ticker, from: isoDateBefore(100) }))
-      .filter(row => row.date && ['open', 'high', 'low', 'close'].every(key => toFiniteNumber(row[key]) !== null));
-    if (!records.length) throw new Error('FMP 일봉 응답이 비어 있습니다.');
-  } catch (fmpError) {
-    if (/HTTP 402/.test(String(fmpError))) {
-      // 접근 불가 종목은 매일 402를 다시 호출하지 않도록 7일 동안 Massive를 우선 사용한다.
-      await environment.DB.prepare(`INSERT INTO fmp_candle_blocks(ticker, retry_at, reason) VALUES (?, ?, ?)
-        ON CONFLICT(ticker) DO UPDATE SET retry_at=excluded.retry_at, reason=excluded.reason`)
-        .bind(ticker, new Date(Date.now() + 7 * 86_400_000).toISOString(), String(fmpError)).run();
-    }
-    try { return await syncCandlesFromMassive(environment, ticker); }
-    catch (massiveError) {
-      throw new Error(`일봉 수집 실패: Massive ${String(massiveError.message || massiveError)}; FMP 선행 실패: ${String(fmpError.message || fmpError)}`);
+    return await syncCandlesFromMassive(environment, ticker, minimumDate);
+  } catch (massiveError) {
+    // D1 저장·신호 계산 오류는 공급원 문제가 아니므로 FMP로 덮어쓰지 않는다.
+    if (!(massiveError instanceof MassiveCandleUnavailableError)) throw massiveError;
+    if (!environment.MARKET_DATA_API_KEY) throw massiveError;
+    const block = await environment.DB.prepare(`SELECT retry_at AS retryAt FROM fmp_candle_blocks
+      WHERE ticker=?`).bind(ticker).first();
+    if (block?.retryAt && block.retryAt > new Date().toISOString()) throw massiveError;
+    try {
+      return await syncCandlesFromFmpFallback(environment, ticker);
+    } catch (fmpError) {
+      if (/HTTP 402/.test(String(fmpError))) {
+        // 종목별 권한 오류는 짧은 재시도에 의미가 없으므로 한 달간 FMP 보조 요청을 멈춘다.
+        await environment.DB.prepare(`INSERT INTO fmp_candle_blocks(ticker, retry_at, reason) VALUES (?, ?, ?)
+          ON CONFLICT(ticker) DO UPDATE SET retry_at=excluded.retry_at, reason=excluded.reason`)
+          .bind(ticker, new Date(Date.now() + 30 * 86_400_000).toISOString(), String(fmpError)).run();
+      }
+      throw new Error(`일봉 수집 실패: Massive ${String(massiveError.message || massiveError)}; FMP 보조 실패: ${String(fmpError.message || fmpError)}`);
     }
   }
-  const statements = records.map(row => environment.DB.prepare(`INSERT INTO price_candles
-    (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, source, cached_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'FMP', CURRENT_TIMESTAMP)
-    ON CONFLICT(ticker, candle_date) DO UPDATE SET open_price=excluded.open_price, high_price=excluded.high_price,
-      low_price=excluded.low_price, close_price=excluded.close_price, adjusted_close=excluded.adjusted_close,
-      volume=excluded.volume, source=excluded.source, cached_at=CURRENT_TIMESTAMP`
-  ).bind(ticker, row.date, toFiniteNumber(row.open), toFiniteNumber(row.high), toFiniteNumber(row.low), toFiniteNumber(row.close), pickNumber(row, ['adjClose', 'adjustedClose']), toFiniteNumber(row.volume)));
-  await environment.DB.batch(statements);
-  await environment.DB.prepare('DELETE FROM fmp_candle_blocks WHERE ticker=?').bind(ticker).run();
-  // 신규·수정 일봉을 저장한 뒤 신호를 다시 계산해 다음 로그인에서도 같은 상태를 유지한다.
-  await refreshWilliamsSignal(environment, ticker);
 }
 
-/** SEC 공시의 주당배당금으로 10년 배당 집계값을 만든다. 정확한 배당락일은 임의 추정하지 않는다. */
-export async function syncDividendsFromSec(environment, ticker) {
-  await ensureFundamentalStore(environment);
-  const facts = await fetchSecCompanyFacts(environment, ticker);
-  const entries = selectSecFacts(facts, [
-    'CommonStockDividendsPerShareDeclared',
-    'CommonStockDividendsPerShareCashPaid'
-  ], ['USD/shares']);
-  const currentYear = new Date().getUTCFullYear();
-  const annualValues = latestSecValues(entries, ['10-K', '10-K/A'], 1900, 'annual');
-  const quarterlyValues = latestSecValues(entries, ['10-Q', '10-Q/A', '10-K', '10-K/A'], currentYear - 11, 'quarterly');
-  const annualRecords = [...annualValues.values()]
-    .filter(record => Number.isFinite(Number(record.val)) && Number(record.val) >= 0)
-    .sort((left, right) => left.end.localeCompare(right.end))
-    ;
-  const quarterlyRecords = [...quarterlyValues.values()]
-    .filter(record => Number.isFinite(Number(record.val)) && Number(record.val) >= 0)
-    .sort((left, right) => left.end.localeCompare(right.end));
-
-  if (!annualRecords.length && !quarterlyRecords.length) {
-    throw new Error('SEC EDGAR에서 주당 배당금 공시를 찾지 못했습니다.');
+/** Massive가 실제로 실패했을 때만 FMP의 전체 3개월 응답을 검증해 보조 저장한다. */
+async function syncCandlesFromFmpFallback(environment, ticker) {
+  const fromDate = isoDateBefore(100);
+  const records = asRecords(await fetchFmp(environment, 'historical-price-eod/full', { symbol: ticker, from: fromDate }))
+    .filter(row => row.date && ['open', 'high', 'low', 'close'].every(key => toFiniteNumber(row[key]) > 0));
+  if (!records.length) throw new Error('FMP 보조 일봉 응답이 비어 있습니다.');
+  const existing = await environment.DB.prepare(`SELECT COUNT(*) AS count FROM price_candles
+    WHERE ticker=? AND source='MASSIVE' AND candle_date>=?`).bind(ticker, fromDate).first();
+  if (Number(existing?.count) >= 20 && records.length < Math.ceil(Number(existing.count) * 0.8)) {
+    throw new Error('FMP 보조 일봉 범위가 기존 Massive 이력보다 짧아 저장하지 않았습니다.');
   }
-
-  const annualDividend = annualRecords.length ? Number(annualRecords.at(-1).val) : null;
-  const recentQuarterDividend = quarterlyRecords.length ? Number(quarterlyRecords.at(-1).val) : null;
-  let growthYears = 0;
-  for (let index = annualRecords.length - 1; index > 0; index -= 1) {
-    if (Number(annualRecords[index].end.slice(0, 4)) - Number(annualRecords[index - 1].end.slice(0, 4)) === 1
-      && Number(annualRecords[index].val) > Number(annualRecords[index - 1].val) + 1e-9) growthYears += 1;
-    else break;
-  }
-  const endYear = Number(annualRecords.at(-1)?.end.slice(0, 4));
-  const firstAnnual = annualRecords.find(row => Number(row.end.slice(0, 4)) === endYear - 10)?.val;
-  const yearSpan = 10;
-  const growthCagr = firstAnnual > 0 && annualDividend > 0 && yearSpan > 0
-    ? (Math.pow(annualDividend / firstAnnual, 1 / yearSpan) - 1) * 100
-    : null;
-  // SEC 연간·분기 집계만으로는 월배당/분기배당의 "최근 실제 지급 1년치"를 확정할 수 없다.
-  // 따라서 Massive 지급 이벤트가 없는 종목의 수익률을 연간 공시값으로 대체하지 않는다.
-  const dividendYield = null;
-
-  await environment.DB.prepare(`INSERT INTO dividend_metrics
-    (ticker, annual_dividend, quarterly_dividend, dividend_yield, dividend_growth_years, dividend_growth_cagr_10y,
-      next_ex_dividend_date, next_date_status, next_payment_date, calculated_at)
-    VALUES (?, ?, ?, ?, ?, ?, NULL, 'unknown', NULL, CURRENT_TIMESTAMP)
-    ON CONFLICT(ticker) DO UPDATE SET annual_dividend=excluded.annual_dividend,
-      quarterly_dividend=excluded.quarterly_dividend, dividend_yield=excluded.dividend_yield,
-      dividend_growth_years=excluded.dividend_growth_years, dividend_growth_cagr_10y=excluded.dividend_growth_cagr_10y,
-      next_ex_dividend_date=NULL, next_date_status='unknown', next_payment_date=NULL,
-      calculated_at=CURRENT_TIMESTAMP`).bind(
-    ticker, annualDividend, recentQuarterDividend, dividendYield, growthYears, growthCagr
-  ).run();
-  const history = [['annual', annualRecords], ['quarterly', quarterlyRecords]];
-  for (const [periodType, rows] of history) {
-    const statements = rows.map(row => environment.DB.prepare(`INSERT INTO dividend_periods
-      (ticker, period_type, period_end, amount, source, reported_date) VALUES (?, ?, ?, ?, 'SEC EDGAR', ?)
-      ON CONFLICT(ticker, period_type, period_end) DO UPDATE SET amount=excluded.amount,
-      source=excluded.source, reported_date=excluded.reported_date`)
-      .bind(ticker, periodType, row.end, row.val, row.filed || null));
-    if (statements.length) await environment.DB.batch(statements);
-  }
-  return { source: 'SEC EDGAR', annualCount: annualRecords.length, quarterlyCount: quarterlyRecords.length,
-    firstDate: annualRecords[0]?.end, growthLimited: true, nextDateAvailable: false };
+  const normalized = records.map(row => ({ date: row.date, open: toFiniteNumber(row.open),
+    high: toFiniteNumber(row.high), low: toFiniteNumber(row.low), close: toFiniteNumber(row.close),
+    adjustedClose: pickNumber(row, ['adjClose', 'adjustedClose']), volume: toFiniteNumber(row.volume) }));
+  await environment.DB.batch([
+    // 일시적 FMP 보조 응답도 향후 Massive 교체 전 복구 가능한 원본으로 남긴다.
+    environment.DB.prepare(`INSERT OR IGNORE INTO archived_fmp_candles
+      (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, cached_at)
+      SELECT ?, json_extract(value, '$.date'), json_extract(value, '$.open'),
+        json_extract(value, '$.high'), json_extract(value, '$.low'), json_extract(value, '$.close'),
+        json_extract(value, '$.adjustedClose'), json_extract(value, '$.volume'), CURRENT_TIMESTAMP
+      FROM json_each(?)`).bind(ticker, JSON.stringify(normalized)),
+    // Massive가 이미 저장한 날짜는 일시적인 보조 공급원 값으로 덮지 않는다.
+    environment.DB.prepare(`INSERT INTO price_candles
+    (ticker, candle_date, open_price, high_price, low_price, close_price, adjusted_close, volume, source, cached_at)
+    SELECT ?, json_extract(value, '$.date'), json_extract(value, '$.open'),
+      json_extract(value, '$.high'), json_extract(value, '$.low'), json_extract(value, '$.close'),
+      json_extract(value, '$.adjustedClose'), json_extract(value, '$.volume'), 'FMP', CURRENT_TIMESTAMP
+    FROM json_each(?) WHERE 1
+    ON CONFLICT(ticker, candle_date) DO UPDATE SET open_price=excluded.open_price, high_price=excluded.high_price,
+      low_price=excluded.low_price, close_price=excluded.close_price, adjusted_close=excluded.adjusted_close,
+    volume=excluded.volume, source=excluded.source, cached_at=CURRENT_TIMESTAMP
+    WHERE price_candles.source <> 'MASSIVE'`
+    ).bind(ticker, JSON.stringify(normalized))
+  ]);
+  await refreshWilliamsSignal(environment, ticker);
+  return { source: 'FMP', count: normalized.length };
 }
 
 export function selectSecFacts(facts, tags, acceptedUnits) {
@@ -393,16 +356,14 @@ function isStale(lastSuccessAt, minutes) {
   return !Number.isFinite(elapsed) || elapsed >= minutes * 60_000;
 }
 
-export async function syncTickerFromFmp(environment, ticker, requestedDataTypes = null) {
-  // 기존 Worker 변수에 공급자명이 없던 배포도 FMP 키가 있으면 FMP를 기본값으로 사용한다.
+export async function syncTickerFromFmp(environment, ticker, requestedDataTypes = null, options = {}) {
+  // 변수명과 함수명은 이전 배포 호환용이다. 일봉은 Massive, 회사·시세는 기존 FMP를 사용한다.
   const provider = String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase();
-  if (provider !== 'FMP') throw new Error('FMP API 공급자 설정이 필요합니다.');
-  // SEC 재무·장기 배당 통계와 독립적으로, 일봉은 FMP 실패 시 Massive로 보완한다.
+  if (!['FMP', 'MASSIVE'].includes(provider)) throw new Error('금융 API 공급자 설정을 확인해 주세요.');
   const allJobs = [
     ['profile', () => syncProfile(environment, ticker)],
     ['price', () => syncQuote(environment, ticker)],
-    ['candles', () => syncCandles(environment, ticker)],
-    ['dividends', () => syncDividendsFromMassive(environment, ticker)]
+    ['candles', () => syncCandles(environment, ticker, options.minimumCandleDate)]
   ];
   const unsupported = requestedDataTypes?.filter(dataType => !allJobs.some(([supported]) => supported === dataType));
   if (unsupported?.length) throw new Error(`동기화 대상이 아닙니다: ${unsupported.join(', ')}. 재무는 SEC 수집을 사용합니다.`);
@@ -412,7 +373,7 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
   const result = {};
   for (const [dataType, task] of jobs) {
     try {
-      // 일봉은 FMP 키가 없거나 응답이 실패해도 Massive 보조 경로를 시도해야 한다.
+      // Massive 일봉은 FMP 키가 없어도 독립적으로 저장한다. 배당은 Alpha Vantage 전용 큐가 담당한다.
       if (['profile', 'price'].includes(dataType) && !environment.MARKET_DATA_API_KEY) {
         throw new Error('FMP API 키가 없습니다.');
       }
@@ -429,13 +390,13 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
  * 자동 수집 큐는 한 번에 한 데이터 종류만 처리한다.
  * 초기 적재 중에도 API 호출이 폭주하지 않고, 실패한 항목은 data_sync_state의 재시도 시각까지 건너뛴다.
  */
-export async function syncTickerDataType(environment, ticker, dataType) {
-  return syncTickerFromFmp(environment, ticker, [dataType]);
+export async function syncTickerDataType(environment, ticker, dataType, options = {}) {
+  return syncTickerFromFmp(environment, ticker, [dataType], options);
 }
 
 /**
  * 장기 이력은 최초 한 번 저장한 뒤, 데이터 성격별 주기에 맞춰서만 덮어쓴다.
- * 이 함수는 FMP 회사·시세와 FMP/Massive 일봉을 다룬다. 배당 이벤트는 Massive, 장기 통계는 SEC 큐에서 갱신한다.
+ * 이 함수는 FMP 회사·시세와 Massive 우선 일봉만 다룬다. 배당은 Alpha Vantage 전용 큐에서 갱신한다.
  */
 export async function syncTickerIncrementally(environment, ticker) {
   const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,

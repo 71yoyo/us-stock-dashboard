@@ -18,7 +18,7 @@
   <!-- 아이콘 FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="style.css?v=williams-state-1">
+  <link rel="stylesheet" href="style.css?v=williams-guides-1">
   <link rel="stylesheet" href="fundamental-progress.css">
 </head>
 
@@ -167,7 +167,7 @@
 
         <div class="investment-list-section">
           <div class="overview-list-toolbar">
-            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">Massive 지급 이벤트 기준 · 10년 성장 통계는 SEC 공시 기준</span>
+            <div><strong>1-2. 배당 투자 중심</strong><span class="overview-section-note">Alpha Vantage 배당 이력 기준 · 아직 수집하지 못한 종목은 미확보</span>
             </div>
           </div>
           <div class="overview-stock-list" id="dividendCompanyList"></div>
@@ -312,7 +312,7 @@
             <span class="section-badge">2</span>
             <div>
               <h3>실시간 차트 분석</h3>
-              <p class="section-desc">TradingView 차트 · FMP 우선, 실패 시 Massive 3개월 일봉을 분석용으로 저장</p>
+              <p class="section-desc">TradingView 차트 · Massive 우선, 실패 시 FMP 3개월 일봉을 분석용으로 저장</p>
             </div>
           </div>
           <div class="chart-controls"><span class="indicator-tag source">TradingView</span></div>
@@ -359,7 +359,7 @@
             <span class="section-badge">3</span>
             <div>
               <h3>내 포트폴리오</h3>
-              <p class="section-desc">보유 수량 및 실시간 평가 손익 관리</p>
+              <p class="section-desc">보유 수량 및 저장 현재가 기준 평가 손익 관리</p>
             </div>
           </div>
           <button class="btn-sm btn-primary open-add-holding-btn">
@@ -386,7 +386,7 @@
                 <th>종목</th>
                 <th>보유수량</th>
                 <th>매수단가</th>
-                <th>현재가</th>
+                <th>가격(현재가·저장 종가)</th>
                 <th>평가손익(수익률)</th>
                 <th>관리</th>
               </tr>
@@ -430,14 +430,14 @@
           <hr class="modal-divider">
           <section class="fundamental-progress" aria-labelledby="fundamentalHeading">
             <h4 id="fundamentalHeading">5-3. 종목별 저장 데이터 현황</h4>
-            <p class="subtext">한 종목의 3개월 일봉·회사·재무·배당 저장 상태를 가로로 확인합니다. 현재가는 목록 화면용으로 별도 저장하며, 여기에는 일봉 저장 상태만 표시합니다.</p>
+            <p class="subtext">한 종목의 3개월 일봉·회사·재무·배당 저장 상태를 가로로 확인합니다. 일봉의 최신 거래일과 저장 확인 시각은 서로 다르게 표시합니다. 배당은 Alpha Vantage 이력과 주식분할 정보가 모두 저장된 종목만 완료로 표시합니다. 현재가는 별도 저장합니다.</p>
             <div class="backup-actions">
-              <button class="btn btn-primary" id="fundamentalRunBtn" type="button">회사·SEC 재무·배당 통계 채우기</button>
+              <button class="btn btn-primary" id="fundamentalRunBtn" type="button">회사·SEC 재무·Alpha Vantage 배당 채우기</button>
               <button class="btn btn-secondary" id="fundamentalRefreshBtn" type="button">저장 상태 확인</button>
             </div>
             <p id="fundamentalMessage" role="status">잠금 해제 후 상태를 확인합니다.</p>
             <progress id="fundamentalProgress" max="1" value="0" aria-label="수집 확인 진행률"></progress>
-            <p class="subtext">이 버튼은 SEC 이력을 채웁니다. Massive 지급 이벤트와 일봉은 자동 큐에서 순차 갱신됩니다. 배당은 두 출처의 확인이 끝난 뒤 저장됨으로 표시합니다.</p>
+            <p class="subtext">이 버튼은 회사·SEC 재무·Alpha Vantage 배당 이력을 순차 확인합니다. SEC 배당 이력은 삭제했고 Massive 배당 원본은 보존합니다. 상세 분석의 정기 배당 빈도에만 저장된 Massive 값을 사용합니다.</p>
             <div class="fundamental-table-wrap">
               <table class="fundamental-table">
                 <thead>
@@ -511,8 +511,8 @@
   <!-- 새 위젯 설정을 즉시 받도록 배포 버전을 명시한다. -->
   <script src="tradingview-widget.js?v=dark-chart-2"></script>
   <script src="williams-signal.js?v=williams-state-1"></script>
-  <script src="app.js?v=massive-sync-1"></script>
-  <script src="fundamental-progress.js?v=massive-sync-1"></script>
+  <script src="app.js?v=market-candle-refresh-1"></script>
+  <script src="fundamental-progress.js?v=market-candle-refresh-1"></script>
 </body>
 
 </html>
