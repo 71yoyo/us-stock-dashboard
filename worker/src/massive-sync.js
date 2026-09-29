@@ -168,7 +168,7 @@ export async function syncGroupedCandlesFromMassive(environment, marketDate, eli
     missing: [...tickerSet].filter(ticker => !updatedTickers.includes(ticker)) };
 }
 
-/** 모든 페이지를 받은 뒤에만 해당 종목의 Massive 캐시를 교체한다. 빈 응답은 무배당 종목으로 취급한다. */
+/** 모든 페이지를 검증한 뒤 변경 이벤트만 갱신한다. 응답 누락으로 과거 원본을 지우지 않는다. */
 export async function syncDividendsFromMassive(environment, ticker) {
   if (!TICKER_PATTERN.test(ticker)) throw new Error('Massive 배당 조회 티커가 올바르지 않습니다.');
   const url = new URL(`${BASE_URL}/stocks/v1/dividends`);
@@ -199,17 +199,35 @@ export async function syncDividendsFromMassive(environment, ticker) {
   })).filter(row => row.exDate && row.amount !== null && row.amount > 0);
   const unique = new Map(normalized.map(row => [row.id
     || `${row.exDate}:${row.recordDate}:${row.paymentDate}:${row.amount}:${row.distributionType}`, row]));
-  // 두 문장을 한 트랜잭션에서 실행해 중간 실패 시 기존 이벤트가 지워지지 않게 한다.
-  await environment.DB.batch([
-    environment.DB.prepare('DELETE FROM massive_dividend_events WHERE ticker=?').bind(ticker),
-    environment.DB.prepare(`INSERT INTO massive_dividend_events
+  const prior = await environment.DB.prepare(`SELECT provider_event_id AS id,
+    declaration_date AS declarationDate, ex_dividend_date AS exDate,
+    payment_date AS paymentDate, amount, distribution_type AS distributionType
+    FROM massive_dividend_events WHERE ticker=?`).bind(ticker).all();
+  const existing = new Map(prior.results.map(row => [row.id, row]));
+  const changed = [...unique].filter(([id, row]) => {
+    const before = existing.get(id);
+    return !before || before.declarationDate !== row.declarationDate || before.exDate !== row.exDate
+      || before.paymentDate !== row.paymentDate || Number(before.amount) !== row.amount
+      || before.distributionType !== row.distributionType;
+  });
+  if (changed.length) await environment.DB.prepare(`INSERT INTO massive_dividend_events
       (ticker, provider_event_id, declaration_date, ex_dividend_date, record_date, payment_date,
         amount, split_adjusted_amount, distribution_type, frequency, source_updated_at)
       SELECT ?, key, json_extract(value, '$.declarationDate'), json_extract(value, '$.exDate'),
         json_extract(value, '$.recordDate'), json_extract(value, '$.paymentDate'),
         json_extract(value, '$.amount'), json_extract(value, '$.adjustedAmount'),
         json_extract(value, '$.distributionType'), json_extract(value, '$.frequency'), CURRENT_TIMESTAMP
-      FROM json_each(?)`).bind(ticker, JSON.stringify(Object.fromEntries(unique)))
-  ]);
-  return { source: 'MASSIVE', count: unique.size };
+      FROM json_each(?) WHERE 1 ON CONFLICT(ticker, provider_event_id) DO UPDATE SET
+        declaration_date=excluded.declaration_date, ex_dividend_date=excluded.ex_dividend_date,
+        record_date=excluded.record_date, payment_date=excluded.payment_date,
+        amount=excluded.amount, split_adjusted_amount=excluded.split_adjusted_amount,
+        distribution_type=excluded.distribution_type, frequency=excluded.frequency,
+        source_updated_at=excluded.source_updated_at`)
+    .bind(ticker, JSON.stringify(Object.fromEntries(changed))).run();
+  const today = new Date().toISOString().slice(0, 10);
+  const newDeclarations = changed.filter(([id, row]) => row.exDate >= today
+    && row.declarationDate && (!existing.has(id)
+      || existing.get(id).declarationDate !== row.declarationDate));
+  return { source: 'MASSIVE', count: unique.size, changed: changed.length,
+    newDeclarations: newDeclarations.length };
 }

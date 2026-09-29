@@ -45,32 +45,30 @@
     cell.appendChild(detail);
   }
 
-  /** 배당의 완료 여부는 SEC 작업 이력이 아니라 Alpha 배당·분할 저장 완료로만 판단한다. */
+  /** 배당 완료 여부는 BQ 저장 요약으로만 판단한다. */
   function dividendStorageStatus(job, dividendEvents) {
-    if (!job) return 'pending';
-    if (job.details?.source === 'ALPHA_VANTAGE' && job.status === 'ready'
-      && dividendEvents?.status === 'ready') return 'ready';
-    if (job.status === 'running') return 'running';
-    if (job.status === 'error' && /Alpha Vantage/i.test(job.error || dividendEvents?.error || '')) return 'error';
+    if (dividendEvents?.source === 'BUSINESS_QUANT' && dividendEvents.status === 'ready') return 'ready';
+    if (dividendEvents?.status === 'error') return 'error';
+    if (job?.status === 'running') return 'running';
     return Number(dividendEvents?.count || 0) > 0 ? 'partial' : 'pending';
   }
 
   function createJobCell(job, dividendEvents = null) {
     const cell = document.createElement('td');
     cell.className = 'fundamental-data-cell';
-    if (!job) {
+    if (!job && !dividendEvents) {
       cell.appendChild(createStatusBadge('pending'));
       appendDetail(cell, '등록·수집 대기');
       return cell;
     }
 
-    if (job.kind === 'dividends') {
+    if (job?.kind === 'dividends' || dividendEvents) {
       const status = dividendStorageStatus(job, dividendEvents);
       const count = Number(dividendEvents?.count || 0);
       cell.appendChild(createStatusBadge(status));
-      appendDetail(cell, `Alpha Vantage 배당 이벤트 ${count}개${status === 'ready' && count === 0 ? ' · 무배당 확인' : ''}`);
-      if (status === 'partial') appendDetail(cell, '배당·분할 저장 완료 확인 대기');
-      if (status === 'error') appendDetail(cell, job.error || dividendEvents?.error, 'fundamental-cell-error');
+      appendDetail(cell, `Business Quant 배당 이력 ${count}개`);
+      if (status === 'partial') appendDetail(cell, '전체 이력 확인 대기');
+      if (status === 'error') appendDetail(cell, job?.error || dividendEvents?.error, 'fundamental-cell-error');
       return cell;
     }
 
@@ -156,7 +154,7 @@
     const verifiedProcessed = processed - getSummary(summary, 'dividends').processed + dividends.processed;
     const text = `저장 확인 ${verifiedProcessed}/${total} · 3개월 일봉 ${candles.stored}/${candles.total} · 회사 ${profile.stored}/${profile.total} · 재무 ${financials.stored}/${financials.total} · 배당 ${dividends.stored}/${dividends.total}`;
     document.getElementById('fundamentalSummary').textContent = `${text} · 자세한 내용: 5-3 메뉴`;
-    message.textContent = running ? `${text} — 회사·재무·배당 수집 중` : text;
+    message.textContent = running ? `${text} — 회사·SEC 재무 수집 중 (배당은 예약 작업)` : text;
     const progress = document.getElementById('fundamentalProgress');
     progress.max = total || 1;
     progress.value = verifiedProcessed;
@@ -167,7 +165,7 @@
   async function refreshDashboardViewsIfChanged(status) {
     const revision = (Array.isArray(status.stocks) ? status.stocks : [])
       .map(stock => `${stock.ticker}:${stock.price?.updatedAt || ''}:${stock.candles?.latestDate || ''}`
-        + `:${stock.candles?.updatedAt || ''}:${stock.jobs?.dividends?.checkedAt || ''}`)
+        + `:${stock.candles?.updatedAt || ''}:${stock.dividendEvents?.updatedAt || ''}`)
       .sort().join('|');
     if (lastDisplayedDashboardRevision === null) {
       lastDisplayedDashboardRevision = revision;

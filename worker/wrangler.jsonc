@@ -3,6 +3,10 @@
   "name": "us-stock-dashboard-api",
   "main": "src/index.js",
   "compatibility_date": "2026-09-21",
+  "vars": {
+    "DIVIDEND_PIPELINE_ENABLED": "true",
+    "BUSINESS_QUANT_DAILY_FETCH_LIMIT": "24"
+  },
   "triggers": {
     "crons": ["*/5 13-20 * * 1-5", "20 21 * * 1-5", "*/5 21-23 * * 1-5", "*/5 0-6 * * 2-6", "1-59/5 * * * *"]
   },

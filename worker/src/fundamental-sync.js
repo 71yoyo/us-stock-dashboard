@@ -1,8 +1,7 @@
 import { ensureFundamentalStore } from './fundamental-store.js';
 import { syncProfile, syncFinancialsFromSec } from './fmp-sync.js';
-import { syncAlphaDividends } from './alpha-dividends.js';
-
-const kinds = ['profile', 'financials', 'dividends'];
+// 배당 수집은 별도 Business Quant 예약 작업이 담당한다.
+const kinds = ['profile', 'financials'];
 const labels = { profile: '회사 정보', financials: '재무', dividends: '배당' };
 const day = 86400000;
 const after = milliseconds => new Date(Date.now() + milliseconds).toISOString();
@@ -46,9 +45,10 @@ function earliestDate(...values) {
 
 export async function fundamentalStatus(environment) {
   await seedJobs(environment);
-  const [jobResult, marketResult, financialCoverage, dividendCoverage] = await environment.DB.batch([
+  const [jobResult, marketResult, financialCoverage] = await environment.DB.batch([
     environment.DB.prepare(`SELECT j.* FROM fundamental_jobs j
       JOIN user_watchlist w ON w.ticker = j.ticker AND w.user_id = 'primary'
+      WHERE j.kind IN ('profile', 'financials')
       ORDER BY w.display_order, j.kind`),
     environment.DB.prepare(`SELECT
       w.ticker,
@@ -74,11 +74,11 @@ export async function fundamentalStatus(environment) {
         WHERE backfills.ticker = w.ticker) AS massiveBackfillComplete,
       (SELECT MAX(cached_at) FROM price_candles candles WHERE candles.ticker = w.ticker) AS candlesCachedAt,
       (SELECT MAX(candle_date) FROM price_candles candles WHERE candles.ticker = w.ticker) AS latestCandleDate,
-      dividend_state.last_success_at AS eventsLastSuccessAt,
-      dividend_state.last_attempt_at AS eventsLastAttemptAt,
-      dividend_state.next_retry_at AS eventsNextRetryAt,
-      dividend_state.last_error AS eventsLastError,
-      (SELECT COUNT(*) FROM alpha_dividend_events events WHERE events.ticker = w.ticker) AS eventCount,
+      dividend_state.last_bq_fetch_at AS eventsLastSuccessAt,
+      dividend_state.fetch_status AS eventsFetchStatus,
+      dividend_state.next_bq_fetch_at AS eventsNextRetryAt,
+      dividend_state.last_fetch_error AS eventsLastError,
+      dividend_state.history_count AS eventCount,
       (SELECT source FROM price_candles candles WHERE candles.ticker = w.ticker
         ORDER BY candle_date DESC LIMIT 1) AS candleSource
       FROM user_watchlist w
@@ -87,32 +87,25 @@ export async function fundamentalStatus(environment) {
         ON price_state.ticker = w.ticker AND price_state.data_type = 'price'
       LEFT JOIN data_sync_state candle_state
         ON candle_state.ticker = w.ticker AND candle_state.data_type = 'candles'
-      LEFT JOIN alpha_dividend_sync dividend_state ON dividend_state.ticker = w.ticker
+      LEFT JOIN bq_dividend_summary dividend_state ON dividend_state.ticker = w.ticker
       WHERE w.user_id = 'primary'
       ORDER BY w.display_order`),
     environment.DB.prepare(`SELECT ticker,
       SUM(CASE WHEN period_type = 'annual' THEN 1 ELSE 0 END) AS annualCount,
       SUM(CASE WHEN period_type = 'quarterly' THEN 1 ELSE 0 END) AS quarterlyCount
       FROM financial_metrics WHERE source = 'SEC EDGAR' GROUP BY ticker`),
-    environment.DB.prepare(`SELECT ticker, event_count AS eventCount, status,
-      last_success_at AS lastSuccessAt, last_attempt_at AS lastAttemptAt,
-      next_retry_at AS nextRetryAt, last_error AS lastError
-      FROM alpha_dividend_sync`)
   ]);
   const financialByTicker = new Map(financialCoverage.results.map(row => [row.ticker, row]));
-  const dividendByTicker = new Map(dividendCoverage.results.map(row => [row.ticker, row]));
-  const storedAlphaCounts = new Map(marketResult.results.map(row => [row.ticker, Number(row.eventCount || 0)]));
   const rows = jobResult.results.map(job => {
     let status = job.status === 'running' && job.lease_until < new Date().toISOString() ? 'pending' : job.status;
     let details = readDetails(job.details);
     let error = job.error;
     let checkedAt = job.checked_at;
     let nextRunAt = job.next_run_at;
-    const coverage = job.kind === 'financials' ? financialByTicker.get(job.ticker)
-      : job.kind === 'dividends' ? dividendByTicker.get(job.ticker) : null;
+    const coverage = job.kind === 'financials' ? financialByTicker.get(job.ticker) : null;
     const hasSecHistory = job.kind === 'financials' && coverage
       && (Number(coverage.annualCount) > 0 || Number(coverage.quarterlyCount) > 0);
-    // 재무의 기존 SEC 이력만 완료로 복구한다. 이전 SEC 배당 성공을 Alpha Vantage 성공으로 오인하지 않는다.
+    // 새 SEC 공시 반영이 늦더라도 이미 저장된 재무 이력은 완료로 표시한다.
     const latestFilingPending = job.kind === 'financials' && /새 공시 원문 반영 대기/.test(error || '');
     if (hasSecHistory && (status === 'partial' || latestFilingPending)) {
       status = 'ready';
@@ -120,21 +113,6 @@ export async function fundamentalStatus(environment) {
         quarterlyCount: Number(coverage.quarterlyCount), latestFilingPending,
         note: latestFilingPending ? '기존 SEC 이력 저장됨 · 새 공시 원문은 다음날 재확인' : details.note };
       if (latestFilingPending) error = null;
-    }
-    if (job.kind === 'dividends') {
-      const actualCount = storedAlphaCounts.get(job.ticker) || 0;
-      // SEC 작업 상태·오류를 배당 완료로 오인하지 않는다. 두 Alpha 응답을 모두 저장한 동기화 기록과 원본 건수가 일치해야 한다.
-      const alphaReady = coverage?.status === 'ready' && Boolean(coverage.lastSuccessAt)
-        && Number(coverage.eventCount) === actualCount;
-      const alphaError = coverage?.lastError || (/Alpha Vantage/i.test(job.error || '') ? job.error : null);
-      status = alphaReady ? 'ready' : status === 'running' ? 'running'
-        : alphaError ? 'error' : actualCount > 0 ? 'partial' : 'pending';
-      details = { source: 'ALPHA_VANTAGE', eventCount: actualCount };
-      error = alphaReady ? null : alphaError;
-      checkedAt = coverage?.lastSuccessAt || coverage?.lastAttemptAt || null;
-      // 예전 SEC 작업의 다음 확인 시각이 배당 수집을 계속 미루지 않도록 Alpha 상태만 전달한다.
-      nextRunAt = alphaReady || /Alpha Vantage/i.test(job.error || '')
-        ? job.next_run_at : coverage?.nextRetryAt || null;
     }
     return { ticker: job.ticker, kind: job.kind, label: labels[job.kind], status,
       checkedAt, nextRunAt, details, error };
@@ -186,12 +164,13 @@ export async function fundamentalStatus(environment) {
       nextRetryAt: stock.eventsNextRetryAt, lastError: stock.eventsLastError
     };
     const dividendEvents = {
-      // 원본 이벤트가 0개여도 Alpha 배당·분할 응답을 정상 저장했다면 무배당 확인 완료다.
-      status: jobs.dividends?.status || 'pending',
-      source: 'ALPHA_VANTAGE',
+      status: stock.eventsFetchStatus === 'ready' ? 'ready'
+        : stock.eventsFetchStatus === 'error' ? 'error' : 'pending',
+      source: 'BUSINESS_QUANT',
       count: Number(stock.eventCount || 0),
+      updatedAt: stock.eventsLastSuccessAt || null,
       nextRunAt: nextMarketCheck(eventState, day),
-      error: jobs.dividends?.error || null
+      error: stock.eventsLastError || null
     };
     const marketStatus = price.status === 'ready' && candles.status === 'ready'
       ? 'ready'
@@ -215,7 +194,7 @@ export async function fundamentalStatus(environment) {
       )
     };
   });
-  const summary = Object.fromEntries(kinds.map(kind => {
+  const summary = Object.fromEntries([...kinds, 'dividends'].map(kind => {
     const group = rows.filter(row => row.kind === kind);
     return [kind, { total: group.length,
       processed: group.filter(row => row.checkedAt).length,
@@ -234,11 +213,11 @@ export async function fundamentalStatus(environment) {
     stored: stocks.filter(stock => stock.candles.status === 'ready').length,
     pending: stocks.filter(stock => ['pending', 'partial'].includes(stock.candles.status)).length
   };
+  summary.dividends.total = stocks.length;
   summary.dividends.stored = stocks.filter(stock => stock.dividendEvents.status === 'ready').length;
   summary.dividends.processed = stocks.filter(stock => stock.dividendEvents.status === 'ready').length;
-  summary.dividends.pending = stocks.filter(stock => ['pending', 'running'].includes(stock.jobs.dividends?.status)
-    || stock.dividendEvents.status === 'pending').length;
-  return { summary, jobs: rows, stocks, checkedAt: new Date().toISOString(), scope: [...kinds, 'price', 'candles'] };
+  summary.dividends.pending = stocks.filter(stock => stock.dividendEvents.status === 'pending').length;
+  return { summary, jobs: rows, stocks, checkedAt: new Date().toISOString(), scope: [...kinds, 'dividends', 'price', 'candles'] };
 }
 
 async function latestFiling(environment, ticker) {
@@ -281,17 +260,9 @@ async function financialTask(environment, ticker, previous) {
       : 'SEC 제공 이력 저장. 새 공시 원문 반영 대기 중이며 다음날 다시 확인합니다.' };
 }
 
-async function dividendTask(environment, ticker) {
-  const details = await syncAlphaDividends(environment, ticker);
-  return { ...details, note: details.eventCount
-    ? 'Alpha Vantage 배당·분할 이력 저장. 미확보 성장률은 완전한 비교 연도가 없음을 뜻합니다.'
-    : 'Alpha Vantage 배당 이력 0건. 무배당 종목으로 저장했습니다.' };
-}
-
 export function classifyFundamental(kind, details) {
   if (kind === 'profile') return 'ready';
   // 저장 상태는 공급원이 제공한 이력의 확보 여부만 나타낸다. 개별 지표의 공란은 별도 안내한다.
-  if (kind === 'dividends') return details?.source === 'ALPHA_VANTAGE' ? 'ready' : 'partial';
   if (details?.source !== 'SEC EDGAR') return 'partial';
   return details.annualCount > 0 || details.quarterlyCount > 0 ? 'ready' : 'partial';
 }
@@ -306,7 +277,7 @@ async function executeJob(environment, job) {
     .bind(token, after(120000), job.ticker, job.kind, now, now).first();
   if (!claimed) return { ticker: job.ticker, kind: job.kind, status: 'skipped' };
   let status, details = readDetails(job.details), error = null;
-  let nextRun = after(job.kind === 'profile' ? 30 * day : job.kind === 'dividends' ? 14 * day : day);
+  let nextRun = after(job.kind === 'profile' ? 30 * day : day);
   try {
     if (job.kind === 'profile') {
       const existing = await environment.DB.prepare('SELECT cik, updated_at FROM companies WHERE ticker=?').bind(job.ticker).first();
@@ -316,7 +287,7 @@ async function executeJob(environment, job) {
       details = { source: 'FMP' };
     } else if (job.kind === 'financials') {
       details = await financialTask(environment, job.ticker, details);
-    } else details = await dividendTask(environment, job.ticker);
+    } else throw new Error('지원하지 않는 재무 작업입니다.');
     status = classifyFundamental(job.kind, details);
   } catch (failure) {
     error = String(failure.message || failure).slice(0, 700);
@@ -338,7 +309,7 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
     JOIN user_watchlist w ON w.ticker=j.ticker AND w.user_id='primary'
     WHERE (j.next_run_at IS NULL OR j.next_run_at <= ?)
       AND (j.lease_until IS NULL OR j.lease_until < ?)
-      AND (? IS NULL OR j.ticker=?)
+      AND j.kind IN ('profile', 'financials') AND (? IS NULL OR j.ticker=?)
     ORDER BY CASE WHEN j.checked_at IS NULL THEN 0 ELSE 1 END, j.checked_at, w.display_order`)
     .bind(now, now, requestedTicker, requestedTicker).all();
   const tickers = [...new Set(due.results.map(job => job.ticker))].slice(0, 2);
@@ -365,8 +336,9 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
 }
 
 export async function fundamentalDetails(environment, ticker) {
-  await ensureFundamentalStore(environment);
-  const jobs = await environment.DB.prepare('SELECT kind, status, details, error FROM fundamental_jobs WHERE ticker=?')
+  // 상세 화면은 조회 전용이어야 한다. 테이블 준비는 마이그레이션/수집 경로에서 끝낸다.
+  const jobs = await environment.DB.prepare(`SELECT kind, status, details, error FROM fundamental_jobs
+    WHERE ticker=? AND kind IN ('profile', 'financials')`)
     .bind(ticker).all();
   return { collection: jobs.results.map(job => ({ ...job, details: readDetails(job.details) })) };
 }

@@ -877,22 +877,22 @@ function formatExDividendMonthDay(value) {
 /** 종합 화면의 날짜와 D-day는 지급일이 아닌 다음 배당락일 하나를 기준으로 맞춘다. */
 function getStoredDividendInfo(stock) {
   const savedDividend = stock.marketData?.dividendMetrics;
-  // 서버 전환 중에도 오래된 SEC·Massive 응답을 배당 수치로 다시 표시하지 않는다.
-  const dividend = savedDividend?.source === 'ALPHA_VANTAGE'
-    || savedDividend?.eventSource === 'ALPHA_VANTAGE' ? savedDividend : null;
+  // 새 저장 이력이 아직 없으면 구형 공급원 수치를 임의로 섞지 않는다.
+  const dividend = savedDividend?.source === 'BUSINESS_QUANT' ? savedDividend : null;
   const yieldValue = toNullableNumber(dividend?.dividendYield);
   const nextDate = dividend?.nextExDividendDate;
   const candidateStatus = dividend?.nextExDateStatus;
-  const status = nextDate && ['confirmed', 'estimated'].includes(candidateStatus) ? candidateStatus : 'unknown';
+  const status = nextDate && ['announced', 'confirmed', 'estimated'].includes(candidateStatus) ? candidateStatus : 'unknown';
   return {
     yieldRate: yieldValue === null ? '—' : `${yieldValue.toFixed(2)}%`,
     yieldDetail: yieldValue !== null
-      ? `Alpha Vantage 실제 지급 ${dividend.trailingPayoutCount}회 · ${dividend.yieldPriceSource || '저장 가격'} 기준`
-      : 'Alpha Vantage 배당수익률 미확보',
+      ? `Business Quant 실제 지급 ${dividend.trailingPayoutCount}회 · ${dividend.yieldPriceSource || '저장 가격'} 기준`
+      : 'Business Quant 배당수익률 미확보',
     nextDate: formatExDividendMonthDay(nextDate),
     daysLeft: nextDate ? formatWeekdayCountdown(nextDate) : '—',
     status,
-    statusLabel: status === 'confirmed' ? '확정 배당락일'
+    statusLabel: status === 'announced' ? '저장된 예정 배당락일'
+      : status === 'confirmed' ? '확정 배당락일'
       : status === 'estimated' ? '추정 배당락일' : '배당락일 미확보'
   };
 }
@@ -989,7 +989,7 @@ function formatDividendAmount(value) {
   return amount === null ? '데이터 없음' : `$${amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}`;
 }
 
-/** 상세 모달의 배당 값은 Alpha Vantage 저장·계산 결과만 표시한다. */
+/** 상세 모달은 BQ 저장 요약을 읽고 Massive의 종류·선언일만 보완한다. */
 function renderCompanyDetailData(company) {
   const financialContainer = document.getElementById('detailFinancialMetrics');
   const dividendContainer = document.getElementById('detailDividendMetrics');
@@ -1012,12 +1012,10 @@ function renderCompanyDetailData(company) {
     : '아직 저장된 재무 데이터가 없습니다.';
 
   const savedDividend = company.dividendMetrics;
-  const dividend = savedDividend?.source === 'ALPHA_VANTAGE'
-    || savedDividend?.eventSource === 'ALPHA_VANTAGE' ? savedDividend : null;
+  const dividend = savedDividend?.source === 'BUSINESS_QUANT' ? savedDividend : null;
   const yieldValue = toNullableNumber(dividend?.dividendYield);
   const exStatus = dividend?.nextExDateStatus || 'unknown';
-  const frequencyLabels = { 0: '비정기', 1: '연 1회', 2: '반기', 3: '연 3회', 4: '분기', 12: '월', 52: '주', 104: '주 2회' };
-  // 배당금 계산에는 Alpha만 쓰되, 구형 Worker가 전달한 Massive 원본도 이 두 카드에만 허용한다.
+  // 구형 Worker가 전달한 Massive 원본은 배당 종류 보완에만 허용한다.
   const massiveEvents = (Array.isArray(company.dividends) ? company.dividends : [])
     .filter(event => event.source === 'MASSIVE' && event.exDividendDate)
     .sort((left, right) => right.exDividendDate.localeCompare(left.exDividendDate));
@@ -1025,16 +1023,6 @@ function renderCompanyDetailData(company) {
   const lastPaidMassiveEvent = massiveEvents
     .filter(event => event.paymentDate && event.paymentDate <= today)
     .sort((left, right) => right.paymentDate.localeCompare(left.paymentDate))[0] || null;
-  const latestRegularMassiveEvent = massiveEvents.find(event => event.distributionType === 'recurring'
-    && toNullableNumber(event.frequency) > 0) || null;
-  const massiveFrequencyRecord = company.regularDividendFrequency?.source === 'MASSIVE'
-    ? company.regularDividendFrequency : latestRegularMassiveEvent;
-  const massiveFrequency = toNullableNumber(massiveFrequencyRecord?.frequency);
-  const regularFrequency = Number.isInteger(massiveFrequency) && massiveFrequency > 0
-    ? massiveFrequency : null;
-  const frequencyDetail = regularFrequency === null
-    ? 'Massive 정기 배당 빈도 미확보 · 저장 이력 확인 필요'
-    : `Massive 저장 정기 배당 · 최근 배당락일 ${massiveFrequencyRecord?.exDividendDate || '날짜 미확보'}`;
   const distributionLabels = { recurring: '정기', special: '특별', supplemental: '추가', irregular: '비정기', unknown: '미분류' };
   const legacyMassiveMetrics = company.dividendMetrics?.eventSource === 'MASSIVE'
     ? company.dividendMetrics : null;
@@ -1049,34 +1037,36 @@ function renderCompanyDetailData(company) {
     const number = toNullableNumber(value);
     return number === null ? '미확보' : `${number.toFixed(2)}%`;
   };
-  const sourceLabel = 'Alpha Vantage';
+  const sourceLabel = 'Business Quant';
   const growthSummary = `1년 ${formatGrowthRate(dividend?.dividendGrowth1y)} · 5년 ${formatGrowthRate(dividend?.dividendGrowthCagr5y)} · 10년 ${formatGrowthRate(dividend?.dividendGrowthCagr10y)}`;
   // 배당 빈도와 종류를 맨 앞에 두고, 요청한 세 지표는 화면에서만 숨긴다.
   const dividendEntries = [
-    ['정기 배당 빈도', regularFrequency === null ? '미확보'
-      : frequencyLabels[regularFrequency] || `연 ${regularFrequency}회`, frequencyDetail],
+    ['정기 배당 빈도', dividend?.frequencyLabel || '미확보',
+      dividend?.frequencyLabel ? 'Business Quant 최근 배당락일 간격 기준' : 'Business Quant 정기 이력 미확보'],
     ['마지막 배당 종류', distributionLabels[lastDistributionType] || '미확보', distributionDetail],
     ['최근 실제 지급 1년 배당수익률', yieldValue === null ? '미확보' : `${yieldValue.toFixed(2)}%`,
       yieldValue === null ? `${sourceLabel} 지급 이벤트 또는 저장 가격 미확보` : `${sourceLabel} 실제 지급 ${dividend.trailingPayoutCount}회 합계 ÷ ${dividend.yieldPriceSource || '저장 가격'} · 전체 배당 포함`, yieldValue === null ? 'unknown' : 'confirmed'],
-    ['최근 1년 실제 지급액', formatDividendAmount(dividend?.annualDividend), `${sourceLabel} 지급일 기준 · 분할 조정액 우선`],
+    ['최근 1년 실제 지급액', formatDividendAmount(dividend?.annualDividend), `${sourceLabel} 지급일 기준`],
     ['마지막 실제 지급 배당금', formatDividendAmount(dividend?.lastPaidAmount),
       dividend?.lastPaymentDate ? `${dividend.lastPaymentDate} · 당시 주당 지급액` : `${sourceLabel} 지급 이벤트 미확보`, dividend?.lastPaidAmount == null ? 'unknown' : 'confirmed'],
-    ['다음 배당 선언일', dividend?.nextDeclarationDate || '미확보', `${sourceLabel} 발표 기록`],
-    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears, '년 · Alpha Vantage 기준'],
-    ['배당 성장률', growthSummary, 'Alpha Vantage 완료 연도별 분할 조정 주당배당금 · 1년 전년 대비, 5·10년 CAGR'],
+    ['다음 배당 선언일', dividend?.nextDeclarationDate || '미발표', 'Massive 발표 기록'],
+    ['확보 이력 내 배당 성장 연수', dividend?.dividendGrowthYears == null ? '미확보' : `${dividend.dividendGrowthYears}년`, 'Business Quant 확보 기간 기준'],
+    ['배당 성장률', growthSummary, `Business Quant 완료 연도별 주당배당금 · 1년 전년 대비, 5·10년 CAGR · ${dividend?.specialFilterNote || '특별배당 분류 미확보'}`],
     ['다음 배당락일', dividend?.nextExDividendDate || '미확보',
       dividend?.nextExDividendDate
-        ? `${exStatus === 'confirmed' ? '확정' : exStatus === 'estimated' ? '추정' : '상태 미확보'} · ${dividend.nextDateSource || `${sourceLabel} 일정`} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}`
-        : `${sourceLabel} 미래 일정 미확보`, exStatus]
+        ? `${['confirmed', 'announced'].includes(exStatus) ? '저장된 미래 이벤트' : '상태 미확보'} · ${dividend.nextDateSource || `${sourceLabel} 일정`} · ${formatWeekdayCountdown(dividend.nextExDividendDate)}`
+        : '미발표', exStatus],
+    ['다음 배당금', formatDividendAmount(dividend?.nextDividend), 'Business Quant 미래 배당 이벤트'],
+    ['다음 지급일', dividend?.nextPaymentDate || '미발표', 'Business Quant 미래 배당 이벤트']
   ];
   dividendContainer.innerHTML = dividendEntries.map(([label, value, suffix, status]) => {
     const displayValue = typeof value === 'string' ? value : formatMetricValue(value, suffix);
     const detail = suffix && typeof value === 'string' ? `<small>${escapeHtml(suffix)}</small>` : '';
     return `<div class="company-metric${status ? ` dividend-date ${status}` : ''}"><span>${label}</span><strong>${escapeHtml(displayValue)}</strong>${detail}</div>`;
   }).join('');
-  document.getElementById('detailDividendSource').textContent = dividend?.source === 'ALPHA_VANTAGE'
-    ? `정기 배당 빈도·마지막 배당 종류: Massive 저장값${regularFrequency === null || !lastDistributionType ? ' 일부 미확보' : ''}. 배당 이력·날짜·성장률: Alpha Vantage ${dividend?.eventCount ?? 0}건. 1·5·10년 성장률은 완료된 역년의 배당락일 기준 총액으로 계산합니다. 과거 지급액은 주식분할을 조정합니다.${dividend?.skippedZeroCount ? ` 공급원 0원 기록 ${dividend.skippedZeroCount}건은 합계에서 제외했습니다.` : ''}`
-    : '정기 배당 빈도·마지막 배당 종류는 Massive 저장값이며, Alpha Vantage 배당 이력은 아직 저장하지 못했습니다. 5-3 저장 상태를 확인해 주세요.';
+  document.getElementById('detailDividendSource').textContent = dividend?.source === 'BUSINESS_QUANT'
+    ? `배당 이력·빈도·성장률: Business Quant ${dividend.eventCount}건 (${dividend.historyStart}~${dividend.historyEnd}). 배당 종류·선언일: Massive 저장값. ${dividend.specialFilterNote || ''} 분할 전 주당배당금과 현재가의 직접 비교는 주의가 필요합니다.`
+    : 'Business Quant 배당 이력을 아직 저장하지 못했습니다. 5-3 저장 상태를 확인해 주세요.';
 }
 
 /**

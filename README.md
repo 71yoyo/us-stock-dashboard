@@ -14,7 +14,7 @@ Williams %R 신호의 현재 규칙, 결정 이력, 앞으로 추가할 책 연�
 
 1-3. 주식 목록 관리 화면에서 배당 투자 목록과 주가 투자 목록을 각각 관리합니다.
 
-1-4. 현재가는 저장된 시세를 사용합니다. 시세가 없으면 마지막 저장 일봉 종가와 기준일을 따로 표시하며, 이를 장중 현재가나 포트폴리오 손익 계산값으로 사용하지 않습니다. Williams %R은 저장 일봉에서 계산합니다. 배당금·수익률·일정·성장률은 Alpha Vantage 이력을 사용하고, 상세 분석의 정기 배당 빈도만 저장된 Massive 정기 이벤트를 사용합니다. 해당 원본이 없으면 미확보로 표시합니다.
+1-4. 현재가는 저장된 시세를 사용합니다. 시세가 없으면 마지막 저장 일봉 종가와 기준일을 따로 표시하며, 이를 장중 현재가나 포트폴리오 손익 계산값으로 사용하지 않습니다. Williams %R은 저장 일봉에서 계산합니다. 새 배당 파이프라인은 Business Quant 이력과 Massive 선언·종류 정보를 D1에 저장해 사용합니다. 운영 승인·동기화 전까지 새 배당 화면의 수치는 미확보로 표시됩니다.
 
 1-5. 관심종목 목록은 PIN 인증 뒤 Cloudflare D1과 동기화합니다. 처음 동기화할 때만 현재 브라우저 목록을 D1에 옮기며, 이후에는 D1 목록이 모든 브라우저의 기준이 됩니다.
 
@@ -92,7 +92,7 @@ npx wrangler d1 migrations apply us-stock-pro --remote --config worker/wrangler.
 
 ### 5-3. Worker 배포와 Secret 등록
 
-로컬에서 시험할 때는 `worker/.dev.vars`에 `MASSIVE_API_KEY`(일봉)와 `ALPHA_VANTAGE_API_KEY`(배당)를 설정합니다. 이 파일은 Git에서 제외되며 Cloudflare 운영 Worker로 자동 전송되지 않습니다. `wrangler secret put`은 새 Worker 버전을 즉시 배포하므로, 홈페이지 업데이트를 요청받기 전에는 실행하지 않습니다.
+로컬에서 시험할 때는 `worker/.dev.vars`에 `MASSIVE_API_KEY`(일봉·배당 선언)와 `BUSINESS_QUANT_API_KEY`(장기 배당)를 설정합니다. 이전 Alpha Vantage 배당 코드와 DB 테이블은 폐기 대상이며, 운영 데이터는 `0015_retire_alpha_dividends.sql` 적용 때 제거됩니다. `.dev.vars`와 `.dev.vars.*`는 Git에서 제외되며 Cloudflare 운영 Worker로 자동 전송되지 않습니다. `wrangler secret put`은 새 Worker 버전을 즉시 배포하므로 운영 승인 전에는 실행하지 않습니다.
 
 관심종목 동기화용 PIN도 Worker Secret으로 등록해야 합니다. `APP_PIN`은 현재 화면 잠금에 사용할 4자리 숫자이며, GitHub에는 절대 저장하지 않습니다. PIN은 편의 잠금이므로 금융계좌 비밀번호처럼 중요한 비밀번호를 사용하면 안 됩니다.
 
@@ -105,7 +105,7 @@ npx wrangler secret put APP_PIN --config worker/wrangler.jsonc
 ```powershell
 npx wrangler secret put MARKET_DATA_API_KEY --config worker/wrangler.jsonc
 npx wrangler secret put MASSIVE_API_KEY --config worker/wrangler.jsonc
-npx wrangler secret put ALPHA_VANTAGE_API_KEY --config worker/wrangler.jsonc
+npx wrangler secret put BUSINESS_QUANT_API_KEY --config worker/wrangler.jsonc
 npx wrangler secret put MARKET_DATA_PROVIDER --config worker/wrangler.jsonc
 npx wrangler deploy --config worker/wrangler.jsonc
 ```
@@ -120,17 +120,17 @@ npx wrangler secret put ALLOWED_ORIGIN --config worker/wrangler.jsonc
 
 ## 6. 자동 갱신 방식
 
-회사·SEC 재무·Alpha Vantage 배당 큐는 5분 간격으로 최대 2종목을 처리합니다. Massive 배당 자동 수집은 보류하지만 저장된 정기 배당 빈도는 상세 분석에서 읽습니다. 미국 동부 정규장 종료 30분 뒤부터 Massive 전체 시장 일봉을 날짜당 한 번 성공할 때까지 확인해 적재를 마친 관심종목만 갱신하고, 묶음 응답에 빠진 종목은 개별 큐에서 보완합니다. `5-3`에서는 실제 최신 일봉 거래일과 저장 확인 시각을 따로 보여주며, 새 일봉이 저장되면 열린 종합 화면도 다시 읽습니다. `5-3`의 배당 `저장됨`은 해당 종목의 Alpha Vantage 배당과 주식분할 응답이 모두 저장됐다는 뜻이며 Massive 빈도 확보 여부와는 별개입니다.
+회사·SEC 재무 큐는 5분 간격으로 최대 2종목을 처리합니다. 배당 수집은 Business Quant와 Massive 전용 예약 작업만 사용합니다. `DIVIDEND_PIPELINE_ENABLED=true`일 때 관심목록의 모든 종목을 순차 수집하며, Business Quant 요청은 하루 및 최근 24시간 각각 최대 24회로 제한합니다. 긴급하게 일부 종목만 수집해야 하면 `DIVIDEND_SYNC_TICKERS`를 설정할 수 있습니다. 미국 동부 정규장 종료 30분 뒤 Massive 전체 시장 일봉을 확인하는 기존 경로는 유지합니다. `5-3`의 배당 `저장됨`은 Business Quant 전체 이력과 요약이 저장된 상태를 뜻합니다.
 
 1. 회사 정보는 기존 CIK가 있으면 재사용하고 30일 주기로 확인합니다.
 2. 재무는 SEC 제출 이력을 하루 한 번 확인합니다. 신규/정정 10-K·10-Q가 있을 때만 Company Facts를 다시 읽습니다. 원문이 아직 반영되지 않았다면 다음날 재시도합니다.
-3. Alpha Vantage `DIVIDENDS`와 `SPLITS`를 종목당 각 1회 호출해 원본과 분할 조정액을 저장합니다. 1·5·10년 성장률은 완료된 역년의 배당락일 기준 연간 합계로 계산하며, 비교 연도의 1월부터 이력이 없으면 `미확보`로 둡니다. 최근 1년 실제 지급액은 지급일 기준으로 합산하고 저장 가격으로 나눕니다. 배당 종류는 Alpha Vantage 응답에 없어 `미확보`, 상세 분석의 정기 배당 빈도는 Massive 저장값이 없으면 `미확보`로 표시합니다. 무료 API는 하루 25회이므로 신규 적재는 약 12종목/일 이하이며 성공 종목은 14일 간격으로 갱신합니다.
+3. Business Quant는 한 번에 받은 전체 배당 이력을 신규·정정 행만 D1에 반영하며, API에서 사라진 과거 행은 삭제하지 않습니다. 일일/최근 24시간 24회 하드 한도와 티커별 당일 중복 방지를 D1에 기록합니다. 최근 365일 실제 지급액은 지급일 기준이고 성장률은 완료된 지급연도의 정기 배당 합계 기준입니다. 최근 배당락일 간격으로 월·분기·반기·연 주기를 판별하며, 각 연도에 해당 주기의 정기 지급 횟수가 모두 있어야 1·5·10년 성장률을 계산합니다. Massive에서 확인된 특별·추가 배당은 성장률에서 제외합니다. 분할 보정 여부가 확인되지 않은 급변 구간의 성장률·수익률은 `미확보`로 둡니다. 배당 종류·선언일은 Massive 저장값을 사용합니다.
 4. 신규 종목은 Massive 3개월 일봉을 먼저 채웁니다. Massive 응답이 없거나 오류면 FMP를 보조로 사용하되, Massive의 분당 호출 예산이 찼을 때에는 다음 주기를 기다립니다. FMP 402 종목은 한 달간 같은 보조 요청을 반복하지 않습니다. 기존 FMP 일봉은 Massive 이력의 길이·최신 날짜를 검증한 뒤 활성 데이터에서 교체하고 복구용 테이블에 남깁니다. FMP 보조 데이터는 이미 저장된 Massive 날짜를 덮지 않습니다. Massive 무료 한도 5회/분은 D1에서 공유합니다. 장 마감 후 묶음 API는 한 거래일에 한 번 성공하면 다시 호출하지 않습니다.
 
-`fundamental-store.js`는 첫 실행에서 추가 테이블을 `CREATE TABLE IF NOT EXISTS`로 준비합니다. 회사·재무·배당 원본은 D1에, UI 설정은 기존 localStorage 형식에 저장됩니다. 임대로 중복 실행을 차단합니다. FMP는 기존 회사 정보·시세와 일봉 보조 경로에, Massive는 우선 일봉에 사용합니다. 화면의 현재가 표시 방식은 변경하지 않았습니다.
+`fundamental-store.js`는 회사·재무 작업 테이블을 준비합니다. Business Quant 테이블은 `0014_businessquant_dividends.sql`이 준비하고, `0015_retire_alpha_dividends.sql`은 사용하지 않는 Alpha 배당 테이블을 제거합니다. 사용자 설정의 기존 localStorage 형식과 화면의 현재가 표시 방식은 변경하지 않았습니다. FMP는 회사 정보·시세와 일봉 보조 경로에, Massive는 우선 일봉과 배당 선언·종류 감지에 사용합니다.
 
-배포 시에는 새 Worker 코드와 화면을 함께 반영하고 `0013_clear_legacy_sec_dividend_jobs.sql`까지 D1 마이그레이션을 적용해야 합니다. `0012`는 SEC 배당 전용 테이블을 삭제하고, `0013`은 오래된 SEC 배당 작업 오류·설명을 정리하므로 이전 Worker와 혼용하지 않습니다. SEC 재무 자료는 유지합니다. Massive 배당 원본은 보존하며, 상세 분석의 정기 배당 빈도에만 가장 최근 정기 지급 이벤트의 저장된 `frequency`를 사용합니다. 자동 Massive 배당 수집은 보류 중이므로 저장 이력이 없는 신규 종목은 이 항목을 `미확보`로 표시합니다. 배당금·수익률·배당락일·성장률은 Alpha Vantage 기준입니다. 5-3 배당 `저장됨`은 Alpha 배당·분할 수집이 완료되고 저장 이벤트 건수가 동기화 기록과 일치할 때만 표시합니다. 5-3의 3개월 일봉 완료 집계는 Massive 적재가 끝난 종목만 세고, 남은 FMP 종목은 전환 대기로 표시합니다.
+운영 반영은 별도 승인 전까지 하지 않습니다. 승인 후 Worker와 화면을 함께 배포하고 `0014_businessquant_dividends.sql`을 원격 D1에 적용해야 합니다. `BUSINESS_QUANT_API_KEY` Secret 존재와 권한을 확인한 다음 3종목 이하로 시험 동기화합니다. 기존 Alpha·Massive 원본과 SEC 재무 자료는 삭제하지 않습니다. `5-3`의 3개월 일봉 완료 집계는 Massive 적재가 끝난 종목만 셉니다.
 
-SEC로 부족한 PER·PEG·ROIC는 미확보로 표시합니다. Alpha Vantage 배당 이벤트 또는 저장 가격이 없으면 수익률도 미확보로 표시합니다. 미래 일정에 선언일이 있으면 확정, 그렇지 않거나 과거 이벤트에서 유추했으면 추정으로 구분합니다. SEC 분기 누적 현금흐름은 차감해 개별 분기로 변환하며 EPS는 누적값을 단순 차감하지 않습니다.
+SEC로 부족한 PER·PEG·ROIC는 미확보로 표시합니다. Business Quant 배당 이력 또는 저장 가격이 없으면 수익률도 미확보로 표시합니다. 내부 추정 배당락일은 수집 예약에만 사용하고 홈페이지에는 표시하지 않습니다. SEC 분기 누적 현금흐름은 차감해 개별 분기로 변환하며 EPS는 누적값을 단순 차감하지 않습니다.
 
 `npm run check`와 `npm test`(Node 24)는 문법, 기간 구분, 원문 재사용, 중복 실행, 호출 예산, 시세·차트 미호출을 검증합니다. GitHub에서도 동일 검사를 실행합니다.

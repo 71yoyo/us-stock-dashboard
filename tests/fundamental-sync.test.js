@@ -8,8 +8,6 @@ import { ensureFundamentalStore, reserveFundamentalCall } from '../worker/src/fu
 import worker, { findNextPostCloseCandleJob, synchronizePostCloseCandles } from '../worker/src/index.js';
 import { syncCandlesFromMassive, syncGroupedCandlesFromMassive } from '../worker/src/massive-sync.js';
 import { syncDividendsFromMassive } from '../worker/src/massive-sync.js';
-import { normalizeAlphaDividendHistory, summarizeAlphaDividendHistory, syncAlphaDividends } from '../worker/src/alpha-dividends.js';
-import { combineDividendData } from '../worker/src/dividend-view.js';
 
 // 실제 SQLite에서 D1과 같은 바인딩/트랜잭션으로 실행해 SQL과 동시 임대도 검증한다.
 function database() {
@@ -100,36 +98,7 @@ test('SEC 태그 전환, 누적 현금흐름 분리, 연간/Q4 구분', () => {
   assert.equal(annual.get('2025-12-31').val, 80);
 });
 
-test('분기배당 수익률은 최근 실제 지급 4회를 현재가로 나누고 미래 지급분은 제외한다', () => {
-  const metrics = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2025-12-01', paymentDate: '2025-12-15', amount: .5 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-03-01', paymentDate: '2026-03-15', amount: .5 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-06-01', paymentDate: '2026-06-15', amount: .6 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-09-01', paymentDate: '2026-09-15', amount: .6 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-12-01', paymentDate: '2026-12-15', amount: .7 }
-  ], 100, '2026-09-22');
-  assert.ok(Math.abs(metrics.annualDividend - 2.2) < 1e-9);
-  assert.ok(Math.abs(metrics.quarterlyDividend - .6) < 1e-9);
-  assert.ok(Math.abs(metrics.dividendYield - 2.2) < 1e-9);
-  assert.equal(metrics.trailingPayoutCount, 4);
-  assert.equal(metrics.dividendGrowthCagr10y, null);
-  assert.equal(metrics.nextExDividendDate, '2026-12-01');
-});
-
-test('월배당 수익률은 최근 실제 지급 12회를 합산한다', () => {
-  const events = Array.from({ length: 13 }, (_, index) => {
-    const date = new Date(Date.UTC(2024, 11 + index, 1));
-    const isoDate = date.toISOString().slice(0, 10);
-    return { source: 'ALPHA_VANTAGE', exDividendDate: isoDate,
-      paymentDate: `${isoDate.slice(0, 8)}15`, amount: .1 };
-  });
-  const metrics = combineDividendData(null, events, 24, '2026-01-01');
-  assert.ok(Math.abs(metrics.annualDividend - 1.2) < 1e-9);
-  assert.ok(Math.abs(metrics.dividendYield - 5) < 1e-9);
-  assert.equal(metrics.trailingPayoutCount, 12);
-});
-
-test('SEC 재무는 유지하고 배당은 Alpha Vantage 키가 없으면 기존 값을 건드리지 않는다', async () => {
+test('SEC 재무 예약 작업은 배당 공급원을 호출하지 않는다', async () => {
   const { DB, sqlite } = database();
   sqlite.exec(`INSERT INTO companies(ticker,name,cik) VALUES ('O','O','726728'),('JPM','JPM','19617');
     INSERT INTO user_watchlist(user_id,ticker,strategy,display_order) VALUES ('primary','O','dividend',0),('primary','JPM','dividend',1);
@@ -157,8 +126,9 @@ test('SEC 재무는 유지하고 배당은 Alpha Vantage 키가 없으면 기존
     assert.equal(status.summary.dividends.stored, 0);
     assert.ok(status.jobs.filter(job => job.kind === 'financials')
       .every(job => job.status === 'ready' && job.details.source === 'SEC EDGAR'));
-    assert.ok(status.jobs.filter(job => job.kind === 'dividends').every(job => job.status === 'error'));
-    assert.equal(status.stocks.find(stock => stock.ticker === 'O').dividendEvents.status, 'error');
+    assert.equal(status.jobs.filter(job => job.kind === 'dividends').length, 0);
+    assert.equal(status.stocks.find(stock => stock.ticker === 'O').dividendEvents.status, 'pending');
+    assert.equal(urls.some(url => url.includes('businessquant.com')), false);
     // 5-3은 재무 작업과 별개로 D1에 저장된 최신 현재가도 같은 종목 행에서 보여 준다.
     assert.equal(status.stocks.find(stock => stock.ticker === 'O').price.currentPrice, 100);
     assert.equal(status.stocks.find(stock => stock.ticker === 'O').price.status, 'ready');
@@ -176,117 +146,37 @@ test('SEC 재무는 유지하고 배당은 Alpha Vantage 키가 없으면 기존
   } finally { globalThis.fetch = originalFetch; sqlite.close(); }
 });
 
-test('Alpha Vantage 당시 배당금은 이후 주식분할을 조정하고 완료 연도의 1·5·10년 성장률만 계산한다', () => {
-  const raw = { symbol: 'TEST', data: [
-    ['2014-01-05', .1], ['2015-06-05', 1], ['2020-06-05', 1.5],
-    ['2024-06-05', 1.8], ['2025-06-05', 2], ['2026-06-05', 99]
-  ].map(([ex_dividend_date, amount]) => ({ ex_dividend_date, amount: String(amount) })) };
-  const { events } = normalizeAlphaDividendHistory(raw,
-    { data: [{ effective_date: '2022-01-01', split_factor: '2.0000' }] }, 'TEST');
-  assert.equal(events.find(row => row.exDividendDate === '2015-06-05').adjustedAmount, .5);
-  assert.equal(events.find(row => row.exDividendDate === '2025-06-05').adjustedAmount, 2);
-  const metrics = summarizeAlphaDividendHistory(events, '2026-09-28');
-  assert.equal(metrics.annualDividend, 2);
-  assert.ok(Math.abs(metrics.dividendGrowth1y - (2 / 1.8 - 1) * 100) < 1e-9);
-  assert.ok(Math.abs(metrics.dividendGrowthCagr5y - (Math.pow(2 / .75, 1 / 5) - 1) * 100) < 1e-9);
-  assert.ok(Math.abs(metrics.dividendGrowthCagr10y - (Math.pow(2 / .5, 1 / 10) - 1) * 100) < 1e-9);
-  assert.equal(summarizeAlphaDividendHistory(events.filter(row => row.exDividendDate >= '2015-01-01'),
-    '2026-09-28').dividendGrowthCagr10y, null);
-});
-
-test('Alpha Vantage 배당·분할 양쪽 응답이 성공해야만 새 원본으로 교체하고 Massive 보류 원본은 보존한다', async () => {
-  const { DB, sqlite } = database();
-  await ensureFundamentalStore({ DB });
-  sqlite.exec(`INSERT INTO companies(ticker,name) VALUES ('O','Realty Income');
-    INSERT INTO massive_dividend_events(ticker,provider_event_id,ex_dividend_date,amount)
-      VALUES ('O','old','2025-08-01',0.2);`);
-  const originalFetch = globalThis.fetch;
-  let failSplits = false;
-  globalThis.fetch = async input => {
-    const requestUrl = new URL(input);
-    assert.equal(requestUrl.host, 'www.alphavantage.co');
-    assert.equal(requestUrl.searchParams.get('apikey'), 'test-key');
-    if (requestUrl.searchParams.get('function') === 'DIVIDENDS') return Response.json({ symbol: 'O', data: [
-      { ex_dividend_date: '2025-08-01', payment_date: '2025-08-15', amount: '0.2' },
-      { ex_dividend_date: '2026-08-01', payment_date: '2026-08-15', amount: '0.22' }
-    ] });
-    return failSplits ? Response.json({ Information: 'quota' }) : Response.json({ symbol: 'O', data: [] });
-  };
-  try {
-    const environment = { DB, ALPHA_VANTAGE_API_KEY: 'test-key' };
-    const result = await syncAlphaDividends(environment, 'O');
-    assert.equal(result.eventCount, 2);
-    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM alpha_dividend_events').get().n, 2);
-    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE name='dividend_periods'").get().n, 0);
-    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM massive_dividend_events').get().n, 1);
-    failSplits = true;
-    await assert.rejects(syncAlphaDividends(environment, 'O'), /호출 제한/);
-    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM alpha_dividend_events').get().n, 2);
-    assert.equal(sqlite.prepare("SELECT status FROM alpha_dividend_sync WHERE ticker='O'").get().status, 'ready');
-  } finally { globalThis.fetch = originalFetch; sqlite.close(); }
-});
-
-test('Alpha Vantage 저장 완료 종목만 종합·상세 화면에 배당을 표시한다', async () => {
+test('Business Quant 저장 완료 종목만 종합·상세 화면에 배당을 표시한다', async () => {
   const { DB, sqlite } = database();
   await ensureFundamentalStore({ DB });
   sqlite.exec(`INSERT INTO companies(ticker,name) VALUES ('O','Realty Income');
     INSERT INTO user_watchlist(user_id,ticker,strategy,display_order) VALUES ('primary','O','dividend',0);
     INSERT INTO massive_dividend_events(ticker,provider_event_id,ex_dividend_date,amount)
       VALUES ('O','old','2025-08-01',9);
-    INSERT INTO alpha_dividend_events(ticker,event_key,ex_dividend_date,payment_date,amount,split_adjusted_amount)
-      VALUES ('O','new','2026-08-01','2026-08-15',0.2,0.2);`);
-  sqlite.prepare(`INSERT INTO alpha_dividend_sync(ticker,status,event_count,metrics_json,last_success_at)
-    VALUES ('O','ready',1,?,CURRENT_TIMESTAMP)`)
-    .run(JSON.stringify({ source: 'ALPHA_VANTAGE', dividendGrowth1y: 3.5,
-      dividendGrowthCagr5y: 2.4, dividendGrowthCagr10y: 1.8 }));
+    INSERT INTO bq_dividend_history(ticker,ex_date,payment_date,dividend,first_seen_at,last_seen_at,fetched_at)
+      VALUES ('O','2026-08-01','2026-08-15',0.2,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+    INSERT INTO bq_dividend_summary(ticker,fetch_status,history_count,paid_dividend_1y,
+      growth_rate_1y,growth_rate_5y,growth_rate_10y,last_bq_fetch_at)
+      VALUES ('O','ready',1,0.2,3.5,2.4,1.8,CURRENT_TIMESTAMP);`);
   const environment = { DB, APP_PIN: 'test-pin' };
   try {
     const dashboard = await (await worker.fetch(new Request('https://example.test/api/dashboard',
       { headers: { 'X-App-Pin': 'test-pin' } }), environment)).json();
     const company = (await (await worker.fetch(new Request('https://example.test/api/companies/O'),
       environment)).json()).company;
-    assert.equal(dashboard.stocks[0].dividendMetrics.source, 'ALPHA_VANTAGE');
+    assert.equal(dashboard.stocks[0].dividendMetrics.source, 'BUSINESS_QUANT');
     assert.equal('secAnnualDividend' in dashboard.stocks[0].dividendMetrics, false);
     assert.equal(company.dividendMetrics.dividendGrowthCagr10y, 1.8);
-    assert.equal(company.dividendMetrics.eventSource, 'ALPHA_VANTAGE');
-    assert.equal(company.dividends.length, 1);
-    assert.equal(company.dividends[0].amount, 0.2);
+    assert.equal(company.dividendMetrics.eventSource, 'BUSINESS_QUANT');
+    assert.equal(company.dividends.length, 0);
     const status = await fundamentalStatus(environment);
     assert.equal(status.summary.dividends.stored, 1);
-    assert.equal(status.stocks[0].dividendEvents.source, 'ALPHA_VANTAGE');
+    assert.equal(status.stocks[0].dividendEvents.source, 'BUSINESS_QUANT');
     await assert.rejects(syncTickerFromFmp(environment, 'O', ['dividends']), /동기화 대상이 아닙니다/);
   } finally { sqlite.close(); }
 });
 
-test('SEC·Massive 배당은 Alpha 화면 계산에 섞이지 않는다', () => {
-  const metrics = combineDividendData({ source: 'SEC EDGAR', dividendGrowth1y: 99 }, [
-    { source: 'MASSIVE', exDividendDate: '2026-08-01', paymentDate: '2026-08-15', amount: 9 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-08-01', paymentDate: '2026-08-15', amount: .2 }
-  ], 100, '2026-09-23');
-  assert.equal(metrics.dividendYield, .2);
-  assert.equal(metrics.dividendGrowth1y, null);
-  assert.equal(metrics.eventCount, 1);
-  assert.equal('secAnnualDividend' in metrics, false);
-});
-test('미래 공시가 없으면 월배당 전월 이력 또는 전년 이력만 예상으로 표시한다', () => {
-  const monthly = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-06-15', paymentDate: '2026-06-30', amount: .1, distributionType: 'recurring', frequency: 12 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-07-15', paymentDate: '2026-07-30', amount: .1, distributionType: 'recurring', frequency: 12 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-08-15', paymentDate: '2026-08-30', amount: .1, distributionType: 'recurring', frequency: 12 }
-  ], 100, '2026-09-23');
-  assert.equal(monthly.nextExDividendDate, '2026-10-15');
-  assert.equal(monthly.nextDateStatus, 'estimated');
-  const quarterly = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2025-11-01', paymentDate: '2025-11-15', amount: .5, distributionType: 'recurring', frequency: 4 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-02-01', paymentDate: '2026-02-15', amount: .5, distributionType: 'recurring', frequency: 4 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-05-01', paymentDate: '2026-05-15', amount: .5, distributionType: 'recurring', frequency: 4 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-08-01', paymentDate: '2026-08-15', amount: .5, distributionType: 'recurring', frequency: 4 }
-  ], 100, '2026-09-23');
-  assert.equal(quarterly.nextExDividendDate, '2026-11-01');
-  assert.equal(quarterly.nextDateStatus, 'estimated');
-});
-
-test('Alpha 이력이 없으면 Massive 보류 원본이 있어도 배당은 미확보이고 SEC 재무는 유지한다', async () => {
+test('BQ 이력이 없으면 Massive 원본이 있어도 배당 수치는 미확보이고 SEC 재무는 유지한다', async () => {
   const { DB, sqlite } = database();
   await ensureFundamentalStore({ DB });
   sqlite.exec(`INSERT INTO companies(ticker,name,cik) VALUES ('O','Realty Income','726728');
@@ -301,11 +191,10 @@ test('Alpha 이력이 없으면 Massive 보류 원본이 있어도 배당은 미
   try {
     const dashboard = await (await worker.fetch(new Request('https://example.test/api/dashboard',
       { headers: { 'X-App-Pin': 'test-pin' } }), environment)).json();
-    assert.equal(dashboard.stocks[0].dividendMetrics.annualDividend, null);
-    assert.equal(dashboard.stocks[0].dividendMetrics.dividendYield, null);
+    assert.equal(dashboard.stocks[0].dividendMetrics, null);
     const { company } = await (await worker.fetch(new Request('https://example.test/api/companies/O'), environment)).json();
     assert.equal(company.dividends.length, 0);
-    assert.equal(company.dividendMetrics.eventSource, null);
+    assert.equal(company.dividendMetrics, null);
     assert.equal(company.regularDividendFrequency.frequency, 12);
     assert.equal(company.regularDividendFrequency.exDividendDate, '2026-08-01');
     assert.equal(company.regularDividendFrequency.source, 'MASSIVE');
@@ -317,14 +206,15 @@ test('Alpha 이력이 없으면 Massive 보류 원본이 있어도 배당은 미
   } finally { sqlite.close(); }
 });
 
-test('5-3 배당 저장됨은 Alpha 동기화 완료와 실제 이벤트 건수가 일치할 때만 표시한다', async () => {
+test('5-3 배당 저장됨은 BQ 요약 완료 상태와 원본 건수로만 표시한다', async () => {
   const { DB, sqlite } = database();
   sqlite.exec(`INSERT INTO companies(ticker,name) VALUES ('O','Realty Income'),('ABT','Abbott');
     INSERT INTO user_watchlist(user_id,ticker,strategy,display_order)
       VALUES ('primary','O','dividend',0),('primary','ABT','dividend',1);
-    INSERT INTO alpha_dividend_events(ticker,event_key,ex_dividend_date,amount,split_adjusted_amount)
-      VALUES ('O','one','2026-08-01',.2,.2),('ABT','one','2026-08-01',.5,.5);
-    INSERT INTO alpha_dividend_sync(ticker,status,event_count,last_success_at)
+    INSERT INTO bq_dividend_history(ticker,ex_date,dividend,first_seen_at,last_seen_at,fetched_at)
+      VALUES ('O','2026-08-01',.2,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP),
+             ('ABT','2026-08-01',.5,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+    INSERT INTO bq_dividend_summary(ticker,fetch_status,history_count,last_bq_fetch_at)
       VALUES ('O','ready',1,'2026-09-28T00:00:00Z');
     INSERT INTO fundamental_jobs(ticker,kind,status,details,error)
       VALUES ('O','dividends','ready','{"source":"SEC EDGAR","annualCount":9}',NULL),
@@ -336,62 +226,40 @@ test('5-3 배당 저장됨은 Alpha 동기화 완료와 실제 이벤트 건수�
     const o = status.stocks.find(stock => stock.ticker === 'O');
     const abt = status.stocks.find(stock => stock.ticker === 'ABT');
     assert.equal(o.dividendEvents.status, 'ready');
-    assert.equal(o.jobs.dividends.details.source, 'ALPHA_VANTAGE');
-    assert.equal('annualCount' in o.jobs.dividends.details, false);
-    assert.equal(abt.dividendEvents.status, 'partial');
-    assert.equal(abt.jobs.dividends.error, null);
-    assert.equal(abt.dividendEvents.count, 1);
+    assert.equal(o.jobs.dividends, undefined);
+    assert.equal(abt.dividendEvents.status, 'pending');
+    assert.equal(abt.jobs.dividends, undefined);
+    assert.equal(abt.dividendEvents.count, 0);
   } finally { sqlite.close(); }
 });
 
-test('SEC 배당 삭제 마이그레이션은 재무와 Massive 보류 원본을 보존한다', () => {
+test('Alpha 폐기 마이그레이션은 BQ·Massive·SEC 재무를 보존한다', () => {
   const sqlite = new DatabaseSync(':memory:');
   try {
     for (const name of readdirSync(new URL('../worker/migrations/', import.meta.url)).sort()) {
-      if (name === '0012_alpha_only_dividends.sql') break;
+      if (name === '0015_retire_alpha_dividends.sql') break;
       sqlite.exec(readFileSync(new URL(`../worker/migrations/${name}`, import.meta.url), 'utf8'));
     }
     sqlite.exec(`INSERT INTO companies(ticker,name) VALUES ('O','Realty Income');
-      CREATE TABLE dividend_periods(ticker TEXT, period_type TEXT, period_end TEXT, amount REAL, source TEXT);
-      INSERT INTO dividend_periods VALUES ('O','annual','2025-12-31',3.2,'SEC EDGAR');
-      INSERT INTO dividend_metrics(ticker,annual_dividend) VALUES ('O',3.2);
-      INSERT INTO dividend_events(ticker,ex_dividend_date,amount,source) VALUES ('O','2025-01-01',3.2,'SEC EDGAR');
-      CREATE TABLE fundamental_jobs(ticker TEXT, kind TEXT, status TEXT, checked_at TEXT,
-        next_run_at TEXT, lease_until TEXT, lease_token TEXT, details TEXT, error TEXT,
-        PRIMARY KEY(ticker, kind));
-      INSERT INTO fundamental_jobs(ticker,kind,status,details)
-        VALUES ('O','dividends','ready','{"source":"SEC EDGAR"}');
+      INSERT INTO alpha_dividend_events(ticker,event_key,ex_dividend_date,amount,split_adjusted_amount)
+        VALUES ('O','old','2025-01-01',.2,.2);
+      INSERT INTO bq_dividend_history(ticker,ex_date,dividend,first_seen_at,last_seen_at,fetched_at)
+        VALUES ('O','2026-08-01',.27,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+      INSERT INTO massive_dividend_events(ticker,provider_event_id,ex_dividend_date,amount)
+        VALUES ('O','massive','2026-08-01',.27);
       INSERT INTO financial_metrics(ticker,period_type,fiscal_period_end,revenue,source)
         VALUES ('O','annual','2025-12-31',100,'SEC EDGAR');
-      INSERT INTO massive_dividend_events(ticker,provider_event_id,ex_dividend_date,amount)
-        VALUES ('O','archived','2025-01-01',.2);`);
-    sqlite.exec(readFileSync(new URL('../worker/migrations/0012_alpha_only_dividends.sql', import.meta.url), 'utf8'));
-    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE name IN ('dividend_periods','dividend_metrics')").get().n, 0);
-    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM dividend_events WHERE source='SEC EDGAR'").get().n, 0);
-    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM financial_metrics').get().n, 1);
+      INSERT INTO fundamental_jobs(ticker,kind,status,details)
+        VALUES ('O','dividends','ready','{"source":"ALPHA_VANTAGE"}');`);
+    sqlite.exec(readFileSync(new URL('../worker/migrations/0015_retire_alpha_dividends.sql', import.meta.url), 'utf8'));
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table' AND name LIKE 'alpha_%'").get().n, 0);
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM fundamental_jobs WHERE kind='dividends'").get().n, 0);
+    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM bq_dividend_history').get().n, 1);
     assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM massive_dividend_events').get().n, 1);
-    const oldJob = sqlite.prepare("SELECT status, details FROM fundamental_jobs WHERE ticker='O' AND kind='dividends'").get();
-    assert.equal(oldJob.status, 'pending');
-    assert.equal(oldJob.details, '{}');
-    sqlite.exec(`UPDATE fundamental_jobs SET status='error', error='SEC EDGAR HTTP 403' WHERE ticker='O';
-      INSERT INTO companies(ticker,name) VALUES ('ABT','Abbott');
-      INSERT INTO alpha_dividend_events(ticker,event_key,ex_dividend_date,amount,split_adjusted_amount)
-        VALUES ('ABT','one','2026-08-01',.5,.5);
-      INSERT INTO alpha_dividend_sync(ticker,status,event_count,last_success_at)
-        VALUES ('ABT','ready',1,'2026-09-28T00:00:00Z');
-      INSERT INTO fundamental_jobs(ticker,kind,status,details,error)
-        VALUES ('ABT','dividends','error','{"source":"SEC EDGAR"}','SEC EDGAR HTTP 403');`);
-    sqlite.exec(readFileSync(new URL('../worker/migrations/0013_clear_legacy_sec_dividend_jobs.sql', import.meta.url), 'utf8'));
-    const cleared = sqlite.prepare("SELECT status, details, error FROM fundamental_jobs WHERE ticker='O'").get();
-    assert.equal(cleared.status, 'pending');
-    assert.equal(cleared.error, null);
-    assert.equal(cleared.details, '{}');
-    const repaired = sqlite.prepare("SELECT status, details, error FROM fundamental_jobs WHERE ticker='ABT'").get();
-    assert.equal(repaired.status, 'ready');
-    assert.equal(JSON.parse(repaired.details).source, 'ALPHA_VANTAGE');
-    assert.equal(repaired.error, null);
+    assert.equal(sqlite.prepare('SELECT COUNT(*) AS n FROM financial_metrics').get().n, 1);
   } finally { sqlite.close(); }
 });
+
 test('Massive 일봉이 정상이면 FMP 402 가능 종목도 FMP를 호출하지 않는다', async () => {
   const { DB, sqlite } = database();
   sqlite.exec("INSERT INTO companies(ticker,name) VALUES ('O','Realty Income')");
@@ -702,42 +570,6 @@ test('Massive 정상 빈 응답은 무배당 확인으로 저장한다', async (
   } finally { globalThis.fetch = originalFetch; sqlite.close(); }
 });
 
-test('Alpha 지급액은 원본과 분할 조정액을 구분하고 배당 종류는 추정하지 않는다', () => {
-  const result = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-03-05', paymentDate: '2026-03-27', amount: .4,
-      adjustedAmount: .04, distributionType: 'recurring', frequency: 4 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-06-05', paymentDate: '2026-06-27', amount: .05,
-      adjustedAmount: .05, distributionType: 'recurring', frequency: 4 },
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-08-05', paymentDate: '2026-08-27', amount: .3,
-      adjustedAmount: .3, distributionType: 'special', frequency: 0 }
-  ], 10, '2026-09-23');
-  assert.ok(Math.abs(result.dividendYield - 3.9) < 1e-9);
-  assert.equal(result.lastPaidAmount, .3);
-  assert.equal(result.specialPayoutCount, null);
-  assert.equal(result.frequency, 4);
-});
-
-test('배당락일이 지난 확정 지급일도 다음 지급일로 계속 표시한다', () => {
-  const result = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-09-15', paymentDate: '2026-10-01',
-      declarationDate: '2026-08-25', amount: .5, distributionType: 'recurring', frequency: 4 }
-  ], 100, '2026-09-23');
-  assert.equal(result.nextExDividendDate, null);
-  assert.equal(result.nextPaymentDate, '2026-10-01');
-  assert.equal(result.nextPaymentDateStatus, 'confirmed');
-  assert.equal(result.nextDeclarationDate, null);
-  assert.equal(result.dividendYield, null);
-});
-
-test('새 미래 배당 일정의 선언일은 다음 선언일로 표시한다', () => {
-  const result = combineDividendData(null, [
-    { source: 'ALPHA_VANTAGE', exDividendDate: '2026-10-15', paymentDate: '2026-11-01',
-      declarationDate: '2026-09-25', amount: .5 }
-  ], 100, '2026-09-28');
-  assert.equal(result.nextDeclarationDate, '2026-09-25');
-  assert.equal(result.nextExDividendDate, '2026-10-15');
-});
-
 test('오래된 FMP 현재가는 배당수익률 분모로 쓰지 않고 최근 저장 일봉 종가를 사용한다', async () => {
   const { DB, sqlite } = database();
   const today = new Date().toISOString().slice(0, 10);
@@ -746,10 +578,11 @@ test('오래된 FMP 현재가는 배당수익률 분모로 쓰지 않고 최근 
   sqlite.prepare("INSERT INTO user_watchlist(user_id,ticker,strategy,display_order) VALUES ('primary','O','dividend',0)").run();
   sqlite.prepare("INSERT INTO price_quotes(ticker,current_price,market_updated_at) VALUES ('O',100,'2020-01-01T00:00:00Z')").run();
   sqlite.prepare("INSERT INTO price_candles(ticker,candle_date,close_price,source) VALUES ('O',?,50,'MASSIVE')").run(today);
-  sqlite.prepare(`INSERT INTO alpha_dividend_events(ticker,event_key,ex_dividend_date,payment_date,amount,split_adjusted_amount)
-    VALUES ('O','paid',?,?,1,1)`).run(paidDate, paidDate);
-  sqlite.prepare(`INSERT INTO alpha_dividend_sync(ticker,status,event_count,metrics_json,last_success_at)
-    VALUES ('O','ready',1,'{}',CURRENT_TIMESTAMP)`).run();
+  sqlite.prepare(`INSERT INTO bq_dividend_history(ticker,ex_date,payment_date,dividend,
+    first_seen_at,last_seen_at,fetched_at) VALUES ('O',?,?,1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`)
+    .run(paidDate, paidDate);
+  sqlite.prepare(`INSERT INTO bq_dividend_summary(ticker,fetch_status,history_count,paid_dividend_1y,last_bq_fetch_at)
+    VALUES ('O','ready',1,1,CURRENT_TIMESTAMP)`).run();
   try {
     const response = await worker.fetch(new Request('https://example.test/api/dashboard', {
       headers: { 'X-App-Pin': 'test-pin' }

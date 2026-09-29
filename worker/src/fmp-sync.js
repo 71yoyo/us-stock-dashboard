@@ -373,7 +373,7 @@ export async function syncTickerFromFmp(environment, ticker, requestedDataTypes 
   const result = {};
   for (const [dataType, task] of jobs) {
     try {
-      // Massive 일봉은 FMP 키가 없어도 독립적으로 저장한다. 배당은 Alpha Vantage 전용 큐가 담당한다.
+      // Massive 일봉은 FMP 키가 없어도 독립적으로 저장한다. 배당은 별도 BQ 큐가 담당한다.
       if (['profile', 'price'].includes(dataType) && !environment.MARKET_DATA_API_KEY) {
         throw new Error('FMP API 키가 없습니다.');
       }
@@ -396,7 +396,7 @@ export async function syncTickerDataType(environment, ticker, dataType, options 
 
 /**
  * 장기 이력은 최초 한 번 저장한 뒤, 데이터 성격별 주기에 맞춰서만 덮어쓴다.
- * 이 함수는 FMP 회사·시세와 Massive 우선 일봉만 다룬다. 배당은 Alpha Vantage 전용 큐에서 갱신한다.
+ * 이 함수는 FMP 회사·시세와 Massive 우선 일봉만 다룬다. 배당은 별도 BQ 큐에서 갱신한다.
  */
 export async function syncTickerIncrementally(environment, ticker) {
   const states = await environment.DB.prepare(`SELECT data_type AS dataType, last_success_at AS lastSuccessAt,

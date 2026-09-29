@@ -24,22 +24,22 @@ test('SEC 배당 오류와 연간·분기 건수는 5-3 배당 열에 노출하�
   const context = statusFunctions();
   const job = { kind: 'dividends', status: 'error', error: 'SEC EDGAR HTTP 403',
     details: { source: 'SEC EDGAR', annualCount: 7, quarterlyCount: 25 } };
-  const cell = context.createJobCell(job, { status: 'ready', count: 92 });
-  assert.equal(cell.children[0].status, 'partial');
+  const cell = context.createJobCell(job, { source: 'BUSINESS_QUANT', status: 'ready', count: 92 });
+  assert.equal(cell.children[0].status, 'ready');
   const text = cell.children.map(child => child.text || '').join(' ');
-  assert.match(text, /Alpha Vantage 배당 이벤트 92개/);
+  assert.match(text, /Business Quant 배당 이력 92개/);
   assert.doesNotMatch(text, /SEC|연간 7개|분기 25개/);
 });
 
-test('Alpha 배당·분할 동기화가 완료된 무배당 종목도 저장됨으로 표시한다', () => {
+test('BQ 응답이 비어 있으면 무배당 완료로 단정하지 않는다', () => {
   const context = statusFunctions();
-  const job = { kind: 'dividends', status: 'ready', details: { source: 'ALPHA_VANTAGE' } };
-  const cell = context.createJobCell(job, { status: 'ready', count: 0 });
-  assert.equal(cell.children[0].status, 'ready');
-  assert.match(cell.children[1].text, /0개 · 무배당 확인/);
+  const job = { kind: 'dividends', status: 'ready', details: { source: 'BUSINESS_QUANT' } };
+  const cell = context.createJobCell(job, { source: 'BUSINESS_QUANT', status: 'pending', count: 0 });
+  assert.equal(cell.children[0].status, 'pending');
+  assert.match(cell.children[1].text, /0개/);
 });
 
-test('Alpha 배당 또는 저장 가격이 바뀔 때만 화면을 갱신하고 실패하면 재시도한다', async () => {
+test('BQ 배당 또는 저장 가격이 바뀔 때만 화면을 갱신하고 실패하면 재시도한다', async () => {
   const createElement = () => ({ children: [], dataset: {}, classList: { contains: () => false },
     appendChild(child) { this.children.push(child); }, replaceChildren() { this.children = []; },
     addEventListener() {} });
@@ -57,8 +57,8 @@ test('Alpha 배당 또는 저장 가격이 바뀔 때만 화면을 갱신하고 
     fetch: async () => ({ ok: true, json: async () => ({ summary: {}, stocks: [{ ticker: 'O',
       price: { updatedAt: priceAt },
       candles: { status: 'ready', count: 68 },
-      jobs: { dividends: { kind: 'dividends', status: 'ready', checkedAt: storedAt,
-        details: { source: 'ALPHA_VANTAGE' } } }, dividendEvents: { status: 'ready', count: 92 }
+      jobs: { dividends: { kind: 'dividends', status: 'ready', details: { source: 'BUSINESS_QUANT' } } },
+      dividendEvents: { source: 'BUSINESS_QUANT', status: 'ready', count: 92, updatedAt: storedAt }
     }] }) }),
     refreshStoredDashboardViews: async () => {
       refreshCalls += 1;
