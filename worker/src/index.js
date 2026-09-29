@@ -455,7 +455,7 @@ export default {
       }
       return jsonResponse(environment, 200, {
         status: 'ok',
-        buildVersion: '2026-09-29-market-candle-refresh-local-1',
+        buildVersion: '2026-09-29-businessquant-growth-1',
         database: 'connected',
         marketDataConfigured: String(environment.MARKET_DATA_PROVIDER || 'FMP').trim().toUpperCase() === 'FMP'
           && Boolean(environment.MARKET_DATA_API_KEY),
