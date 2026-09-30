@@ -1,5 +1,6 @@
 import { reserveFundamentalCall, blockFundamentalCall, ensureFundamentalStore } from './fundamental-store.js';
 import { refreshWilliamsSignal } from './williams-store.js';
+import { classificationStatement } from './company-classification.js';
 import { MassiveCandlePendingError, MassiveCandleUnavailableError, syncCandlesFromMassive } from './massive-sync.js';
 import { SEC_FINANCIAL_METADATA_VERSION, secDifferenceMetadata, buildSecPeriodIndex,
   resolveSecPeriodMetadata, buildFinancialProvenance, financialProvenanceStatements } from './sec-financial-metadata.js';
@@ -115,12 +116,16 @@ async function markSyncState(environment, ticker, dataType, error = null) {
 export async function syncProfile(environment, ticker) {
   const [profile] = asRecords(await fetchFmp(environment, 'profile', { symbol: ticker }));
   if (!profile) throw new Error('FMP 회사 프로필이 없습니다.');
-  await environment.DB.prepare(`INSERT INTO companies (ticker, name, sector, industry, exchange, currency, cik, updated_at)
+  const companyStatement = environment.DB.prepare(`INSERT INTO companies (ticker, name, sector, industry, exchange, currency, cik, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(ticker) DO UPDATE SET name=excluded.name, sector=excluded.sector, industry=excluded.industry,
       exchange=excluded.exchange, currency=excluded.currency, cik=COALESCE(excluded.cik, companies.cik), updated_at=CURRENT_TIMESTAMP`
-  ).bind(ticker, profile.companyName || profile.name || ticker, profile.sector, profile.industry, profile.exchangeShortName || profile.exchange,
-    profile.currency || 'USD', profile.cik || null).run();
+  ).bind(ticker, profile.companyName || profile.name || ticker, profile.sector ?? null, profile.industry ?? null,
+    profile.exchangeShortName || profile.exchange || null,
+    profile.currency || 'USD', profile.cik || null);
+  // 회사정보와 자동 분류를 같은 트랜잭션으로 저장한다. 기존 수동 분류는 덮어쓰지 않는다.
+  await environment.DB.batch([companyStatement,
+    classificationStatement(environment.DB, { ticker, sector: profile.sector, industry: profile.industry })]);
 }
 
 async function syncQuote(environment, ticker) {

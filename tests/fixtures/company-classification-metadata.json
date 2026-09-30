@@ -1,0 +1,15 @@
+{
+  "source": "운영 공개 회사 GET 응답의 sector/industry, 2026-09-30 조회 확인",
+  "companies": [
+    { "ticker": "NVDA", "sector": "Technology", "industry": "Semiconductors" },
+    { "ticker": "AAPL", "sector": "Technology", "industry": "Consumer Electronics" },
+    { "ticker": "MSFT", "sector": "Technology", "industry": "Software - Infrastructure" },
+    { "ticker": "JPM", "sector": "Financial Services", "industry": "Banks - Diversified" },
+    { "ticker": "O", "sector": "Real Estate", "industry": "REIT - Retail" },
+    { "ticker": "ABBV", "sector": "Healthcare", "industry": "Drug Manufacturers - General" },
+    { "ticker": "ABT", "sector": "Healthcare", "industry": "Medical - Devices" },
+    { "ticker": "AMZN", "sector": "Consumer Cyclical", "industry": "Specialty Retail" },
+    { "ticker": "GOOGL", "sector": "Communication Services", "industry": "Internet Content & Information" },
+    { "ticker": "TSLA", "sector": "Consumer Cyclical", "industry": "Auto - Manufacturers" }
+  ]
+}

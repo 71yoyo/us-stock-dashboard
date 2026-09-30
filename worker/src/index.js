@@ -5,6 +5,7 @@ import { readWilliamsSignals } from './williams-store.js';
 import { businessQuantDividendView } from './businessquant-view.js';
 import { runDividendPipeline } from './businessquant-sync.js';
 import { completedUsSessionDate, isUsSessionCompleteToday } from './us-market-session.js';
+import { readAnalysisProfile } from './company-classification.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -273,6 +274,7 @@ async function getCompany(environment, ticker) {
   ]);
 
   const extra = await fundamentalDetails(environment, ticker);
+  const analysisProfile = await readAnalysisProfile(environment, company);
   const storedSignals = await readWilliamsSignals(environment, [ticker]);
   const reference = dividendReferencePrice(company.currentPrice, candles.results[0],
     company.quoteUpdatedAt || company.quoteCachedAt);
@@ -281,6 +283,8 @@ async function getCompany(environment, ticker) {
   return {
     ...company,
     ...extra,
+    // 분류는 additive metadata이다. 이번 Phase에서 UI와 재무 계산은 이를 사용하지 않는다.
+    analysisProfile,
     // 장기 이력·성장률은 BQ 요약, 종류·선언일은 Massive 저장값만 사용한다.
     dividends: [],
     dividendMetrics: bqView,
