@@ -18,7 +18,7 @@
   <!-- 아이콘 FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="style.css?v=financial-growth-1">
+  <link rel="stylesheet" href="style.css?v=financial-metrics-2">
   <link rel="stylesheet" href="fundamental-progress.css">
 </head>
 
@@ -236,10 +236,10 @@
             </div>
           </div>
           <div class="company-detail-panel hidden" data-detail-panel="financials">
-            <!-- Phase 2A는 성장·수익성만 구현한다. 미구현 지표는 가짜 값 대신 비활성 상태로 둔다. -->
+            <!-- Phase 2B의 네 지표만 활성화한다. 미구현 지표는 가짜 값 대신 비활성 상태로 둔다. -->
             <nav class="financial-metric-selector" aria-label="재무 지표 선택">
-              <button class="active" type="button" aria-current="true">성장·수익성</button>
-              <button type="button" disabled title="다음 단계에서 제공 예정">영업이익</button>
+              <button class="active" type="button" data-financial-metric="growth" aria-pressed="true">성장·수익성</button>
+              <button type="button" data-financial-metric="operatingIncome" aria-pressed="false">영업이익</button>
               <button type="button" disabled title="다음 단계에서 제공 예정">EPS</button>
               <button type="button" disabled title="다음 단계에서 제공 예정">PEG</button>
               <button type="button" disabled title="다음 단계에서 제공 예정">PER</button>
@@ -247,8 +247,8 @@
               <button type="button" disabled title="다음 단계에서 제공 예정">잉여현금흐름</button>
               <button type="button" disabled title="다음 단계에서 제공 예정">ROE</button>
               <button type="button" disabled title="다음 단계에서 제공 예정">ROIC</button>
-              <button type="button" disabled title="다음 단계에서 제공 예정">Gross Margin</button>
-              <button type="button" disabled title="다음 단계에서 제공 예정">Oper. Margin</button>
+              <button type="button" data-financial-metric="grossMargin" aria-pressed="false">Gross Margin</button>
+              <button type="button" data-financial-metric="operatingMargin" aria-pressed="false">Oper. Margin</button>
             </nav>
             <section class="financial-growth-panel" aria-labelledby="financialGrowthTitle">
               <div class="financial-panel-header">
@@ -259,9 +259,10 @@
                 </div>
               </div>
               <dl class="financial-summary">
-                <div><dt>매출</dt><dd data-financial-value="revenue">—</dd></div>
-                <div><dt>순이익</dt><dd data-financial-value="income">—</dd></div>
-                <div><dt>순마진</dt><dd data-financial-value="margin">—</dd></div>
+                <div data-financial-summary-growth><dt>매출</dt><dd data-financial-value="revenue">—</dd></div>
+                <div data-financial-summary-growth><dt>순이익</dt><dd data-financial-value="income">—</dd></div>
+                <div data-financial-summary-growth><dt>순마진</dt><dd data-financial-value="margin">—</dd></div>
+                <div data-financial-summary-single hidden><dt data-financial-label>지표</dt><dd data-financial-value="metric">—</dd></div>
               </dl>
               <div class="financial-range-row" data-financial-ranges hidden>
                 <span>분기 범위</span><div class="financial-toggle" role="group" aria-label="분기 범위">
@@ -552,7 +553,7 @@
   <!-- 새 위젯 설정을 즉시 받도록 배포 버전을 명시한다. -->
   <script src="tradingview-widget.js?v=dark-chart-2"></script>
   <script src="williams-signal.js?v=williams-state-1"></script>
-  <script src="financial-chart.js?v=financial-growth-1"></script>
+  <script src="financial-chart.js?v=financial-metrics-2"></script>
   <script src="app.js?v=financial-growth-1"></script>
   <script src="fundamental-progress.js?v=market-candle-refresh-1"></script>
 </body>

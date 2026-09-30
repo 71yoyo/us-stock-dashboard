@@ -3,6 +3,14 @@
   const colors = ['#38bdf8', '#2563eb', '#10b981'];
   const libraryUrl = 'https://cdn.jsdelivr.net/npm/echarts@6.0.0/dist/echarts.min.js';
   const libraryIntegrity = 'sha384-F07Cpw5v8spSU0H113F33m2NQQ/o6GqPTnTjf45ssG4Q6q58ZwhxBiQtIaqvnSpR';
+  // 항목별로 필드·단위만 정의한다. 기간, 범위, tooltip, 생명주기는 같은 chart shell을 사용한다.
+  const financialMetricConfigs = Object.freeze({
+    growth: Object.freeze({ label: '성장·수익성', title: '성장·수익성', unit: 'combo', chartType: 'combo' }),
+    operatingIncome: Object.freeze({ label: '영업이익', title: '영업이익', field: 'operatingIncome', unit: 'currency', chartType: 'bar' }),
+    grossMargin: Object.freeze({ label: 'Gross Margin', title: 'Gross Margin', field: 'grossMargin', unit: 'percent', chartType: 'bar' }),
+    operatingMargin: Object.freeze({ label: 'Oper. Margin', title: 'Operating Margin', field: 'operatingMargin', unit: 'percent', chartType: 'bar' })
+  });
+  const singleMetricConfigs = Object.entries(financialMetricConfigs).filter(([, config]) => config.field);
   let libraryPromise = null;
   let controller = null;
 
@@ -39,6 +47,20 @@
     return number === null ? '—' : `${signed && number > 0 ? '+' : ''}${number.toFixed(2)}%`;
   }
 
+  function getMetricConfig(key) {
+    return Object.hasOwn(financialMetricConfigs, key) ? financialMetricConfigs[key] : financialMetricConfigs.growth;
+  }
+
+  function formatMetricValue(value, config) {
+    return config.unit === 'percent' ? formatPercent(value) : formatAmount(value);
+  }
+
+  function hasMetricData(rows, metric = 'growth') {
+    const config = getMetricConfig(metric);
+    return rows.some(row => config.field ? numberOrNull(row[config.field]) !== null
+      : numberOrNull(row.revenue) !== null || numberOrNull(row.netIncome) !== null);
+  }
+
   function escapeText(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -55,7 +77,9 @@
         const fiscalPeriod = /^(FY|Q[1-4])$/.test(row.fiscalPeriod) ? row.fiscalPeriod : null;
         const label = fiscalYear !== null && (periodType === 'annual' || /^Q[1-4]$/.test(fiscalPeriod))
           ? `${periodType === 'annual' ? 'FY' : `${fiscalPeriod} FY`}${fiscalYear}` : '기간 미확보';
-        return { ...row, fiscalYear, fiscalPeriod, label, revenue: numberOrNull(row.revenue),
+        // 마진을 재계산하지 않고 API에 저장된 값을 그대로 읽는다.
+        const metricValues = Object.fromEntries(singleMetricConfigs.map(([, config]) => [config.field, numberOrNull(row[config.field])]));
+        return { ...row, ...metricValues, fiscalYear, fiscalPeriod, label, revenue: numberOrNull(row.revenue),
           netIncome: numberOrNull(row.netIncome), netMargin: netMargin(row.revenue, row.netIncome) };
       })
       .sort((left, right) => String(left.fiscalPeriodEnd || '').localeCompare(String(right.fiscalPeriodEnd || '')));
@@ -66,7 +90,11 @@
       const quarter = /^Q[1-4]$/.test(row.fiscalPeriod) ? Number(row.fiscalPeriod.slice(1)) : null;
       const previousQuarter = quarter && row.fiscalYear !== null
         ? byFiscalPeriod.get(`${quarter === 1 ? row.fiscalYear - 1 : row.fiscalYear}:Q${quarter === 1 ? 4 : quarter - 1}`) : null;
-      return { ...row, revenueYoY: percentageChange(row.revenue, previousYear?.revenue),
+      const metricChanges = Object.fromEntries(singleMetricConfigs.map(([key, config]) => [key, {
+        yoy: percentageChange(row[config.field], previousYear?.[config.field]),
+        qoq: percentageChange(row[config.field], previousQuarter?.[config.field])
+      }]));
+      return { ...row, metricChanges, revenueYoY: percentageChange(row.revenue, previousYear?.revenue),
         incomeYoY: percentageChange(row.netIncome, previousYear?.netIncome),
         revenueQoQ: percentageChange(row.revenue, previousQuarter?.revenue),
         incomeQoQ: percentageChange(row.netIncome, previousQuarter?.netIncome) };
@@ -78,23 +106,32 @@
     return range === 'all' ? rows.slice() : rows.slice(-({ '8': 8, '12': 12, '20': 20 }[range] || 12));
   }
 
-  function tooltipHtml(row, periodType) {
+  function tooltipHtml(row, periodType, metric = 'growth') {
     if (!row) return '';
-    const items = [['매출', formatAmount(row.revenue)], ['순이익', formatAmount(row.netIncome)],
-      ['순마진', formatPercent(row.netMargin)]];
-    if (periodType === 'quarterly') items.push(['매출 전분기 대비', formatPercent(row.revenueQoQ, true)],
-      ['순이익 전분기 대비', formatPercent(row.incomeQoQ, true)]);
-    items.push(['매출 전년 대비', formatPercent(row.revenueYoY, true)],
-      ['순이익 전년 대비', formatPercent(row.incomeYoY, true)],
-      ['기간', `${row.periodStart || '—'} ~ ${row.fiscalPeriodEnd || '—'}`], ['공시일', row.reportedDate || '—']);
+    const config = getMetricConfig(metric);
+    const items = [];
+    if (config.field) {
+      items.push([config.title, formatMetricValue(row[config.field], config)]);
+      // %p가 아니라 이전값의 절댓값 대비 변화율이다. 마진에도 중립적인 문구를 사용한다.
+      if (periodType === 'quarterly') items.push(['QoQ 변화 (%)', formatPercent(row.metricChanges?.[metric]?.qoq, true)]);
+      items.push(['YoY 변화 (%)', formatPercent(row.metricChanges?.[metric]?.yoy, true)]);
+    } else {
+      items.push(['매출', formatAmount(row.revenue)], ['순이익', formatAmount(row.netIncome)],
+        ['순마진', formatPercent(row.netMargin)]);
+      if (periodType === 'quarterly') items.push(['매출 전분기 대비', formatPercent(row.revenueQoQ, true)],
+        ['순이익 전분기 대비', formatPercent(row.incomeQoQ, true)]);
+      items.push(['매출 전년 대비', formatPercent(row.revenueYoY, true)], ['순이익 전년 대비', formatPercent(row.incomeYoY, true)]);
+    }
+    items.push(['기간', `${row.periodStart || '—'} ~ ${row.fiscalPeriodEnd || '—'}`], ['공시일', row.reportedDate || '—']);
     return `<div class="financial-tooltip"><strong>${escapeText(row.label)}</strong>${items.map(([label, value]) =>
       `<div><span>${escapeText(label)}</span><b>${escapeText(value)}</b></div>`).join('')}</div>`;
   }
 
   /** 순수 option 생성 함수여서 실제 라이브러리·DOM 없이 FY/Q, null, 음수, 범위를 검증할 수 있다. */
-  function createChartOption(rows, periodType, range = '12', compact = false) {
+  function createChartOption(rows, periodType, range = '12', compact = false, metric = 'growth') {
     const zoom = periodType === 'quarterly' && (range === 'all' || range === '20') && rows.length > 12;
-    return {
+    const config = getMetricConfig(metric);
+    const option = {
       animation: false, backgroundColor: 'transparent', color: colors,
       textStyle: { color: '#94a3b8', fontFamily: 'Inter, sans-serif' },
       aria: { enabled: true, label: { description: '매출과 순이익은 금액 막대, 순마진은 오른쪽 퍼센트 축의 선입니다.' } },
@@ -105,7 +142,7 @@
       tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' },
         backgroundColor: '#111827', borderColor: '#334155', textStyle: { color: '#f8fafc', fontSize: 12 },
         extraCssText: 'max-width:100%;box-shadow:0 8px 24px #0006;',
-        formatter: params => tooltipHtml(rows[(Array.isArray(params) ? params[0] : params)?.dataIndex], periodType) },
+        formatter: params => tooltipHtml(rows[(Array.isArray(params) ? params[0] : params)?.dataIndex], periodType, metric) },
       xAxis: { type: 'category', data: rows.map(row => row.label),
         axisLine: { lineStyle: { color: '#334155' } }, axisTick: { show: false },
         axisLabel: { color: '#94a3b8', fontSize: compact ? 9 : 11, hideOverlap: true, rotate: compact ? 35 : 0 } },
@@ -133,6 +170,14 @@
           connectNulls: false, smooth: false, lineStyle: { width: 2 }, data: rows.map(row => row.netMargin) }
       ]
     };
+    // Phase 2A 콤보의 축·series·legend는 그대로 둔다. 단일 지표는 공통 스타일에서 해당 부분만 바꾼다.
+    if (!config.field) return option;
+    return { ...option, color: [colors[0]], legend: { show: false },
+      aria: { enabled: true, label: { description: `${config.title} ${config.unit === 'percent' ? '퍼센트' : '금액'} 막대 차트입니다.` } },
+      yAxis: [{ ...option.yAxis[0], name: config.unit === 'percent' ? '비율 (%)' : '금액 ($)',
+        axisLabel: { ...option.yAxis[0].axisLabel, formatter: value => formatMetricValue(value, config) } }],
+      series: [{ name: config.title, type: config.chartType, yAxisIndex: 0, barMaxWidth: 28,
+        data: rows.map(row => numberOrNull(row[config.field])) }] };
   }
 
   /** 빌드 없는 정적 앱: 버전 고정 CDN을 재무 탭에서만 로딩하며, 실패는 이 패널에 한정한다. */
@@ -157,7 +202,7 @@
     const status = root.querySelector('[data-financial-status]');
     const retry = root.querySelector('[data-financial-retry]');
     const load = dependencies.loadLibrary || loadLibrary;
-    let company = null, mode = 'annual', range = '12', instance = null, observer = null, epoch = 0;
+    let company = null, mode = 'annual', range = '12', metric = 'growth', instance = null, observer = null, epoch = 0;
 
     const isVisible = () => !root.classList.contains('hidden')
       && !root.closest('#companyDetailModal')?.classList.contains('hidden') && host.clientWidth > 0;
@@ -172,14 +217,26 @@
       status.textContent = text; status.hidden = !text; retry.hidden = !canRetry;
     }
     async function update() {
+      const config = getMetricConfig(metric);
       const allRows = prepareFinancialData(company?.financials, mode);
       const rows = selectRange(allRows, mode, range);
       const latest = rows.at(-1);
+      // 빈 상태에서도 이전 종목·지표의 접근성 설명이 남지 않게 한다.
+      host.setAttribute('aria-label', `${company?.ticker || ''} ${mode === 'annual' ? '연간' : '분기'} ${config.title} ${rows.length}개 기간`);
+      root.querySelector('#financialGrowthTitle').textContent = config.title;
       root.querySelector('[data-financial-latest]').textContent = latest?.label || '기간 미확보';
       for (const [name, value] of Object.entries({ revenue: formatAmount(latest?.revenue),
         income: formatAmount(latest?.netIncome), margin: formatPercent(latest?.netMargin) })) {
         root.querySelector(`[data-financial-value="${name}"]`).textContent = value;
       }
+      root.querySelectorAll('[data-financial-summary-growth]').forEach(element => { element.hidden = !!config.field; });
+      root.querySelector('[data-financial-summary-single]').hidden = !config.field;
+      root.querySelector('[data-financial-label]').textContent = config.title;
+      root.querySelector('[data-financial-value="metric"]').textContent = formatMetricValue(latest?.[config.field], config);
+      root.querySelectorAll('[data-financial-metric]').forEach(button => {
+        const active = button.dataset.financialMetric === metric;
+        button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));
+      });
       root.querySelector('[data-financial-ranges]').hidden = mode !== 'quarterly';
       root.querySelectorAll('[data-financial-period]').forEach(button => {
         const active = button.dataset.financialPeriod === mode;
@@ -191,9 +248,11 @@
       });
       const missingMetadata = rows.some(row => row.label === '기간 미확보');
       root.querySelector('#detailFinancialSource').textContent =
-        `SEC EDGAR 저장 이력 · ${mode === 'annual' ? '연간' : '분기'} ${rows.length}개 · 순마진 = 순이익 ÷ 매출${missingMetadata ? ' · FY/Q 미확보 기간은 추정하지 않습니다.' : ''}`;
-      if (!rows.some(row => row.revenue !== null || row.netIncome !== null)) {
-        release(); message('저장된 매출·순이익 데이터가 없습니다. 5-3 수집 현황을 확인해 주세요.'); return;
+        `SEC EDGAR 저장 이력 · ${mode === 'annual' ? '연간' : '분기'} ${rows.length}개 · ${config.field ? `${config.title} 저장값${config.unit === 'percent' ? ' · 변화율은 %p가 아닌 % 변화' : ''}` : '순마진 = 순이익 ÷ 매출'}${missingMetadata ? ' · FY/Q 미확보 기간은 추정하지 않습니다.' : ''}`;
+      if (!hasMetricData(rows, metric)) {
+        release();
+        message(config.field ? '이 기간에 사용할 수 있는 데이터가 없습니다. 5-3 수집 현황을 확인해 주세요.'
+          : '저장된 매출·순이익 데이터가 없습니다. 5-3 수집 현황을 확인해 주세요.'); return;
       }
       if (!isVisible()) return;
       const requestEpoch = ++epoch;
@@ -206,8 +265,7 @@
           instance = library.init(host, null, { renderer: 'canvas' });
           if (typeof ResizeObserver !== 'undefined') { observer = new ResizeObserver(resize); observer.observe(host); }
         }
-        instance.setOption(createChartOption(rows, mode, range, host.clientWidth < 600), { notMerge: true });
-        host.setAttribute('aria-label', `${company?.ticker || ''} ${mode === 'annual' ? '연간' : '분기'} 성장·수익성 ${rows.length}개 기간`);
+        instance.setOption(createChartOption(rows, mode, range, host.clientWidth < 600, metric), { notMerge: true });
         message(''); resize();
       } catch {
         if (requestEpoch !== epoch) return;
@@ -218,7 +276,11 @@
     root.addEventListener('click', event => {
       const period = event.target.closest('[data-financial-period]');
       const selection = event.target.closest('[data-financial-range]');
-      if (period) mode = period.dataset.financialPeriod;
+      const metricButton = event.target.closest('[data-financial-metric]');
+      if (metricButton) {
+        if (metricButton.disabled || !Object.hasOwn(financialMetricConfigs, metricButton.dataset.financialMetric)) return;
+        metric = metricButton.dataset.financialMetric;
+      } else if (period) mode = period.dataset.financialPeriod;
       else if (selection) range = selection.dataset.financialRange;
       else if (!event.target.closest('[data-financial-retry]')) return;
       void update();
@@ -241,7 +303,7 @@
     if (root && !controller) controller = createController(root);
     return controller;
   }
-  globalThis.FinancialChart = Object.freeze({ numberOrNull, netMargin, percentageChange, formatAmount,
+  globalThis.FinancialChart = Object.freeze({ financialMetricConfigs, formatMetricValue, hasMetricData, numberOrNull, netMargin, percentageChange, formatAmount,
     formatPercent, prepareFinancialData, selectRange, tooltipHtml, createChartOption, createController,
     render: company => getController()?.setCompany(company),
     prepareTicker: ticker => getController()?.prepareTicker(ticker),

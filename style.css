@@ -613,6 +613,7 @@ body.modal-open {
 [data-detail-panel="financials"] .financial-summary dd { font-family: var(--font-display); font-size: clamp(1.02rem, 2vw, 1.45rem); font-weight: 700; }
 [data-detail-panel="financials"] .financial-summary div:nth-child(1) dd { color: var(--accent-cyan); }
 [data-detail-panel="financials"] .financial-summary div:nth-child(3) dd { color: var(--color-up); }
+[data-detail-panel="financials"] [data-financial-summary-single] dd { color: var(--accent-cyan); }
 [data-detail-panel="financials"] .financial-range-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 6px; }
 [data-detail-panel="financials"] .financial-range-row[hidden] { display: none; }
 [data-detail-panel="financials"] .financial-range-row > span { font-size: 0.7rem; color: var(--text-secondary); }
