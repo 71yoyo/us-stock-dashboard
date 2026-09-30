@@ -81,19 +81,22 @@ function shareRows(lines, name, columnCount) {
     label: `${name} per common share / ${basis}`, basis, disclosure: 'separate' }));
 }
 
-function extractMetric(page, metric, detection, source) {
+function extractMetric(page, metric, detection, source, options = {}) {
   const name = metric === 'NORMALIZED_FFO' ? 'Normalized FFO' : metric;
   const lines = linesOf(page), columns = periods(page, source), unit = tableUnit(page);
   const commonLabel = metric === 'AFFO' && rowsFor(lines, 'Total AFFO available to common stockholders').length
     ? 'Total AFFO available to common stockholders' : `${name} available to common stockholders`;
   const commonRows = rowsFor(lines, commonLabel);
   const expectedRepeats = metric === 'FFO' && detection.normalized ? 2 : 1;
-  evidence(commonRows.length === expectedRepeats, 'DUPLICATE_LABEL', '총액 행의 중복/누락 구조가 다릅니다.');
-  const common = { values: rowNumbers(commonRows[0].line, commonLabel, columns.length), label: commonLabel };
+  // 검토 adapter만 문맥 resolver를 전달한다. 기존 추출 경로의 반복행 계약은 바꾸지 않는다.
+  const resolved = options.resolveCommonRow?.({ lines, metric, label:commonLabel, detection });
+  if (!resolved) evidence(commonRows.length === expectedRepeats, 'DUPLICATE_LABEL', '총액 행의 중복/누락 구조가 다릅니다.');
+  const commonRow = resolved || commonRows[0];
+  const common = { values: rowNumbers(commonRow.line, commonLabel, columns.length), label: commonLabel };
   const bases = [{ ...common, value_basis: 'total', share_basis: 'not_applicable', attribution_basis: 'common_stockholders', disclosure: 'total' }];
   if (detection.diluted) {
     const diluted = uniqueRow(lines, `Diluted ${name}`, columns.length);
-    evidence(commonRows[0].index < diluted.index, 'BASIS_AMBIGUITY', '총액과 diluted total 행 순서가 다릅니다.');
+    evidence(commonRow.index < diluted.index, 'BASIS_AMBIGUITY', '총액과 diluted total 행 순서가 다릅니다.');
     if (expectedRepeats === 2) {
       const repeated = rowNumbers(commonRows[1].line, commonLabel, columns.length);
       evidence(commonRows[1].index === diluted.index + 1 && repeated.every((v, index) => v === common.values[index]),
@@ -110,10 +113,10 @@ function extractMetric(page, metric, detection, source) {
     page, row_label: basis.label, share_disclosure: basis.disclosure })));
 }
 
-export function extractRealtyIncomePdfStructure(document, detection) {
+export function extractRealtyIncomePdfStructure(document, detection, options = {}) {
   const { source } = document;
   const metrics = detection.normalized ? ['FFO', 'NORMALIZED_FFO', 'AFFO'] : ['FFO', 'AFFO'];
-  const observations = metrics.flatMap(metric => extractMetric(metric === 'AFFO' ? detection.affo : detection.ffo, metric, detection, source));
+  const observations = metrics.flatMap(metric => extractMetric(metric === 'AFFO' ? detection.affo : detection.ffo, metric, detection, source, options));
   const availability = [];
   if (!detection.normalized) availability.push({ metric_code:'NORMALIZED_FFO', status:'not_reported', value:null,
     reason:'대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지.' });

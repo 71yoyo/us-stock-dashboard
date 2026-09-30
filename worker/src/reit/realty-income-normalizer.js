@@ -15,6 +15,15 @@ const semantics = {
   'AFFO-NFFO-INTEGRATION-V1': ['AFFO', sourceAt(3), '합병/통합 비용 제외 Normalized FFO를 시작점으로 고유 항목 조정.']
 };
 
+// 기존 정의의 불변 metadata를 재사용한다. 문서별 실제 문구는 각 source에 별도로 보존한다.
+export function historicalDefinition(version) {
+  evidence(semantics[version], 'DEFINITION_UNKNOWN', '등록되지 않은 기존 의미 버전입니다.');
+  const [metric, definitionSource, notes] = semantics[version];
+  return { metric_code:metric, definition_owner:owner, definition_version:version, display_name:metric,
+    profile:'REIT', metric_family:'real_estate_cash_earnings', default_unit:'USD', definition_source:definitionSource,
+    definition_notes:`${notes} 실제 조정항목은 각 provenance에 보존하며 연도 간 자동 비교 가능성을 보장하지 않는다.` };
+}
+
 export function historicalDefinitions(excerpt, tables) {
   const text = [...excerpt.pages, ...(excerpt.definition_excerpts || [])].map(page => page.text).join('\n').replace(/\s+/g, ' ');
   evidence(/FFO adjusted for unique revenue and expense items/i.test(text), 'DEFINITION_UNKNOWN', 'AFFO 정의 근거가 없습니다.');
@@ -35,10 +44,7 @@ export function historicalDefinitions(excerpt, tables) {
     versions.NORMALIZED_FFO = vereit ? 'NFFO-VEREIT-MERGER-V1' : 'NFFO-MERGER-INTEGRATION-V1';
     versions.AFFO = vereit ? 'AFFO-NFFO-VEREIT-V1' : 'AFFO-NFFO-INTEGRATION-V1';
   }
-  return Object.entries(versions).map(([metric, version]) => ({ metric_code: metric,
-    definition_owner: owner, definition_version: version, display_name: metric,
-    profile: 'REIT', metric_family: 'real_estate_cash_earnings', default_unit: 'USD',
-    definition_source: semantics[version][1], definition_notes: `${semantics[version][2]} 실제 조정항목은 각 provenance에 보존하며 연도 간 자동 비교 가능성을 보장하지 않는다.` }));
+  return Object.values(versions).map(historicalDefinition);
 }
 
 // PDF adapter는 중간값만 만든다. 단위/키/상태/출처를 DB 계약으로 만드는 경로는 하나다.

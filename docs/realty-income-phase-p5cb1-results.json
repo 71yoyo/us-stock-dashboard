@@ -1,0 +1,958 @@
+{
+  "summary": {
+    "visited": 40,
+    "source_available": 40,
+    "statuses": {
+      "VERIFIED_PARSED": 9,
+      "PARSED": 25,
+      "NEEDS_REVIEW": 0,
+      "UNKNOWN_FORMAT": 6,
+      "WRONG_ISSUER": 0,
+      "SOURCE_UNAVAILABLE": 0,
+      "PARSER_ERROR": 0
+    },
+    "formats": [
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+        "documents": 5,
+        "parsed": 5,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+        "documents": 4,
+        "parsed": 4,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 2,
+        "parsed": 2,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+        "documents": 15,
+        "parsed": 15,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "UNKNOWN",
+        "documents": 6,
+        "parsed": 0,
+        "needs_review": 0,
+        "unknown": 6,
+        "failed": 0
+      }
+    ],
+    "years": [
+      {
+        "year": 2016,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED"
+        ]
+      },
+      {
+        "year": 2017,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2018,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2019,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2020,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2021,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2022,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2023,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2024,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      },
+      {
+        "year": 2025,
+        "documents": 4,
+        "parsed": 0,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      }
+    ],
+    "quarterly": {
+      "scope": "quarterly",
+      "primary_periods_only": true,
+      "opportunities": 40,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 34,
+          "total/diluted": 27,
+          "per_share/basic": 34,
+          "per_share/diluted": 34
+        },
+        "AFFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 34,
+          "total/diluted": 27,
+          "per_share/basic": 34,
+          "per_share/diluted": 34
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": 19,
+          "confirmed_not_reported": 21,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 19,
+            "total/diluted": 19,
+            "per_share/basic": 19,
+            "per_share/diluted": 19
+          },
+          "total/not_applicable": 13,
+          "total/diluted": 13,
+          "per_share/basic": 13,
+          "per_share/diluted": 13
+        }
+      }
+    },
+    "annual": {
+      "scope": "annual",
+      "primary_periods_only": true,
+      "opportunities": 10,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 8,
+          "total/diluted": 7,
+          "per_share/basic": 8,
+          "per_share/diluted": 8
+        },
+        "AFFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 8,
+          "total/diluted": 7,
+          "per_share/basic": 8,
+          "per_share/diluted": 8
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": 5,
+          "confirmed_not_reported": 5,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 5,
+            "total/diluted": 5,
+            "per_share/basic": 5,
+            "per_share/diluted": 5
+          },
+          "total/not_applicable": 3,
+          "total/diluted": 3,
+          "per_share/basic": 3,
+          "per_share/diluted": 3
+        }
+      }
+    },
+    "dedup": {
+      "observations": 1080,
+      "unique_keys": 746,
+      "unique_values": 746,
+      "distinct_value_variants": 746,
+      "provenance": 1080,
+      "conflicts": [],
+      "validated_unique_keys": 162
+    },
+    "comparison": {
+      "comparable": 334,
+      "exact_match": 334,
+      "difference": 0,
+      "restated_candidates": []
+    }
+  },
+  "documents": [
+    {
+      "id": "2016-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+      "source_hash": "55469622981fa3b76d11b0c0b2b64e7806c34a8b8ee223d82583f5f7c1e2798d",
+      "final_status": "PARSED",
+      "record_count": 12,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+      "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q3/Realty-Income-Q32016-Supplemental-Information.pdf",
+      "source_hash": "063b13a42d2a04e66938d9f125a4b70092b5ce2f9c5b77ea35860437b671e927",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q4/Realty-Income-Q4-16-Supplemental-Information.pdf",
+      "source_hash": "f989d35506f2f0bf1b6a17d24865ca5d87ae770aa7273458373ae313e3900d10",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q1/Realty-Income-Q1-17-Supplemental-Information.pdf",
+      "source_hash": "9ce4f079b00bcfec93973f52379997b39c574c8562026862aa6515cd2be66824",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 12,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q2/Realty-Income-Q2-17-Supplemental-Information.pdf",
+      "source_hash": "760253a5528e0a9ab9cae466131aa69f0b2da6b7fdcd5e0c0734b08051c2008d",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q3/Realty-Income-Q3-2017-Supplemental-Information.pdf",
+      "source_hash": "78ff55288371e4fa02207798a3839985cef0f8aea2e7eb8f35462bc20515fd10",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+      "source_hash": "9271642af031129aaaad1aca0687a3826f3740319024e0877af61a5c13c864ea",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "format_status": "supported",
+      "definition_status": "approved",
+      "value_status": "parsed",
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q1/Realty-Income-Q1-2018-Supplemental-Information.pdf",
+      "source_hash": "fa6936d9d64f0a2aa08ed287f2202f75b2b5b8d0d722ad1573f3f8fddaa164df",
+      "final_status": "PARSED",
+      "record_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q2/Realty-Income-Q2-2018-Supplemental-Information.pdf",
+      "source_hash": "4a3da96e69c9d8af0709561d560c243aa5d96e901287348f9e42ad055b47089a",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/Realty-Income-Q3-2018-Supplemental-Information.pdf",
+      "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+      "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q1/Realty-Income-Q1-2019-Supplemental-Information_0.pdf",
+      "source_hash": "1854d98f10be8a5f93dc1f1f1c295ddcb105c49b528fc032f9c75088a55fb3b3",
+      "final_status": "PARSED",
+      "record_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q2/Realty-Income-Q2-2019-Supplemental-Information.pdf",
+      "source_hash": "9dd38670e6a33f5b00c50a3c05ae936010a8eac16fb53e667ea08d099517be99",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q3/Realty-Income-Q3-2019-Supplemental-Information.pdf",
+      "source_hash": "6230d56ebb347957a63f8ba544f9403c0b14ddeedb7572cd9fe9926917760981",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+      "source_hash": "5efad6af715c96c0750ec3a24f0369cc10f1a9c0843689f64a45b6026212f7da",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q1-2020-Supplemental-Information-.pdf",
+      "source_hash": "fcb438de9e12dfc11a63d5f6d5b2c971d46342b5233a18ed060cdbb86f753eb6",
+      "final_status": "PARSED",
+      "record_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q2-2020-Supplemental-Information.pdf",
+      "source_hash": "07ef77962a05159c2cf78af3e9344ad6e4b8034efac5f7585078517416c00d79",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q3-2020-Supplemental-Information.pdf",
+      "source_hash": "c6997a2b155d46c6a81c5a173cf2932efad493fa474f3406be6b9406734d9873",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        9,
+        10
+      ]
+    },
+    {
+      "id": "2020-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+      "source_hash": "7c4c9738f401d11cfff227012cb89ca26afb1e8c23c619f9e408485ce685c127",
+      "final_status": "PARSED",
+      "record_count": 32,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        9,
+        10
+      ]
+    },
+    {
+      "id": "2021-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+      "source_hash": "23db5c2ff9f79fb148ae283140f845a42972d14f2ad51bf4cf413b8c647707ef",
+      "final_status": "PARSED",
+      "record_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2021-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+      "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-VEREIT-V1",
+        "NFFO-VEREIT-MERGER-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2021-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q3-2021-Supplemental-Information-11.1.21-new.pdf",
+      "source_hash": "d396c280c95f64579dcf9ac6ca3916edc8626a76df5439e77733dfaf3192dfd2",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-VEREIT-V1",
+        "NFFO-VEREIT-MERGER-V1"
+      ],
+      "format_status": "supported",
+      "definition_status": "approved",
+      "value_status": "parsed",
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2021-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+      "source_hash": "51b1139d20bad8a53dbd065629652b818425ace6fa9c60df4a1cf258baa7f696",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2022-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2022/Realty-Income-Q1-2022-Supplemental-Information-5.4.22-links.pdf",
+      "source_hash": "594ce150c695a369a896be2fd25f4022330bda2ab7baa30fc5234713bdfc9f29",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+      "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+      "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/realty-income-q4-2022-supplemental-information-2-21-23.pdf",
+      "source_hash": "3d8dee71ecf340545763f3173ea6ab2ab74ee43cf41ff874c9c561870823fad8",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+      "source_hash": "4be46a4e492faf44d790ea0e863c551eab3ae7d0ef50b5e5c2ec13216b87e884",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-07/Realty%20Income%20Q2%202023%20Supplemental%20Information%20Final%20Compressed.pdf",
+      "source_hash": "b03aba23a8a0a887d38d2614556b4d31abd3b127d37a3ebe0f224e6bc6fb9bb0",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/realty-income-q3-2023-supplemental-information.pdf",
+      "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/realty-income-q4-2023-supplemental-information.pdf",
+      "source_hash": "c66653ef9ad07904e80a2b36d3c18d453f894a388fb432e3cbbe3c3ed7b71fa0",
+      "final_status": "PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-VEREIT-SPIRIT-V1",
+        "NFFO-MERGER-INTEGRATION-VEREIT-SPIRIT-V1"
+      ],
+      "format_status": "supported",
+      "definition_status": "approved",
+      "value_status": "parsed",
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2024-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-05/Realty_Income_Q1_2024_Supplemental_Information_FINAL.pdf",
+      "source_hash": "7e444de79246610797dabbd26b3fb843f701a32d2f7b8461e1aea83d4fcace86",
+      "final_status": "PARSED",
+      "record_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2024-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-08/realty-income-q2-2024-supplemental-information.pdf",
+      "source_hash": "ef66aa6179989a4b0f2ab22478601210f440274efa1756fd82ea7db19e0969db",
+      "final_status": "VERIFIED_PARSED",
+      "record_count": 48,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2024-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2024-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "final_status": "UNKNOWN_FORMAT",
+      "record_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    }
+  ],
+  "baseline_hash": "c2d444210858ca6eca61ff0bc3c08ab3fd3eb0789e51853eb38a526248cc455a",
+  "phase": "P5C-B1",
+  "scope": "읽기 전용 로컬 검토; 운영 저장 승인이 아님",
+  "checkpoint": "99592cc92a2fe08d33f84881f9e76643b06ae88f",
+  "expected": {
+    "count": 64,
+    "pass": 64,
+    "fail": 0
+  },
+  "tests": {
+    "baseline": 441,
+    "added": 37,
+    "total_pass": 478,
+    "fail": 0
+  },
+  "regression": {
+    "protected_documents": 31,
+    "deep_equal": true,
+    "modern_blocked": 6,
+    "p3_36_expected_unchanged": true
+  },
+  "schema": {
+    "migration": "0018",
+    "modified": false,
+    "gap": false
+  },
+  "combined_p3_roundtrip": {
+    "records": 842,
+    "definitions": 16,
+    "provenance": 1176,
+    "validated": 198,
+    "parsed": 644,
+    "protected_digest_unchanged": true
+  },
+  "production": {
+    "migration": false,
+    "db_write": false,
+    "worker_deploy": false,
+    "pages_deploy": false,
+    "ui": false,
+    "actual_backfill": false,
+    "commit": false,
+    "push": false
+  }
+}
