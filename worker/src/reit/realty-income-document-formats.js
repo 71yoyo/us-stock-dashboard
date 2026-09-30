@@ -1,4 +1,5 @@
 import { REALTY_INCOME_DOCUMENTS } from './realty-income-mappings.js';
+import { P5A_DOCUMENTS } from './realty-income-p5a-samples.js';
 
 // P4는 확인한 네 PDF만 승인한다. 미조사 URL/기간을 연도만으로 같은 형식이라고 추측하지 않는다.
 export const HISTORICAL_DOCUMENTS = [
@@ -20,7 +21,10 @@ export const FORMATS = {
   middle: 'REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL',
   joint: 'REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES',
   mixed: 'REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES',
-  modern: 'REALTY_INCOME_SEC_HTML_V1'
+  modern: 'REALTY_INCOME_SEC_HTML_V1',
+  legacyJoint: 'REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL',
+  cashMixed: 'REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO',
+  normalizedAffoSeparate: 'REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO'
 };
 export class DocumentFailure extends Error {
   constructor(code, message) { super(message); this.code = code; }
@@ -57,17 +61,27 @@ function pdfFingerprint(excerpt) {
   const has = (page, pattern) => pattern.test(page.text);
   const totals = has(ffo, /^FFO available to common stockholders\s+\$/m)
     && has(affo, /^(?:Total )?AFFO available to common stockholders\s+\$/m);
+  // Q1은 두 연도 열 하나뿐이다. Q3는 quarterly/9M 두 그룹이며 구체적인 순서는 parser가 재검증한다.
   const columns = [ffo, affo].every(page => /Three months ended/i.test(page.text)
-    && /(?:Six months|Year) ended/i.test(page.text) && /^\d{4} \d{4} \d{4} \d{4}$/m.test(page.text));
+    && (/^\d{4} \d{4}$/m.test(page.text) || (/(?:Six months|Nine months|Year) ended/i.test(page.text)
+      && /^\d{4} \d{4} \d{4} \d{4}$/m.test(page.text))));
   evidence(totals && columns && /SUPPLEMENTAL OPERATING/.test(excerpt.document_title || ''),
     'FORMAT_UNSUPPORTED', '복수 표 제목/총액/기간/문서 제목 fingerprint가 일치하지 않습니다.');
   const diluted = has(ffo, /^Diluted FFO\s+\$/m) && has(affo, /^Diluted AFFO\s+\$/m);
   const normalized = has(ffo, /^Normalized FFO available to common stockholders\s+\$/m);
   const separateFFO = has(ffo, /^FFO per common share:$/m);
-  const separateAFFO = has(affo, /^AFFO per common share:$/m);
+  const separateAFFO = has(affo, /^AFFO per common share:?$/m);
   const jointFFO = has(ffo, /^FFO per common share, basic and diluted\s+\$/m);
   const jointAFFO = has(affo, /^AFFO per common share, basic and diluted\s+\$/m);
   const jointNorm = has(ffo, /^Normalized FFO per common share, basic and diluted\s+\$/m);
+  if (!normalized && !diluted && jointFFO && jointAFFO && !separateFFO && !separateAFFO
+    && !/^Diluted (?:FFO|AFFO)\s+\$/m.test(ffo.text + '\n' + affo.text)) {
+    return { format: FORMATS.legacyJoint, ffo, affo, normalized, diluted };
+  }
+  if (diluted && jointFFO && separateAFFO && !separateFFO && !jointAFFO) {
+    evidence(!normalized || jointNorm, 'BASIS_AMBIGUITY', 'Normalized FFO 주당값 근거가 없습니다.');
+    return { format: normalized ? FORMATS.normalizedAffoSeparate : FORMATS.cashMixed, ffo, affo, normalized, diluted };
+  }
   if (!normalized && separateFFO && separateAFFO && !jointFFO && !jointAFFO) {
     evidence(diluted || (!/^Diluted (?:FFO|AFFO)\s+\$/m.test(ffo.text + '\n' + affo.text)),
       'BASIS_AMBIGUITY', '한 표에만 diluted total이 있어 지원 형식이 아닙니다.');
@@ -97,11 +111,11 @@ export async function detectDocumentFormat(document) {
     evidence(typeof excerpt.identity_text === 'string' && excerpt.identity_text.length > 0,
       'IDENTITY_MISSING', 'PDF 기업 소개 근거가 없습니다. ticker/metadata만으로 승인하지 않습니다.');
     issuerEvidence(source, excerpt.identity_text);
-    const approved = HISTORICAL_DOCUMENTS.find(row => row.url === source.source_url);
+    const approved = [...HISTORICAL_DOCUMENTS, ...P5A_DOCUMENTS].find(row => row.url === source.source_url);
     evidence(approved && source.source_type === 'ISSUER_IR_PDF' && source.cik === '0000726728'
       && source.issuer === 'Realty Income Corporation' && source.document_name === approved.url.split('/').at(-1)
       && source.page_count === approved.pages && source.published_at === approved.published
-      && source.filed_at === approved.published && source.fiscal_year === approved.year
+      && source.filed_at === (approved.filed ?? approved.published) && source.fiscal_year === approved.year
       && source.fiscal_period === `Q${approved.quarter}` && source.fiscal_year_end === '12-31' && source.fiscal_year_end_source
       && source.accession_number === approved.accession && source.exhibit === approved.exhibit,
     'SOURCE_UNSUPPORTED', '승인된 대표 문서/출처/회계기간과 일치하지 않습니다.');

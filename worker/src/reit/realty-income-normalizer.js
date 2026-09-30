@@ -52,7 +52,7 @@ export function normalizeHistoricalMetrics({ observations, definitions, source, 
       canonical_unit: perShare ? 'USD/share' : 'USD', validation_status: 'parsed', validation: null,
       sources: [{ ...source, input_hash: inputHash, format_id: format, extraction_method: 'pdf_text_no_ocr',
         table_title: page.text.split('\n')[0], section: row_label, page_number: page.page_number,
-        weighted_share_count_raw_unit: /\(dollars in thousands, except per share amounts\)/.test(page.text) ? 'shares' : 'shares thousand',
+        weighted_share_count_raw_unit: /\(dollars in thousands, except per share amounts\)|except per share and share count data/.test(page.text) ? 'shares' : 'shares thousand',
         weighted_share_count_usage: '출처만 보존. 총액/주당값 계산 또는 역산에 사용하지 않음.',
         share_disclosure, availability, definition_evidence: definitionEvidence }] };
     assertMetricRecord(record);

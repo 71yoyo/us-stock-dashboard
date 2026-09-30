@@ -1,0 +1,54 @@
+{
+  "source": {
+    "ticker": "O",
+    "source_type": "ISSUER_IR_PDF",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/Realty-Income-Q3-2018-Supplemental-Information.pdf",
+    "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+    "excerpt_hash": "629d987d9bca91ec792a431f7eba84c2d0820bd2d2a0d2e02eb0d538271f3825",
+    "issuer": "Realty Income Corporation",
+    "cik": "0000726728",
+    "document_name": "Realty-Income-Q3-2018-Supplemental-Information.pdf",
+    "page_count": 26,
+    "ffo_page": 5,
+    "affo_page": 6,
+    "published_at": "2018-10-31",
+    "published_at_evidence": "동일 IR 분기 earnings release p1의 명시된 발표 날짜",
+    "earnings_release_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/10-31-2018-Realty-Income-Q3-2018-Earnings.pdf",
+    "retrieved_at": "2026-09-30T11:03:02Z",
+    "filed_at": "2018-10-31",
+    "fiscal_year": 2018,
+    "fiscal_period": "Q3",
+    "fiscal_year_end": "12-31",
+    "fiscal_year_end_source": "기존 O SEC 연간 기간 근거; 표본 분기 종료일은 해당 표 머리글에서 별도 확인",
+    "accession_number": null,
+    "exhibit": null,
+    "sec_correspondence": null,
+    "identity_evidence": "공식 IR 회사 heading 및 PDF p3 NYSE O 소개; CIK는 기존 검증된 O SEC 식별정보",
+    "filing_date_evidence": "PDF p2 Current Report on Form 8-K filed on 2018-10-31",
+    "review_status": "P5A_manual_pdf_table_visual_review"
+  },
+  "excerpt": {
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nOur Common Stock is traded on the New York Stock Exchange\nthe symbol \"O“",
+    "document_title": "an S&P 500\nSUPPLEMENTAL OPERATING\ncompany\n& FINANCIAL DATA S&P High Yield\nDividend Aristocrats®\nindex member\nQ3 2018",
+    "pages": [
+      {
+        "page_number": 5,
+        "text": "Funds From Operations (FFO)\n(dollars in thousands, except per share amounts)\nThree months ended Nine months ended\nSeptember 30, September 30,\n2018 2017 2018 2017\nNet income available to common stockholders $ 98,999 $ 87,940 $ 278,542 $ 240,662\nDepreciation and amortization 136,967 127,569 402,069 371,755\nDepreciation of furniture, fixtures and equipment (166) (133) (493) (440)\nProvisions for impairment 6,862 365 25,034 8,072\nGain on sales of real estate (7,813) (4,319) (18,818) (17,689)\nFFO adjustments allocable to noncontrolling interests (299) (230) (820) (683)\nFFO available to common stockholders $ 234,550 $ 211,192 $ 685,514 $ 601,677\nFFO allocable to dilutive noncontrolling interests 217 220 667 659\nDiluted FFO $ 234,767 $ 211,412 $ 686,181 $ 602,336\nFFO per common share, basic and diluted $ 0.81 $ 0.77 $ 2.39 $ 2.22\nDistributions paid to common stockholders $ 191,703 $ 174,607 $ 564,747 $ 509,987\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 42,847 $ 36,585 $ 120,767 $ 91,690\nWeighted average number of common shares used for FFO per share computations:\nBasic 290,664,368 275,511,870 286,599,191 270,584,365\nDiluted 291,207,186 276,050,671 287,105,285 271,126,114\nQ3 2018 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThree months ended Nine months ended\nSeptember 30, September 30,\n2018 2017 2018 2017\nNet income available to common stockholders $ 98,999 $ 87,940 $ 278,542 $ 240,662\nCumulative adjustments to calculate FFO (1) 135,551 123,252 406,972 361,015\nFFO available to common stockholders 234,550 211,192 685,514 601,677\nExcess of redemption value over carrying value\nof Class F preferred share redemption — — — 13,373\nAmortization of share-based compensation 3,870 3,426 12,527 10,641\nAmortization of deferred financing costs 1,014 1,329 2,872 4,133\nAmortization of net mortgage premiums (354) (341) (1,167) (1,580)\nGain on interest rate swaps (265) (368) (3,064) (1,228)\nLeasing costs and commissions (379) (489) (2,831) (1,248)\nRecurring capital expenditures (382) (171) (529) (536)\nStraight-line rent (6,575) (4,778) (18,207) (12,331)\nAmortization of above and below-market leases 4,655 3,732 12,426 10,213\nOther adjustments 61 69 203 213\nTotal AFFO available to common stockholders $ 236,195 $ 213,601 $ 687,744 $ 623,327\nAFFO allocable to dilutive noncontrolling interests 227 299 692 885\nDiluted AFFO $ 236,422 $ 213,900 $ 688,436 $ 624,212\nAFFO per common share\nBasic $ 0.81 $ 0.78 $ 2.40 $ 2.30\nDiluted $ 0.81 $ 0.77 $ 2.40 $ 2.30\nDistributions paid to common stockholders $ 191,703 $ 174,607 $ 564,747 $ 509,987\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 44,492 $ 38,994 $ 122,997 $ 113,340\nWeighted average number of common shares used for AFFO per share computations:\nBasic 290,664,368 275,511,870 286,599,191 270,584,365\nDiluted 291,207,186 276,138,853 287,105,285 271,214,296\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ3 2018 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (NAREIT’s) definition, as net income available to\ncommon stockholders, plus depreciation and amortization of real estate assets, plus impairments of depreciable real estate assets, and reduced by gains on property\nsales. Presentation of the information regarding FFO and AFFO (described on page 6) is intended to assist the reader in comparing the operating performance of"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution)."
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "source": {
+    "ticker": "O",
+    "source_type": "ISSUER_IR_PDF",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+    "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+    "excerpt_hash": "cad7b1539cddc7fbee033af44ea9526017c05efba982afd8498e6f701b4a8828",
+    "issuer": "Realty Income Corporation",
+    "cik": "0000726728",
+    "document_name": "Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+    "page_count": 31,
+    "ffo_page": 5,
+    "affo_page": 6,
+    "published_at": "2022-11-02",
+    "published_at_evidence": "동일 IR 분기 earnings release p1의 명시된 발표 날짜",
+    "earnings_release_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty_Income_Exhibit_99.1_Q3_2022_Final.pdf",
+    "retrieved_at": "2026-09-30T11:03:02Z",
+    "filed_at": "2022-11-02",
+    "fiscal_year": 2022,
+    "fiscal_period": "Q3",
+    "fiscal_year_end": "12-31",
+    "fiscal_year_end_source": "기존 O SEC 연간 기간 근거; 표본 분기 종료일은 해당 표 머리글에서 별도 확인",
+    "accession_number": null,
+    "exhibit": "EX-99.2",
+    "sec_correspondence": null,
+    "identity_evidence": "공식 IR 회사 heading 및 PDF p3 NYSE O 소개; CIK는 기존 검증된 O SEC 식별정보",
+    "filing_date_evidence": "PDF p2 Current Report on Form 8-K filed on 2022-11-02",
+    "review_status": "P5A_manual_pdf_table_visual_review"
+  },
+  "excerpt": {
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nOur common stock is traded on the New York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ3 2022\nindex member",
+    "pages": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended September 30, Nine Months Ended September 30,\n2022 2021 2022 2021\nNet income available to common stockholders $ 219,567 $ 134,996 $ 642,143 $ 355,415\nDepreciation and amortization 419,016 198,832 1,232,215 564,606\nDepreciation of furniture, fixtures and equipment (511) (230) (1,478) (674)\nProvisions for impairment 1,650 11,011 16,379 30,977\nGain on sales of real estate (42,883) (12,094) (93,611) (35,396)\nProportionate share of adjustments for unconsolidated entities 717 — 12,812 —\nFFO adjustments allocable to noncontrolling interests (402) (180) (1,075) (511)\nFFO available to common stockholders $ 597,154 $ 332,335 $ 1,807,385 $ 914,417\nFFO allocable to dilutive noncontrolling interests 985 356 2,569 1,062\nDiluted FFO $ 598,139 $ 332,691 $ 1,809,954 $ 915,479\nFFO available to common stockholders $ 597,154 $ 332,335 $ 1,807,385 $ 914,417\nMerger and integration-related costs 3,746 16,783 12,994 30,081\nNormalized FFO available to common stockholders $ 600,900 $ 349,118 $ 1,820,379 $ 944,498\nNormalized FFO allocable to dilutive noncontrolling interests 985 356 2,569 1,062\nDiluted Normalized FFO $ 601,885 $ 349,474 $ 1,822,948 $ 945,560\nFFO per common share, basic and diluted $ 0.97 $ 0.85 $ 2.99 $ 2.41\nNormalized FFO per common share, basic and diluted $ 0.97 $ 0.89 $ 3.01 $ 2.49\nDistributions paid to common stockholders $ 458,586 $ 273,791 $ 1,342,695 $ 797,847\nFFO available to common stockholders in excess of distributions paid to common\nstockholders $ 138,568 $ 58,544 $ 464,690 $ 116,570\nNormalized FFO available to common stockholders in excess of distributions paid\nto common stockholders $ 142,314 $ 75,327 $ 477,684 $ 146,651\nWeighted average number of common shares used for FFO and normalized FFO:\nBasic 617,511,609 391,913,478 604,463,977 379,291,782\nDiluted 619,201,363 392,513,520 605,958,422 379,872,546\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ3 2022 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended September 30, Nine Months Ended September 30,\n2022 2021 2022 2021\nNet income available to common stockholders $ 219,567 $ 134,996 $ 642,143 $ 355,415\nCumulative adjustments to calculate Normalized FFO (2) 381,333 214,122 1,178,236 589,083\nNormalized FFO available to common stockholders 600,900 349,118 1,820,379 944,498\n(Gain) loss on extinguishment of debt (240) 3,983 (367) 50,456\nAmortization of share-based compensation 5,099 4,315 16,742 12,484\nAmortization of net debt premiums and deferred financing costs (16,728) 1,394 (50,772) 4,284\nLoss on interest rate swaps 735 733 2,181 2,179\nStraight-line payments from cross-currency swaps — 513 884 1,715\nLeasing costs and commissions (686) (1,199) (3,853) (2,026)\nRecurring capital expenditures (273) (365) (459) (415)\nStraight-line rent and expenses, net (29,628) (14,801) (85,004) (36,268)\nAmortization of above and below-market leases, net 17,422 10,312 47,466 23,546\nProportionate share of adjustments for unconsolidated entities (85) — (4,239) —\nOther adjustments(3) 27,050 2,834 24,434 2,253\nAFFO available to common stockholders $ 603,566 $ 356,837 $ 1,767,392 $ 1,002,706\nAFFO allocable to dilutive noncontrolling interests 1,006 351 2,613 1,047\nDiluted AFFO $ 604,572 $ 357,188 $ 1,770,005 $ 1,003,753\nAFFO per common share, basic and diluted $ 0.98 $ 0.91 $ 2.92 $ 2.64\nDistributions paid to common stockholders $ 458,586 $ 273,791 $ 1,342,695 $ 797,847\nAFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 144,980 $ 83,046 $ 424,697 $ 204,859\nWeighted average number of common shares used for AFFO:\nBasic 617,511,609 391,913,478 604,463,977 379,291,782\nDiluted 619,201,363 392,513,520 605,958,422 379,872,546\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented under \"FFO and Normalized FFO.\"\n(3) Includes adjustments allocable to noncontrolling interests, obligations related to financing lease liabilities, mark-to-market adjustments on investments and derivatives that do not qualify for\nhedge accounting, and foreign currency gain and loss as a result of intercompany debt and remeasurement transactions.\nQ3 2022 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides"
+      },
+      {
+        "page_number": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders,\nplus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on\nproperty sales. Presentation of the information regarding FFO and AFFO (described on pages 5 and 6) is intended to assist the reader in comparing the"
+      },
+      {
+        "page_number": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger and integration-related costs associated with our merger with VEREIT."
+      }
+    ]
+  }
+}

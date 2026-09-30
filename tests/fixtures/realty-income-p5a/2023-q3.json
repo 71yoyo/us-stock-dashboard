@@ -1,0 +1,58 @@
+{
+  "source": {
+    "ticker": "O",
+    "source_type": "ISSUER_IR_PDF",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/realty-income-q3-2023-supplemental-information.pdf",
+    "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+    "excerpt_hash": "8b2905c23223a164681ca7d97f232f6eb50bdfbbb58a35293e554e3cc0e8af1e",
+    "issuer": "Realty Income Corporation",
+    "cik": "0000726728",
+    "document_name": "realty-income-q3-2023-supplemental-information.pdf",
+    "page_count": 31,
+    "ffo_page": 5,
+    "affo_page": 6,
+    "published_at": "2023-11-06",
+    "published_at_evidence": "동일 IR 분기 earnings release p1의 명시된 발표 날짜",
+    "earnings_release_url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/q3-2023-earning-release.pdf",
+    "retrieved_at": "2026-09-30T11:03:02Z",
+    "filed_at": "2023-11-06",
+    "fiscal_year": 2023,
+    "fiscal_period": "Q3",
+    "fiscal_year_end": "12-31",
+    "fiscal_year_end_source": "기존 O SEC 연간 기간 근거; 표본 분기 종료일은 해당 표 머리글에서 별도 확인",
+    "accession_number": "0000726728-23-000111",
+    "exhibit": "EX-99.2",
+    "sec_correspondence": "https://www.sec.gov/Archives/edgar/data/726728/000072672823000111/realtyincomeq32023supple.htm",
+    "identity_evidence": "공식 IR 회사 heading 및 PDF p3 NYSE O 소개; CIK는 기존 검증된 O SEC 식별정보",
+    "filing_date_evidence": "PDF p2 Current Report on Form 8-K filed on 2023-11-06",
+    "review_status": "P5A_manual_pdf_table_visual_review"
+  },
+  "excerpt": {
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nOur common stock is traded on the New York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ3 2023\nindex member",
+    "pages": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share amounts)\nThree months ended Nine months ended\nSeptember 30, September 30,\n2023 2022 2023 2022\nNet income available to common stockholders $ 233,473 $ 219,567 $ 653,904 $ 642,143\nDepreciation and amortization 495,566 419,016 1,419,321 1,232,215\nDepreciation of furniture, fixtures and equipment (817) (511) (1,656) (1,478)\nProvisions for impairment 16,808 1,650 59,801 16,379\nGain on sales of real estate (7,572) (42,883) (19,675) (93,611)\nProportionate share of adjustments for unconsolidated entities — 717 (465) 12,812\nFFO adjustments allocable to noncontrolling interests (1,312) (402) (2,808) (1,075)\nFFO available to common stockholders $ 736,146 $ 597,154 $ 2,108,422 $ 1,807,385\nFFO allocable to dilutive noncontrolling interests 1,375 985 4,166 2,569\nDiluted FFO $ 737,521 $ 598,139 $ 2,112,588 $ 1,809,954\nFFO available to common stockholders $ 736,146 $ 597,154 $ 2,108,422 $ 1,807,385\nMerger and integration-related costs 2,884 3,746 4,532 12,994\nNormalized FFO available to common stockholders $ 739,030 $ 600,900 $ 2,112,954 $ 1,820,379\nNormalized FFO allocable to dilutive noncontrolling interests 1,375 985 4,166 2,569\nDiluted Normalized FFO $ 740,405 $ 601,885 $ 2,117,120 $ 1,822,948\nFFO per common share, basic and diluted $ 1.04 $ 0.97 $ 3.09 $ 2.99\nNormalized FFO per common share, basic and diluted $ 1.04 $ 0.97 $ 3.10 $ 3.01\nDistributions paid to common stockholders $ 543,343 $ 458,586 $ 1,555,679 $ 1,342,695\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 192,803 $ 138,568 $ 552,743 $ 464,690\nNormalized FFO available to common stockholders in excess of\ndistributions paid to common stockholders $ 195,687 $ 142,314 $ 557,275 $ 477,684\nWeighted average number of common shares used for FFO and\nNormalized FFO\nBasic 709,165 617,512 681,419 604,464\nDiluted 711,338 619,201 683,925 605,958\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ3 2023 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share amounts)\nThree months ended Nine months ended\nSeptember 30, September 30,\n2023 2022 2023 2022\nNet income available to common stockholders $ 233,473 $ 219,567 $ 653,904 $ 642,143\nCumulative adjustments to calculate Normalized FFO (2) 505,557 381,333 1,459,050 1,178,236\nNormalized FFO available to common stockholders 739,030 600,900 2,112,954 1,820,379\nGain on extinguishment of debt — (240) — (367)\nAmortization of share-based compensation 6,231 5,099 20,154 16,742\nAmortization of net debt premiums and deferred financing costs (10,244) (16,728) (34,441) (50,772)\nNon-cash (gain) loss on interest rate swaps (1,790) 735 (5,390) 2,181\nStraight-line impact of cash settlement on interest rate swaps (3) 1,797 — 5,392 —\nLeasing costs and commissions (1,392) (686) (6,868) (3,853)\nRecurring capital expenditures (52) (273) (190) (459)\nStraight-line rent and expenses, net (42,791) (29,628) (113,239) (85,004)\nAmortization of above and below-market leases, net 24,939 17,422 61,967 47,466\nProportionate share of adjustments for unconsolidated entities — (85) — (4,239)\nOther adjustments (4) 5,642 27,050 3,497 25,318\nAFFO available to common stockholders $ 721,370 $ 603,566 $ 2,043,836 $ 1,767,392\nAFFO allocable to dilutive noncontrolling interests 1,357 1,006 4,170 2,613\nDiluted AFFO $ 722,727 $ 604,572 $ 2,048,006 $ 1,770,005\nAFFO per common share\nBasic $ 1.02 $ 0.98 $ 3.00 $ 2.92\nDiluted $ 1.02 $ 0.98 $ 2.99 $ 2.92\nDistributions paid to common stockholders $ 543,343 $ 458,586 $ 1,555,679 $ 1,342,695\nAFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 178,027 $ 144,980 $ 488,157 $ 424,697\nWeighted average number of common shares used for AFFO:\nBasic 709,165 617,512 681,419 604,464\nDiluted 711,338 619,201 683,925 605,958\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented on page 5 under \"FFO and Normalized FFO.\"\n(3) Represents the straight-line amortization of $72.0 million gain realized upon the termination of $500.0 million in notional interest rate swaps in October 2022, over the term of the $750.0\nmillion of 5.625% senior unsecured notes due October 2032.\n(4) Includes foreign currency gain and loss as a result of intercompany debt and remeasurement transactions, mark-to-market adjustments on investments and derivatives that are non-cash in\nnature, straight-line payments from cross-currency swaps, obligations related to financing lease liabilities, and adjustments allocable to noncontrolling interests.\nQ3 2023 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides"
+      },
+      {
+        "page_number": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders,\nplus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on\nproperty sales. Presentation of the information regarding FFO and AFFO (described on pages 5 and 6) is intended to assist the reader in comparing the"
+      },
+      {
+        "page_number": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger and integration-related costs associated with our merger with VEREIT."
+      }
+    ]
+  }
+}
