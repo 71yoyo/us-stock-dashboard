@@ -581,6 +581,62 @@ body.modal-open {
 .detail-section-intro i { color: var(--accent-cyan); }
 .detail-data-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .detail-dividend-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* 재무 탭에만 적용한다. 기존 가격 차트·배당 카드·공통 모달 스타일에는 확장하지 않는다. */
+[data-detail-panel="financials"] .financial-metric-selector {
+  display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 0 0 12px;
+  scrollbar-width: thin; scrollbar-color: #334155 transparent;
+}
+[data-detail-panel="financials"] .financial-metric-selector button {
+  flex: 0 0 auto; white-space: nowrap; padding: 8px 10px; border-radius: 6px;
+  border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); font-size: 0.76rem;
+}
+[data-detail-panel="financials"] .financial-metric-selector button.active {
+  background: rgba(56, 189, 248, 0.1); color: var(--accent-cyan); border-color: rgba(56, 189, 248, 0.4);
+}
+[data-detail-panel="financials"] .financial-metric-selector button:disabled { opacity: 0.5; cursor: not-allowed; }
+[data-detail-panel="financials"] .financial-growth-panel {
+  border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: clamp(10px, 1.5vw, 20px);
+  background: #0b1220;
+}
+[data-detail-panel="financials"] .financial-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+[data-detail-panel="financials"] h3 { font-size: 1rem; }
+[data-detail-panel="financials"] [data-financial-latest] { font-size: 0.73rem; color: var(--text-secondary); }
+[data-detail-panel="financials"] .financial-toggle { display: flex; gap: 4px; padding: 3px; border-radius: 7px; background: #111827; }
+[data-detail-panel="financials"] .financial-toggle button {
+  border: 0; padding: 6px 12px; border-radius: 5px; background: transparent; color: var(--text-secondary);
+  font-size: 0.76rem; cursor: pointer;
+}
+[data-detail-panel="financials"] .financial-toggle button.active { background: #38bdf820; color: var(--accent-cyan); }
+[data-detail-panel="financials"] button:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+[data-detail-panel="financials"] .financial-summary { display: flex; gap: clamp(20px, 5vw, 80px); padding: 16px 0; }
+[data-detail-panel="financials"] .financial-summary dt { font-size: 0.73rem; color: var(--text-secondary); }
+[data-detail-panel="financials"] .financial-summary dd { font-family: var(--font-display); font-size: clamp(1.02rem, 2vw, 1.45rem); font-weight: 700; }
+[data-detail-panel="financials"] .financial-summary div:nth-child(1) dd { color: var(--accent-cyan); }
+[data-detail-panel="financials"] .financial-summary div:nth-child(3) dd { color: var(--color-up); }
+[data-detail-panel="financials"] .financial-range-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 6px; }
+[data-detail-panel="financials"] .financial-range-row[hidden] { display: none; }
+[data-detail-panel="financials"] .financial-range-row > span { font-size: 0.7rem; color: var(--text-secondary); }
+[data-detail-panel="financials"] .financial-chart-wrap { position: relative; }
+[data-detail-panel="financials"] .financial-chart-host { width: 100%; height: clamp(320px, 46vh, 420px); }
+[data-detail-panel="financials"] .financial-chart-state {
+  position: absolute; inset: 65px 5% 45px; display: flex; flex-direction: column; justify-content: center;
+  align-items: center; gap: 12px; text-align: center; font-size: 0.8rem; color: var(--text-secondary); pointer-events: none;
+}
+[data-detail-panel="financials"] .financial-chart-state button { pointer-events: auto; }
+[data-detail-panel="financials"] [hidden] { display: none !important; }
+[data-detail-panel="financials"] .financial-source-note { margin-top: 10px; color: var(--text-muted); font-size: 0.72rem; }
+[data-detail-panel="financials"] .financial-tooltip { min-width: 220px; }
+[data-detail-panel="financials"] .financial-tooltip > strong { display: block; margin-bottom: 6px; color: #f8fafc; }
+[data-detail-panel="financials"] .financial-tooltip > div { display: flex; justify-content: space-between; gap: 16px; padding: 2px 0; }
+[data-detail-panel="financials"] .financial-tooltip span { color: #94a3b8; }
+[data-detail-panel="financials"] .financial-tooltip b { font-weight: 500; }
+@media (max-width: 600px) {
+  [data-detail-panel="financials"] .financial-summary { justify-content: space-between; gap: 8px; }
+  [data-detail-panel="financials"] .financial-toggle button { padding: 6px 9px; }
+  [data-detail-panel="financials"] .financial-chart-host { height: clamp(320px, 48vh, 380px); }
+  [data-detail-panel="financials"] .financial-tooltip { min-width: 0; font-size: 10px; }
+  [data-detail-panel="financials"] .financial-tooltip > div { gap: 8px; }
+}
 .detail-data-placeholder { min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); color: var(--text-muted); text-align: center; }
 .detail-data-placeholder i { color: var(--accent-cyan); font-size: 2.2rem; }
 .detail-data-placeholder strong { color: var(--text-primary); }

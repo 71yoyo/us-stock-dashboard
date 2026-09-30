@@ -18,7 +18,7 @@
   <!-- 아이콘 FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="style.css?v=williams-guides-1">
+  <link rel="stylesheet" href="style.css?v=financial-growth-1">
   <link rel="stylesheet" href="fundamental-progress.css">
 </head>
 
@@ -236,9 +236,50 @@
             </div>
           </div>
           <div class="company-detail-panel hidden" data-detail-panel="financials">
-            <div class="detail-section-intro"><i class="fa-solid fa-file-invoice-dollar"></i><span
-                id="detailFinancialSource">저장된 최신 재무 데이터를 불러오는 중입니다.</span></div>
-            <div class="detail-data-grid" id="detailFinancialMetrics"></div>
+            <!-- Phase 2A는 성장·수익성만 구현한다. 미구현 지표는 가짜 값 대신 비활성 상태로 둔다. -->
+            <nav class="financial-metric-selector" aria-label="재무 지표 선택">
+              <button class="active" type="button" aria-current="true">성장·수익성</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">영업이익</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">EPS</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">PEG</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">PER</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">P/S</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">잉여현금흐름</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">ROE</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">ROIC</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">Gross Margin</button>
+              <button type="button" disabled title="다음 단계에서 제공 예정">Oper. Margin</button>
+            </nav>
+            <section class="financial-growth-panel" aria-labelledby="financialGrowthTitle">
+              <div class="financial-panel-header">
+                <div><h3 id="financialGrowthTitle">성장·수익성</h3><span data-financial-latest>기간 미확보</span></div>
+                <div class="financial-toggle" role="group" aria-label="재무 기간">
+                  <button type="button" class="active" data-financial-period="annual" aria-pressed="true">연간</button>
+                  <button type="button" data-financial-period="quarterly" aria-pressed="false">분기</button>
+                </div>
+              </div>
+              <dl class="financial-summary">
+                <div><dt>매출</dt><dd data-financial-value="revenue">—</dd></div>
+                <div><dt>순이익</dt><dd data-financial-value="income">—</dd></div>
+                <div><dt>순마진</dt><dd data-financial-value="margin">—</dd></div>
+              </dl>
+              <div class="financial-range-row" data-financial-ranges hidden>
+                <span>분기 범위</span><div class="financial-toggle" role="group" aria-label="분기 범위">
+                  <button type="button" data-financial-range="8" aria-pressed="false">8Q</button>
+                  <button type="button" class="active" data-financial-range="12" aria-pressed="true">12Q</button>
+                  <button type="button" data-financial-range="20" aria-pressed="false">20Q</button>
+                  <button type="button" data-financial-range="all" aria-pressed="false">전체</button>
+                </div>
+              </div>
+              <div class="financial-chart-wrap">
+                <div class="financial-chart-host" id="detailFinancialMetrics" role="img" aria-label="성장·수익성 재무 차트"></div>
+                <div class="financial-chart-state" aria-live="polite">
+                  <p data-financial-status>저장된 재무 데이터를 불러오는 중입니다.</p>
+                  <button type="button" class="btn btn-secondary" data-financial-retry hidden>다시 불러오기</button>
+                </div>
+              </div>
+              <p class="financial-source-note" id="detailFinancialSource">SEC EDGAR 저장 이력</p>
+            </section>
           </div>
           <div class="company-detail-panel hidden" data-detail-panel="dividend">
             <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span id="detailDividendSource">저장된 배당
@@ -511,7 +552,8 @@
   <!-- 새 위젯 설정을 즉시 받도록 배포 버전을 명시한다. -->
   <script src="tradingview-widget.js?v=dark-chart-2"></script>
   <script src="williams-signal.js?v=williams-state-1"></script>
-  <script src="app.js?v=market-candle-refresh-1"></script>
+  <script src="financial-chart.js?v=financial-growth-1"></script>
+  <script src="app.js?v=financial-growth-1"></script>
   <script src="fundamental-progress.js?v=market-candle-refresh-1"></script>
 </body>
 

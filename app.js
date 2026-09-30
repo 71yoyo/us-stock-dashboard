@@ -621,6 +621,8 @@ async function fetchCompanyFromCloudflare(ticker) {
 async function loadStockChart(ticker) {
   const stock = state.watchlist.find(item => item.ticker === ticker);
   if (!stock) return;
+  // 상세 원본을 기다리는 동안 이전 회사의 재무 차트가 남지 않도록 종목 변경만 먼저 알린다.
+  globalThis.FinancialChart?.prepareTicker(ticker);
 
   const initialPrice = getStoredPricePresentation(stock);
   document.getElementById('chartTicker').textContent = stock.ticker;
@@ -995,21 +997,8 @@ function renderCompanyDetailData(company) {
   const dividendContainer = document.getElementById('detailDividendMetrics');
   if (!financialContainer || !dividendContainer) return;
 
-  const quarterlyFinancials = (company.financials || []).filter(item => item.periodType === 'quarterly');
-  // 최신 공시의 부족한 항목은 그대로 표시한다. 과거의 완전한 행으로 몰래 바꾸지 않는다.
-  const financial = quarterlyFinancials[0] || company.financials?.[0];
-  const financialEntries = [
-    ['매출', financial?.revenue, '$'], ['영업이익', financial?.operatingIncome, '$'],
-    ['순이익', financial?.netIncome, '$'], ['EPS', financial?.eps, '$'],
-    ['PEG', financial?.pegRatio, ''], ['PER', financial?.peRatio, ''], ['P/S', financial?.psRatio, ''],
-    ['잉여현금흐름', financial?.freeCashFlow, '$'], ['ROE', financial?.roe, '%'],
-    ['ROIC', financial?.roic, '%'], ['Gross Margin', financial?.grossMargin, '%'], ['Oper. Margin', financial?.operatingMargin, '%']
-  ];
-  financialContainer.innerHTML = financialEntries.map(([label, value, suffix]) =>
-    `<div class="company-metric"><span>${label}</span><strong>${formatMetricValue(value, suffix)}</strong></div>`).join('');
-  document.getElementById('detailFinancialSource').textContent = financial
-    ? `${financial.periodType === 'quarterly' ? '분기' : '연간'} ${financial.fiscalPeriodEnd} · ${financial.source} 저장값 · 미확보 지표/이력 범위는 5-3 수집 현황에서 확인`
-    : '아직 저장된 재무 데이터가 없습니다.';
+  // 재무 표시만 전용 모듈에 맡긴다. 아래 배당 렌더링과 포맷터는 기존 정책을 유지한다.
+  globalThis.FinancialChart?.render(company);
 
   const savedDividend = company.dividendMetrics;
   const dividend = savedDividend?.source === 'BUSINESS_QUANT' ? savedDividend : null;
@@ -1648,6 +1637,8 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
+      if (selectedTab === 'financials') requestAnimationFrame(() => globalThis.FinancialChart?.show());
+      else globalThis.FinancialChart?.dispose();
       if (selectedTab === 'chart') {
         requestAnimationFrame(() => renderActiveTradingViewChart());
       } else {
@@ -1665,11 +1656,13 @@ function openCompanyDetailModal() {
   destroyMainChart();
   requestAnimationFrame(() => {
     renderActiveTradingViewChart();
+    if (document.querySelector('[data-detail-panel="financials"]:not(.hidden)')) globalThis.FinancialChart?.show();
   });
   // 상세창은 저장값을 읽기만 한다. 열 때마다 외부 API를 다시 호출하면 Massive 분당 한도가 빨리 소진된다.
 }
 
 function closeCompanyDetailModal() {
+  globalThis.FinancialChart?.dispose();
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
   // 닫힌 모달의 iframe을 해제하고, 현재 화면이 2번일 때만 메인 차트를 복원한다.
