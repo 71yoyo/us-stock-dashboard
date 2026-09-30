@@ -52,7 +52,8 @@ function issuerEvidence(source, identity) {
   }
 }
 
-function pdfFingerprint(excerpt) {
+// 형식 조사 자체는 승인과 별개다. 읽기 전용 audit가 동일 규칙을 재사용해도 운영 승인 목록은 확장되지 않는다.
+export function pdfFingerprint(excerpt) {
   evidence(Array.isArray(excerpt.pages) && excerpt.pages.length === 2
     && new Set(excerpt.pages.map(page => page.page_number)).size === 2, 'TABLE_AMBIGUITY', '대표 FFO/AFFO 두 페이지가 필요합니다.');
   const ffo = excerpt.pages.find(page => /^(?:Funds From Operations \(FFO\)|FFO and Normalized FFO)/.test(page.text));

@@ -1,0 +1,4833 @@
+{
+  "audit_scope": "2016–2025 공식 inventory 40개; read-only; persistence 승인 아님",
+  "summary": {
+    "visited": 40,
+    "source_available": 40,
+    "statuses": {
+      "VERIFIED_PARSED": 9,
+      "PARSED": 8,
+      "NEEDS_REVIEW": 6,
+      "UNKNOWN_FORMAT": 17,
+      "WRONG_ISSUER": 0,
+      "SOURCE_UNAVAILABLE": 0,
+      "PARSER_ERROR": 0
+    },
+    "formats": [
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+        "documents": 8,
+        "parsed": 4,
+        "needs_review": 4,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+        "documents": 4,
+        "parsed": 4,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 2,
+        "parsed": 2,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 3,
+        "parsed": 2,
+        "needs_review": 1,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "UNKNOWN",
+        "documents": 18,
+        "parsed": 0,
+        "needs_review": 1,
+        "unknown": 17,
+        "failed": 0
+      }
+    ],
+    "years": [
+      {
+        "year": 2016,
+        "documents": 4,
+        "parsed": 3,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED"
+        ]
+      },
+      {
+        "year": 2017,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "VERIFIED_PARSED",
+          "PARSED",
+          "UNKNOWN_FORMAT",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2018,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2019,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2020,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2021,
+        "documents": 4,
+        "parsed": 1,
+        "statuses": [
+          "NEEDS_REVIEW",
+          "VERIFIED_PARSED",
+          "NEEDS_REVIEW",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2022,
+        "documents": 4,
+        "parsed": 3,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "UNKNOWN_FORMAT"
+        ]
+      },
+      {
+        "year": 2023,
+        "documents": 4,
+        "parsed": 1,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "VERIFIED_PARSED",
+          "UNKNOWN_FORMAT"
+        ]
+      },
+      {
+        "year": 2024,
+        "documents": 4,
+        "parsed": 1,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "VERIFIED_PARSED",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      },
+      {
+        "year": 2025,
+        "documents": 4,
+        "parsed": 0,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      }
+    ],
+    "quarterly": {
+      "scope": "quarterly",
+      "primary_periods_only": true,
+      "opportunities": 40,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 17,
+          "total/diluted": 12,
+          "per_share/basic": 17,
+          "per_share/diluted": 17
+        },
+        "AFFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 17,
+          "total/diluted": 12,
+          "per_share/basic": 17,
+          "per_share/diluted": 17
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": 19,
+          "confirmed_not_reported": 21,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 19,
+            "total/diluted": 19,
+            "per_share/basic": 19,
+            "per_share/diluted": 19
+          },
+          "total/not_applicable": 6,
+          "total/diluted": 6,
+          "per_share/basic": 6,
+          "per_share/diluted": 6
+        }
+      }
+    },
+    "annual": {
+      "scope": "annual",
+      "primary_periods_only": true,
+      "opportunities": 10,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 2,
+          "total/diluted": 1,
+          "per_share/basic": 2,
+          "per_share/diluted": 2
+        },
+        "AFFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 2,
+          "total/diluted": 1,
+          "per_share/basic": 2,
+          "per_share/diluted": 2
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": 5,
+          "confirmed_not_reported": 5,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 5,
+            "total/diluted": 5,
+            "per_share/basic": 5,
+            "per_share/diluted": 5
+          },
+          "total/not_applicable": 0,
+          "total/diluted": 0,
+          "per_share/basic": 0,
+          "per_share/diluted": 0
+        }
+      }
+    },
+    "dedup": {
+      "observations": 564,
+      "unique_keys": 464,
+      "unique_values": 464,
+      "distinct_value_variants": 464,
+      "provenance": 564,
+      "conflicts": [],
+      "validated_unique_keys": 162
+    },
+    "comparison": {
+      "comparable": 100,
+      "exact_match": 100,
+      "difference": 0,
+      "restated_candidates": []
+    }
+  },
+  "rows": [
+    {
+      "year": 2016,
+      "quarter": 1,
+      "id": "2016-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+      "source_hash": "55469622981fa3b76d11b0c0b2b64e7806c34a8b8ee223d82583f5f7c1e2798d",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company , is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2016-04-26",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on April 26, 2016"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands , except per share amounts)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FUNDS FROM OPERATIONS (FFO)",
+          "ADJUSTED FUNDS FROM OPERATIONS (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.68 $ 0.68",
+            "Basic 250,173,815 225,346,407",
+            "Diluted 250,381,001 225,508,832"
+          ],
+          [
+            "AFFO per common share:",
+            "Basic $ 0.70 $ 0.68",
+            "Diluted $ 0.70 $ 0.67",
+            "Basic 250,173,815 225,346,407",
+            "Diluted 250,381,001 225,508,832"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended",
+            "2016 2015"
+          ],
+          [
+            "Three months ended",
+            "2016 2015"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2016,
+      "quarter": 2,
+      "id": "2016-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+      "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company , is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2016-07-27",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filedon July 27,2016"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.70 $ 0.69 $ 1.38 $ 1.36",
+            "Basic 253,375,546 232,403,586 251,792,989 228,932,782",
+            "Diluted 254,254,243 232,886,185 252,073,685 229,061,762"
+          ],
+          [
+            "AFFO per common share, basic and diluted $ 0.71 $ 0.68 $ 1.42 $ 1.36",
+            "Basic 253,375,546 232,403,586 251,792,989 228,932,782",
+            "Diluted 253,937,221 232,886,185 252,378,957 229,061,762"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2016 2015 2016 2015"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2016 2015 2016 2015"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        },
+        {
+          "metric_code": "FFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        },
+        {
+          "metric_code": "AFFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        }
+      ],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2016,
+      "quarter": 3,
+      "id": "2016-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q3/Realty-Income-Q32016-Supplemental-Information.pdf",
+      "source_hash": "063b13a42d2a04e66938d9f125a4b70092b5ce2f9c5b77ea35860437b671e927",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company , is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2016-10-26",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on October 26, 2016"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.73 $ 0.69 $ 2.11 $ 2.05",
+            "Basic 258,085,633 236,211,706 253,953,149 231,434,521",
+            "Diluted 258,356,892 236,739,942 254,223,301 231,545,745"
+          ],
+          [
+            "AFFO per common share, basic and diluted $ 0.72 $ 0.70 $ 2.14 $ 2.06",
+            "Basic 258,085,633 236,211,706 253,953,149 231,434,521",
+            "Diluted 258,356,892 236,739,942 254,458,747 231,545,745"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine months ended",
+            "2016 2015 2016 2015"
+          ],
+          [
+            "Three months ended Nine months ended",
+            "2016 2015 2016 2015"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        },
+        {
+          "metric_code": "FFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        },
+        {
+          "metric_code": "AFFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        }
+      ],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2016,
+      "quarter": 4,
+      "id": "2016-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q4/Realty-Income-Q4-16-Supplemental-Information.pdf",
+      "source_hash": "f989d35506f2f0bf1b6a17d24865ca5d87ae770aa7273458373ae313e3900d10",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2017-02-22",
+      "filed_at": "2017-02-22",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 22, 2017"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share:",
+            "Basic $ 0.77 $ 0.72 $ 2.88 $ 2.77",
+            "Diluted $ 0.77 $ 0.71 $ 2.88 $ 2.77",
+            "Basic 258,373,179 248,515,893 255,066,500 235,767,932",
+            "Diluted 259,010,432 249,508,956 255,822,679 235,891,368"
+          ],
+          [
+            "AFFO per common share:",
+            "Basic $ 0.75 $ 0.68 $ 2.89 $ 2.74",
+            "Diluted $ 0.75 $ 0.68 $ 2.88 $ 2.74",
+            "Basic 258,373,179 248,515,893 255,066,500 235,767,932",
+            "Diluted 259,010,432 249,508,956 255,822,679 235,891,368"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Year ended",
+            "2016 2015 2016 2015"
+          ],
+          [
+            "Three months ended Year ended",
+            "2016 2015 2016 2015"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        },
+        {
+          "metric_code": "FFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        },
+        {
+          "metric_code": "AFFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        }
+      ],
+      "record_count": 24,
+      "validated_count": 12,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2017,
+      "quarter": 1,
+      "id": "2017-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q1/Realty-Income-Q1-17-Supplemental-Information.pdf",
+      "source_hash": "9ce4f079b00bcfec93973f52379997b39c574c8562026862aa6515cd2be66824",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2017-04-25",
+      "filed_at": "2017-04-25",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on April 25, 2017"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.71 $ 0.68",
+            "Basic 263,340,491 250,173,815",
+            "Diluted 263,934,304 250,381,001"
+          ],
+          [
+            "AFFO per common share, basic and diluted $ 0.76 $ 0.70",
+            "Basic 263,340,491 250,173,815",
+            "Diluted 264,022,486 250,381,001"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended",
+            "2017 2016"
+          ],
+          [
+            "Three months ended",
+            "2017 2016"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        },
+        {
+          "metric_code": "FFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        },
+        {
+          "metric_code": "AFFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        }
+      ],
+      "record_count": 12,
+      "validated_count": 6,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2017,
+      "quarter": 2,
+      "id": "2017-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q2/Realty-Income-Q2-17-Supplemental-Information.pdf",
+      "source_hash": "760253a5528e0a9ab9cae466131aa69f0b2da6b7fdcd5e0c0734b08051c2008d",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2017-07-26",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on July 26, 2017"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.75 $ 0.70 1.46 1.38",
+            "Basic 272,588,332 253,375,546 268,024,691 251,792,989",
+            "Diluted 273,187,669 254,254,243 255,569,855 252,073,685"
+          ],
+          [
+            "AFFO per common share, basic and diluted $ 0.76 $ 0.71 1.53 1.42",
+            "Basic 272,588,332 253,375,546 268,024,691 251,792,989",
+            "Diluted 273,187,669 253,937,221 268,658,037 252,378,957"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2017 2016 2017 2016"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2017 2016 2017 2016"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        },
+        {
+          "metric_code": "FFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        },
+        {
+          "metric_code": "AFFO",
+          "value_basis": "total",
+          "share_basis": "diluted",
+          "status": "not_reported",
+          "value": null,
+          "reason": "diluted total 공시행 없음. 주당값×주식수 역산 금지."
+        }
+      ],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2017,
+      "quarter": 3,
+      "id": "2017-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q3/Realty-Income-Q3-2017-Supplemental-Information.pdf",
+      "source_hash": "78ff55288371e4fa02207798a3839985cef0f8aea2e7eb8f35462bc20515fd10",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2017-10-25",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filedon October 25, 2017"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "FFO per common share, basic and diluted $ 0.77 $ 0.73 2.22 2.11",
+            "Basic 275,511,870 258,085,633 270,584,365 253,953,149",
+            "Diluted 276,050,671 258,356,892 271,126,114 254,223,301"
+          ],
+          [
+            "AFFO per common share",
+            "Basic $ 0.78 $ 0.72 $ 2.30 $ 2.14",
+            "Diluted $ 0.77 $ 0.72 $ 2.30 $ 2.14",
+            "Basic 275,511,870 258,085,633 270,584,365 253,953,149",
+            "Diluted 276,138,853 258,356,892 271,214,296 254,458,747"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine months ended",
+            "2017 2016 2017 2016"
+          ],
+          [
+            "Three months ended Nine months ended",
+            "2017 2016 2017 2016"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2017,
+      "quarter": 4,
+      "id": "2017-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+      "source_hash": "9271642af031129aaaad1aca0687a3826f3740319024e0877af61a5c13c864ea",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2018-02-21",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filedon February 21, 2018"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 170,988 $ 200,099 $ 773,542 $ 736,830",
+            "FFO per common share:",
+            "Basic $ 0.61 $ 0.77 $ 2.83 $ 2.88",
+            "Diluted $ 0.61 $ 0.77 $ 2.82 $ 2.88",
+            "Basic 281,923,090 258,373,179 273,465,680 255,066,500",
+            "Diluted 282,023,488 259,010,432 273,936,752 255,822,679"
+          ],
+          [
+            "Diluted AFFO $ 215,605 $ 193,226 $ 839,816 $ 737,829",
+            "AFFO per common share",
+            "Basic $ 0.76 $ 0.75 $ 3.07 $ 2.89",
+            "Diluted $ 0.76 $ 0.75 $ 3.06 $ 2.88",
+            "Basic 281,923,090 258,373,179 273,465,680 255,066,500",
+            "Diluted 282,428,692 259,010,432 274,024,934 255,822,679"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Year ended",
+            "2017 2016 2017 2016"
+          ],
+          [
+            "Three months ended Year ended",
+            "2017 2016 2017 2016"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "DUPLICATE_LABEL",
+          "message": "총액 행의 중복/누락 구조가 다릅니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2018,
+      "quarter": 1,
+      "id": "2018-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q1/Realty-Income-Q1-2018-Supplemental-Information.pdf",
+      "source_hash": "fa6936d9d64f0a2aa08ed287f2202f75b2b5b8d0d722ad1573f3f8fddaa164df",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2018-05-08",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filedon May 8, 2018"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 225,100 $ 187,433",
+            "FFO per common share, basic and diluted $ 0.79 $ 0.71",
+            "Basic 283,917,418 263,340,491",
+            "Diluted 284,345,328 263,934,304"
+          ],
+          [
+            "Diluted AFFO $ 224,789 $ 201,630",
+            "AFFO per common share, basic and diluted $ 0.79 $ 0.76",
+            "Basic 283,917,418 263,340,491",
+            "Diluted 284,345,328 264,022,486"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended",
+            "2018 2017"
+          ],
+          [
+            "Three months ended",
+            "2018 2017"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2018,
+      "quarter": 2,
+      "id": "2018-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q2/Realty-Income-Q2-2018-Supplemental-Information.pdf",
+      "source_hash": "4a3da96e69c9d8af0709561d560c243aa5d96e901287348f9e42ad055b47089a",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2018-08-01",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 1, 2018"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 226,314 $ 203,554 $ 451,414 $ 390,921",
+            "FFO per common share:",
+            "Basic $ 0.79 $ 0.75 $ 1.59 $ 1.46",
+            "Diluted $ 0.79 $ 0.75 $ 1.58 $ 1.46",
+            "Basic 284,928,969 272,588,332 284,469,689 268,024,691",
+            "Diluted 285,372,256 273,187,669 284,924,336 268,569,855"
+          ],
+          [
+            "Diluted AFFO $ 227,224 $ 208,680 $ 452,014 $ 410,309",
+            "AFFO per common share, basic and diluted $ 0.80 $ 0.76 $ 1.59 $ 1.53",
+            "Basic 284,928,969 272,588,332 284,469,689 268,024,691",
+            "Diluted 285,372,256 273,187,669 284,924,336 268,658,037"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2018 2017 2018 2017"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2018 2017 2018 2017"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2018,
+      "quarter": 3,
+      "id": "2018-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/Realty-Income-Q3-2018-Supplemental-Information.pdf",
+      "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2018-10-31",
+      "filed_at": "2018-10-31",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on October 31, 2018"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 234,767 $ 211,412 $ 686,181 $ 602,336",
+            "FFO per common share, basic and diluted $ 0.81 $ 0.77 $ 2.39 $ 2.22",
+            "Basic 290,664,368 275,511,870 286,599,191 270,584,365",
+            "Diluted 291,207,186 276,050,671 287,105,285 271,126,114"
+          ],
+          [
+            "Diluted AFFO $ 236,422 $ 213,900 $ 688,436 $ 624,212",
+            "AFFO per common share",
+            "Basic $ 0.81 $ 0.78 $ 2.40 $ 2.30",
+            "Diluted $ 0.81 $ 0.77 $ 2.40 $ 2.30",
+            "Basic 290,664,368 275,511,870 286,599,191 270,584,365",
+            "Diluted 291,207,186 276,138,853 287,105,285 271,214,296"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine months ended",
+            "2018 2017 2018 2017"
+          ],
+          [
+            "Three months ended Nine months ended",
+            "2018 2017 2018 2017"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2018,
+      "quarter": 4,
+      "id": "2018-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+      "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2019-02-20",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 20, 2019"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 218,216 $ 170,988 $ 904,124 $ 773,542",
+            "FFO per common share:",
+            "Basic $ 0.73 $ 0.61 $ 3.12 $ 2.83",
+            "Diluted $ 0.73 $ 0.61 $ 3.12 $ 2.82",
+            "Basic 297,730,206 281,923,090 289,427,430 273,465,680",
+            "Diluted 298,609,734 282,023,488 289,923,984 273,936,752"
+          ],
+          [
+            "Diluted AFFO $ 237,300 $ 215,605 $ 925,459 $ 839,816",
+            "AFFO per common share:",
+            "Basic $ 0.80 $ 0.76 $ 3.19 $ 3.07",
+            "Diluted $ 0.79 $ 0.76 $ 3.19 $ 3.06",
+            "Basic 297,730,206 281,923,090 289,427,430 273,465,680",
+            "Diluted 298,609,734 282,428,692 289,923,984 274,024,934"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Year ended",
+            "2018 2017 2018 2017"
+          ],
+          [
+            "Three months ended Year ended",
+            "2018 2017 2018 2017"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2019,
+      "quarter": 1,
+      "id": "2019-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q1/Realty-Income-Q1-2019-Supplemental-Information_0.pdf",
+      "source_hash": "1854d98f10be8a5f93dc1f1f1c295ddcb105c49b528fc032f9c75088a55fb3b3",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2019-05-01",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 1, 2019"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 245,675 $ 225,100",
+            "FFO per common share, basic and diluted $ 0.81 $ 0.79",
+            "Basic 303,528,336 283,917,418",
+            "Diluted 303,819,878 284,345,328"
+          ],
+          [
+            "Diluted AFFO $ 248,734 $ 224,789",
+            "AFFO per common share, basic and diluted $ 0.82 $ 0.79",
+            "Basic 303,528,336 283,917,418",
+            "Diluted 303,819,878 284,345,328"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended",
+            "2019 2018"
+          ],
+          [
+            "Three months ended",
+            "2019 2018"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2019,
+      "quarter": 2,
+      "id": "2019-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q2/Realty-Income-Q2-2019-Supplemental-Information.pdf",
+      "source_hash": "9dd38670e6a33f5b00c50a3c05ae936010a8eac16fb53e667ea08d099517be99",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2019-08-05",
+      "filed_at": "2019-08-05",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 5, 2019"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 251,851 $ 226,314 $ 497,834 $ 451,414",
+            "FFO per common share:",
+            "Basic $ 0.81 $ 0.79 $ 1.62 $ 1.59",
+            "Diluted $ 0.81 $ 0.79 $ 1.62 $ 1.58",
+            "Basic 311,032,972 284,928,969 307,293,949 284,469,689",
+            "Diluted 311,785,281 285,372,256 308,000,806 284,924,336"
+          ],
+          [
+            "Diluted AFFO $ 254,303 $ 227,224 $ 502,669 $ 452,014",
+            "AFFO per common share:",
+            "Basic $ 0.82 $ 0.80 $ 1.64 $ 1.59",
+            "Diluted $ 0.82 $ 0.80 $ 1.63 $ 1.59",
+            "Basic 311,032,972 284,928,969 307,293,949 284,469,689",
+            "Diluted 311,785,281 285,372,256 307,580,127 284,924,336"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2019 2018 2019 2018"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2019 2018 2019 2018"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2019,
+      "quarter": 3,
+      "id": "2019-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q3/Realty-Income-Q3-2019-Supplemental-Information.pdf",
+      "source_hash": "6230d56ebb347957a63f8ba544f9403c0b14ddeedb7572cd9fe9926917760981",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2019-11-04",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 4, 2019"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 262,393 $ 234,767 $ 760,227 $ 686,181",
+            "FFO per common share:",
+            "Basic $ 0.82 $ 0.81 $ 2.44 $ 2.39",
+            "Diluted $ 0.82 $ 0.81 $ 2.43 $ 2.39",
+            "Basic 319,945,932 290,664,368 311,556,279 286,599,191",
+            "Diluted 320,726,136 291,207,186 312,300,391 287,105,285"
+          ],
+          [
+            "Diluted AFFO $ 265,723 $ 236,422 $ 769,090 $ 688,436",
+            "AFFO per common share:",
+            "Basic $ 0.83 $ 0.81 $ 2.47 $ 2.40",
+            "Diluted $ 0.83 $ 0.81 $ 2.46 $ 2.40",
+            "Basic 319,945,932 290,664,368 311,556,279 286,599,191",
+            "Diluted 320,726,136 291,207,186 312,300,391 287,105,285"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine Months Ended",
+            "2019 2018 2019 2018"
+          ],
+          [
+            "Three months ended Nine Months Ended",
+            "2019 2018 2019 2018"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2019,
+      "quarter": 4,
+      "id": "2019-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+      "source_hash": "5efad6af715c96c0750ec3a24f0369cc10f1a9c0843689f64a45b6026212f7da",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2020-02-19",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 19, 2020"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 280,768 $ 218,216 $ 1,040,994 $ 904,124",
+            "FFO per common share:",
+            "Basic and Diluted $ 0.85 $ 0.73 $ 3.29 $ 3.12",
+            "Basic 328,565,734 297,730,206 315,837,012 289,427,430",
+            "Diluted 329,364,027 298,609,734 316,601,350 289,923,984"
+          ],
+          [
+            "Diluted AFFO $ 282,364 $ 237,300 $ 1,051,457 $ 925,459",
+            "AFFO per common share:",
+            "Basic $ 0.86 $ 0.80 $ 3.32 $ 3.19",
+            "Diluted $ 0.86 $ 0.79 $ 3.32 $ 3.19",
+            "Basic 328,565,734 297,730,206 315,837,012 289,427,430",
+            "Diluted 329,364,027 298,609,734 316,601,350 289,923,984"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended Year Ended",
+            "2019 2018 2019 2018"
+          ],
+          [
+            "Three Months Ended Year Ended",
+            "2019 2018 2019 2018"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "BASIS_AMBIGUITY",
+          "message": "주당값 행과 주식수 행을 구별할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2020,
+      "quarter": 1,
+      "id": "2020-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q1-2020-Supplemental-Information-.pdf",
+      "source_hash": "fcb438de9e12dfc11a63d5f6d5b2c971d46342b5233a18ed060cdbb86f753eb6",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2020-05-04",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 4, 2020"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 277,473 $ 245,675",
+            "FFO per common share, basic and diluted $ 0.82 $ 0.81",
+            "Basic 336,624,567 303,528,336",
+            "Diluted 337,439,634 303,819,878"
+          ],
+          [
+            "Diluted AFFO $ 297,599 $ 248,734",
+            "AFFO per common share, basic and diluted $ 0.88 $ 0.82",
+            "Basic 336,624,567 303,528,336",
+            "Diluted 337,439,634 303,819,878"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended",
+            "2020 2019"
+          ],
+          [
+            "Three Months Ended",
+            "2020 2019"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2020,
+      "quarter": 2,
+      "id": "2020-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q2-2020-Supplemental-Information.pdf",
+      "source_hash": "07ef77962a05159c2cf78af3e9344ad6e4b8034efac5f7585078517416c00d79",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2020-08-03",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 3, 2020"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 288,686 $ 251,851 $ 566,158 $ 497,834",
+            "FFO per common share, basic and diluted $ 0.84 $ 0.81 $ 1.66 $ 1.62",
+            "Basic 343,515,406 311,032,972 340,061,487 307,293,949",
+            "Diluted 344,148,378 311,785,281 340,744,384 308,000,806"
+          ],
+          [
+            "Diluted AFFO $ 295,597 $ 254,303 $ 593,195 $ 502,669",
+            "AFFO per common share:",
+            "Basic $ 0.86 $ 0.82 $ 1.74 $ 1.64",
+            "Diluted $ 0.86 $ 0.82 $ 1.74 $ 1.63",
+            "Basic 343,515,406 311,032,972 340,061,487 307,293,949",
+            "Diluted 344,148,378 311,785,281 340,744,384 307,580,127"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2020 2019 2020 2019"
+          ],
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2020 2019 2020 2019",
+            "(1) The three and six months ended June 30, 2020 includes $14.1 million of rent deferred as a result of lease concessions we granted in response to the COVID-19 pandemic and recognized",
+            "collection of the $60.2 million of unpaid rent is probable. Deferrals accounted for as modifications totaling $161,000 for the three and six months ended June 30, 2020 have not been added"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2020,
+      "quarter": 3,
+      "id": "2020-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q3-2020-Supplemental-Information.pdf",
+      "source_hash": "c6997a2b155d46c6a81c5a173cf2932efad493fa474f3406be6b9406734d9873",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2020-11-02",
+      "filed_at": "2020-11-02",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 2, 2020"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          9,
+          10
+        ],
+        "headings": [
+          "Funds From Operations (FFO)",
+          "Adjusted Funds From Operations (AFFO)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 283,323 $ 262,393 $ 849,482 $ 760,227",
+            "FFO per common share:",
+            "Basic $ 0.82 $ 0.82 $ 2.48 $ 2.44",
+            "Diluted $ 0.82 $ 0.82 $ 2.48 $ 2.43",
+            "Basic 346,476,217 319,945,932 342,214,164 311,556,279",
+            "Diluted 347,212,593 320,726,136 342,946,337 312,300,391"
+          ],
+          [
+            "Diluted AFFO $ 282,856 $ 265,723 $ 876,051 $ 769,090",
+            "AFFO per common share:",
+            "Basic $ 0.82 $ 0.83 $ 2.56 $ 2.47",
+            "Diluted $ 0.81 $ 0.83 $ 2.55 $ 2.46",
+            "Basic 346,476,217 319,945,932 342,214,164 311,556,279",
+            "Diluted 347,212,593 320,726,136 342,946,337 312,300,391"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2020 2019 2020 2019"
+          ],
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2020 2019 2020 2019",
+            "the $62.9 million of unpaid rent is probable. Deferrals accounted for as modifications totaling $63,000 and $224,000 for the three and nine months ended September 30, 2020, respectively,"
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [
+        {
+          "metric_code": "NORMALIZED_FFO",
+          "status": "not_reported",
+          "value": null,
+          "reason": "대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지."
+        }
+      ],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        9,
+        10
+      ]
+    },
+    {
+      "year": 2020,
+      "quarter": 4,
+      "id": "2020-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+      "source_hash": "7c4c9738f401d11cfff227012cb89ca26afb1e8c23c619f9e408485ce685c127",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2021-02-22",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 22, 2021"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          9,
+          10
+        ],
+        "headings": [
+          "Funds From Operations(1)",
+          "Adjusted Funds From Operations(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 294,055 $ 280,768 $ 1,143,537 $ 1,040,994",
+            "FFO per common share:",
+            "Basic and diluted $ 0.83 $ 0.85 $ 3.31 $ 3.29",
+            "Basic 354,437,466 328,565,734 345,280,126 315,837,012",
+            "Diluted 355,050,977 329,364,027 345,878,377 316,601,350"
+          ],
+          [
+            "Diluted AFFO $ 298,013 $ 282,364 $ 1,174,064 $ 1,051,457",
+            "AFFO per common share:",
+            "Basic $ 0.84 $ 0.86 $ 3.40 $ 3.32",
+            "Diluted $ 0.84 $ 0.86 $ 3.39 $ 3.32",
+            "Basic 354,437,466 328,565,734 345,280,126 315,837,012",
+            "Diluted 355,050,977 329,364,027 345,878,377 316,601,350"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended December 31, Year Ended December 31,",
+            "2020 2019 2020 2019"
+          ],
+          [
+            "Three Months Ended December 31, Year Ended December 31,",
+            "2020 2019 2020 2019",
+            "accounted for as modifications totaling $12,000 and $236,000 for the three months and year ended December 31, 2020, respectively, have not been added back to AFFO."
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "BASIS_AMBIGUITY",
+          "message": "주당값 행과 주식수 행을 구별할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2021,
+      "quarter": 1,
+      "id": "2021-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+      "source_hash": "23db5c2ff9f79fb148ae283140f845a42972d14f2ad51bf4cf413b8c647707ef",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2021-05-03",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 3, 2021"
+      },
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          7,
+          8
+        ],
+        "headings": [
+          "Funds From Operations(1)",
+          "Adjusted Funds From Operations(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 267,707 $ 277,473",
+            "FFO per common share:",
+            "Basic and diluted $ 0.72 $ 0.82",
+            "Basic 371,522,607 336,624,567",
+            "Diluted 371,601,901 337,439,634"
+          ],
+          [
+            "Diluted AFFO $ 318,573 $ 297,599",
+            "AFFO per common share:",
+            "Basic and diluted $ 0.86 $ 0.88",
+            "Basic 371,522,607 336,624,567",
+            "Diluted 372,065,020 337,439,634"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended March 31,",
+            "2021 2020"
+          ],
+          [
+            "Three Months Ended March 31,",
+            "2021 2020",
+            "pandemic did not affect our rent collections until April 2020, there was no related impact for the three months ended March 31, 2020."
+          ]
+        ],
+        "normalized_ffo": "NO"
+      },
+      "errors": [
+        {
+          "code": "BASIS_AMBIGUITY",
+          "message": "주당값 행과 주식수 행을 구별할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2021,
+      "quarter": 2,
+      "id": "2021-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+      "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2021-08-02",
+      "filed_at": "2021-08-02",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 2, 2021"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          7,
+          8
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 314,723 $ 288,686 $ 582,787 $ 566,158",
+            "Diluted Normalized FFO $ 328,021 $ 288,686 $ 596,085 $ 566,158",
+            "FFO per common share, basic and diluted $ 0.84 $ 0.84 $ 1.56 $ 1.66",
+            "Normalized FFO per common share, basic and diluted $ 0.88 $ 0.84 $ 1.60 $ 1.66",
+            "Basic 374,236,424 343,515,406 372,879,165 340,061,487",
+            "Diluted 374,804,142 344,148,378 373,434,863 340,744,384"
+          ],
+          [
+            "Diluted AFFO $ 327,991 $ 295,597 $ 646,564 $ 593,195",
+            "AFFO per common share, basic and diluted $ 0.88 $ 0.86 $ 1.73 $ 1.74",
+            "Basic 374,236,424 343,515,406 372,879,165 340,061,487",
+            "Diluted 374,804,142 344,148,378 373,434,863 340,744,384"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2021 2020 2021 2020"
+          ],
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2021 2020 2021 2020"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-VEREIT-V1",
+        "NFFO-VEREIT-MERGER-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "year": 2021,
+      "quarter": 3,
+      "id": "2021-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q3-2021-Supplemental-Information-11.1.21-new.pdf",
+      "source_hash": "d396c280c95f64579dcf9ac6ca3916edc8626a76df5439e77733dfaf3192dfd2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2021-11-01",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 1, 2021"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          7,
+          8
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 332,691 $ 283,323 $ 915,479 $ 849,482",
+            "Diluted Normalized FFO $ 349,474 $ 283,323 $ 945,560 $ 849,482",
+            "FFO per common share, basic and diluted $ 0.85 $ 0.82 $ 2.41 $ 2.48",
+            "Normalized FFO per common share, basic and diluted $ 0.89 $ 0.82 $ 2.49 $ 2.48",
+            "Basic 391,913,478 346,476,217 379,291,782 342,214,164",
+            "Diluted 392,513,520 347,212,593 379,872,546 342,946,337"
+          ],
+          [
+            "Diluted AFFO $ 357,188 $ 282,856 $ 1,003,753 $ 876,051",
+            "AFFO per common share:",
+            "Basic $ 0.91 $ 0.82 $ 2.64 $ 2.56",
+            "Diluted $ 0.91 $ 0.81 $ 2.64 $ 2.55",
+            "Basic 391,913,478 346,476,217 379,291,782 342,214,164",
+            "Diluted 392,513,520 347,212,593 379,872,546 342,946,337"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2021 2020 2021 2020"
+          ],
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2021 2020 2021 2020"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "DEFINITION_UNKNOWN",
+          "message": "Normalized FFO 정의/실제 AFFO 시작점이 모호합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2021,
+      "quarter": 4,
+      "id": "2021-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+      "source_hash": "51b1139d20bad8a53dbd065629652b818425ace6fa9c60df4a1cf258baa7f696",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "NEEDS_REVIEW",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2022-02-22",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 22, 2022"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          7,
+          8
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 326,163 $ 294,055 $ 1,240,580 $ 1,143,537",
+            "Diluted Normalized FFO $ 463,495 $ 294,055 $ 1,409,635 $ 1,143,537",
+            "FFO per common share, basic and diluted $ 0.63 $ 0.83 $ 2.99 $ 3.31",
+            "Normalized FFO per common share:",
+            "Basic $ 0.89 $ 0.83 $ 3.40 $ 3.31",
+            "Diluted $ 0.89 $ 0.83 $ 3.39 $ 3.31",
+            "Basic 519,116,544 354,437,466 414,535,283 345,280,126",
+            "Diluted 519,438,347 355,050,977 414,769,846 345,878,377",
+            "Basic 519,116,544 354,437,466 414,535,283 345,280,126",
+            "Diluted 519,438,347 355,050,977 415,270,063 345,878,377"
+          ],
+          [
+            "Diluted AFFO $ 486,047 $ 298,013 $ 1,490,372 $ 1,174,064",
+            "AFFO per common share:",
+            "Basic $ 0.94 $ 0.84 $ 3.59 $ 3.40",
+            "Diluted $ 0.94 $ 0.84 $ 3.59 $ 3.39",
+            "Basic 519,116,544 354,437,466 414,535,283 345,280,126",
+            "Diluted 519,438,347 355,050,977 415,270,063 345,878,377"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended December 31, Year Ended December 31,",
+            "2021 2020 2021 2020"
+          ],
+          [
+            "Three Months Ended December 31, Year Ended December 31,",
+            "2021 2020 2021 2020"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "BASIS_AMBIGUITY",
+          "message": "Normalized FFO 주당값 근거가 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2022,
+      "quarter": 1,
+      "id": "2022-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2022/Realty-Income-Q1-2022-Supplemental-Information-5.4.22-links.pdf",
+      "source_hash": "594ce150c695a369a896be2fd25f4022330bda2ab7baa30fc5234713bdfc9f29",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2022-05-04",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 4, 2022"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 602,224 $ 267,707",
+            "Diluted Normalized FFO $ 608,743 $ 267,707",
+            "FFO per common share, basic and diluted $ 1.01 $ 0.72",
+            "Normalized FFO per common share, basic and diluted $ 1.02 $ 0.72",
+            "Basic 593,827,299 371,522,607",
+            "Diluted 595,102,548 371,601,901"
+          ],
+          [
+            "Diluted AFFO $ 580,918 $ 318,573",
+            "AFFO per common share, basic and diluted $ 0.98 $ 0.86",
+            "Basic 593,827,299 371,522,607",
+            "Diluted 595,102,548 372,065,020"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended March 31,",
+            "2022 2021"
+          ],
+          [
+            "Three Months Ended March 31,",
+            "2022 2021"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2022,
+      "quarter": 2,
+      "id": "2022-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+      "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2022-08-03",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 3, 2022"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 609,591 $ 314,723 $ 1,211,815 $ 582,787",
+            "Diluted Normalized FFO $ 612,320 $ 328,021 $ 1,221,063 $ 596,085",
+            "FFO per common share, basic and diluted $ 1.01 $ 0.84 $ 2.02 $ 1.56",
+            "Normalized FFO per common share, basic and diluted $ 1.02 $ 0.88 $ 2.04 $ 1.60",
+            "Basic 601,672,201 374,236,424 597,778,173 372,879,165",
+            "Diluted 603,091,375 374,804,142 599,201,411 373,434,863"
+          ],
+          [
+            "Diluted AFFO $ 584,515 $ 327,991 $ 1,165,433 $ 646,564",
+            "AFFO per common share:",
+            "Basic $ 0.97 $ 0.88 $ 1.95 $ 1.73",
+            "Diluted $ 0.97 $ 0.88 $ 1.94 $ 1.73",
+            "Basic 601,672,201 374,236,424 597,778,173 372,879,165",
+            "Diluted 603,091,375 374,804,142 599,201,411 373,434,863"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2022 2021 2022 2021"
+          ],
+          [
+            "Three Months Ended June 30, Six Months Ended June 30,",
+            "2022 2021 2022 2021"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 48,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2022,
+      "quarter": 3,
+      "id": "2022-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+      "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2022-11-02",
+      "filed_at": "2022-11-02",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 2, 2022"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 598,139 $ 332,691 $ 1,809,954 $ 915,479",
+            "Diluted Normalized FFO $ 601,885 $ 349,474 $ 1,822,948 $ 945,560",
+            "FFO per common share, basic and diluted $ 0.97 $ 0.85 $ 2.99 $ 2.41",
+            "Normalized FFO per common share, basic and diluted $ 0.97 $ 0.89 $ 3.01 $ 2.49",
+            "Basic 617,511,609 391,913,478 604,463,977 379,291,782",
+            "Diluted 619,201,363 392,513,520 605,958,422 379,872,546"
+          ],
+          [
+            "Diluted AFFO $ 604,572 $ 357,188 $ 1,770,005 $ 1,003,753",
+            "AFFO per common share, basic and diluted $ 0.98 $ 0.91 $ 2.92 $ 2.64",
+            "Basic 617,511,609 391,913,478 604,463,977 379,291,782",
+            "Diluted 619,201,363 392,513,520 605,958,422 379,872,546"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2022 2021 2022 2021"
+          ],
+          [
+            "Three Months Ended September 30, Nine Months Ended September 30,",
+            "2022 2021 2022 2021"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2022,
+      "quarter": 4,
+      "id": "2022-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/realty-income-q4-2022-supplemental-information-2-21-23.pdf",
+      "source_hash": "3d8dee71ecf340545763f3173ea6ab2ab74ee43cf41ff874c9c561870823fad8",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2023-02-21",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 21, 2023"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 665,918 $ 326,163 $ 2,475,872 $ 1,240,580",
+            "Diluted Normalized FFO $ 666,821 $ 463,495 $ 2,489,769 $ 1,409,635",
+            "FFO per common share, basic and diluted $ 1.05 $ 0.63 $ 4.04 $ 2.99",
+            "Normalized FFO per common share",
+            "Basic $ 1.05 $ 0.89 $ 4.06 $ 3.40",
+            "Diluted $ 1.05 $ 0.89 $ 4.06 $ 3.39",
+            "Basic 633,373,847 519,116,544 611,765,815 414,535,283",
+            "Diluted 635,637,335 519,438,347 613,472,663 414,769,846",
+            "Basic 633,373,847 519,116,544 611,765,815 414,535,283",
+            "Diluted 635,637,335 519,438,347 613,472,663 415,270,063"
+          ],
+          [
+            "Diluted AFFO $ 635,387 $ 486,047 $ 2,405,392 $ 1,490,372",
+            "AFFO per common share",
+            "Basic $ 1.00 $ 0.94 $ 3.93 $ 3.59",
+            "Diluted $ 1.00 $ 0.94 $ 3.92 $ 3.59",
+            "Basic 633,373,847 519,116,544 611,765,815 414,535,283",
+            "Diluted 635,637,335 519,438,347 613,472,663 415,270,063"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended December 31, Years ended December 31,",
+            "2022 2021 2022 2021"
+          ],
+          [
+            "Three Months Ended December 31, Years ended December 31,",
+            "2022 2021 2022 2021"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "복수 표 제목/총액/기간/문서 제목 fingerprint가 일치하지 않습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2023,
+      "quarter": 1,
+      "id": "2023-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+      "source_hash": "4be46a4e492faf44d790ea0e863c551eab3ae7d0ef50b5e5c2ec13216b87e884",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2023-05-03",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 3, 2023"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 685,711 $ 602,224",
+            "Diluted Normalized FFO $ 687,018 $ 608,743",
+            "FFO per common share",
+            "Basic $ 1.04 $ 1.01",
+            "Diluted $ 1.03 $ 1.01",
+            "Normalized FFO per common share, basic and diluted $ 1.04 $ 1.02",
+            "Basic 660,462,399 593,827,299",
+            "Diluted 663,034,011 595,102,548"
+          ],
+          [
+            "Diluted AFFO $ 652,159 $ 580,918",
+            "AFFO per common share",
+            "Basic $ 0.99 $ 0.98",
+            "Diluted $ 0.98 $ 0.98",
+            "Basic 660,462,399 593,827,299",
+            "Diluted 663,034,011 595,102,548"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three Months Ended March 31,",
+            "2023 2022"
+          ],
+          [
+            "Three Months Ended March 31,",
+            "2023 2022"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2023,
+      "quarter": 2,
+      "id": "2023-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-07/Realty%20Income%20Q2%202023%20Supplemental%20Information%20Final%20Compressed.pdf",
+      "source_hash": "b03aba23a8a0a887d38d2614556b4d31abd3b127d37a3ebe0f224e6bc6fb9bb0",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2023-08-02",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 2, 2023"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 689,356 $ 609,591 $ 1,375,067 $ 1,211,815",
+            "Diluted Normalized FFO $ 689,697 $ 612,320 $ 1,376,715 $ 1,221,063",
+            "FFO per common share",
+            "Basic $ 1.02 $ 1.01 $ 2.06 $ 2.02",
+            "Diluted $ 1.02 $ 1.01 $ 2.05 $ 2.02",
+            "Normalized FFO per common share, basic and diluted $ 1.02 $ 1.02 $ 2.06 $ 2.04",
+            "Basic 674,109 601,672 667,357 597,778",
+            "Diluted 676,388 603,091 669,903 599,201"
+          ],
+          [
+            "Diluted AFFO $ 673,119 $ 584,515 $ 1,325,279 $ 1,165,433",
+            "AFFO per common share",
+            "Basic $ 1.00 $ 0.97 $ 1.98 $ 1.95",
+            "Diluted $ 1.00 $ 0.97 $ 1.98 $ 1.94",
+            "Basic 674,109 601,672 667,357 597,778",
+            "Diluted 676,388 603,091 669,903 599,201"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2023 2022 2023 2022"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2023 2022 2023 2022"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2023,
+      "quarter": 3,
+      "id": "2023-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/realty-income-q3-2023-supplemental-information.pdf",
+      "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2023-11-06",
+      "filed_at": "2023-11-06",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 6, 2023"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 737,521 $ 598,139 $ 2,112,588 $ 1,809,954",
+            "Diluted Normalized FFO $ 740,405 $ 601,885 $ 2,117,120 $ 1,822,948",
+            "FFO per common share, basic and diluted $ 1.04 $ 0.97 $ 3.09 $ 2.99",
+            "Normalized FFO per common share, basic and diluted $ 1.04 $ 0.97 $ 3.10 $ 3.01",
+            "Basic 709,165 617,512 681,419 604,464",
+            "Diluted 711,338 619,201 683,925 605,958"
+          ],
+          [
+            "Diluted AFFO $ 722,727 $ 604,572 $ 2,048,006 $ 1,770,005",
+            "AFFO per common share",
+            "Basic $ 1.02 $ 0.98 $ 3.00 $ 2.92",
+            "Diluted $ 1.02 $ 0.98 $ 2.99 $ 2.92",
+            "Basic 709,165 617,512 681,419 604,464",
+            "Diluted 711,338 619,201 683,925 605,958"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine months ended",
+            "2023 2022 2023 2022"
+          ],
+          [
+            "Three months ended Nine months ended",
+            "2023 2022 2023 2022"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2023,
+      "quarter": 4,
+      "id": "2023-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/realty-income-q4-2023-supplemental-information.pdf",
+      "source_hash": "c66653ef9ad07904e80a2b36d3c18d453f894a388fb432e3cbbe3c3ed7b71fa0",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2024-02-20",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 20, 2024"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 715,102 $ 665,918 $ 2,827,690 $ 2,475,872",
+            "Diluted Normalized FFO $ 725,034 $ 666,821 $ 2,842,154 $ 2,489,769",
+            "FFO per common share",
+            "Basic $ 0.98 $ 1.05 $ 4.08 $ 4.04",
+            "Diluted $ 0.98 $ 1.05 $ 4.07 $ 4.04",
+            "Normalized FFO per common share",
+            "Basic $ 1.00 $ 1.05 $ 4.10 $ 4.06",
+            "Diluted $ 1.00 $ 1.05 $ 4.09 $ 4.06",
+            "Basic 724,598 633,374 692,298 611,766",
+            "Diluted 726,859 635,637 694,819 613,473"
+          ],
+          [
+            "Diluted AFFO $ 732,404 $ 635,387 $ 2,780,410 $ 2,405,392",
+            "AFFO per common share",
+            "Basic $ 1.01 $ 1.00 $ 4.01 $ 3.93",
+            "Diluted $ 1.01 $ 1.00 $ 4.00 $ 3.92",
+            "Basic 724,598 633,374 692,298 611,766",
+            "Diluted 726,859 635,637 694,819 613,473"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended December 31, Years ended December 31,",
+            "2023 2022 2023 2022"
+          ],
+          [
+            "Three months ended December 31, Years ended December 31,",
+            "2023 2022 2023 2022"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "복수 표 제목/총액/기간/문서 제목 fingerprint가 일치하지 않습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2024,
+      "quarter": 1,
+      "id": "2024-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-05/Realty_Income_Q1_2024_Supplemental_Information_FINAL.pdf",
+      "source_hash": "7e444de79246610797dabbd26b3fb843f701a32d2f7b8461e1aea83d4fcace86",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2024-05-06",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on May 6, 2024"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 787,023 $ 685,711",
+            "Diluted Normalized FFO $ 881,127 $ 687,018",
+            "FFO per common share",
+            "Basic $ 0.94 $ 1.04",
+            "Diluted $ 0.94 $ 1.03",
+            "Normalized FFO per common share, basic and diluted $ 1.05 $ 1.04",
+            "Basic 834,940 660,462",
+            "Diluted 837,037 663,034"
+          ],
+          [
+            "Diluted AFFO $ 864,230 $ 652,159",
+            "AFFO per common share",
+            "Basic $ 1.03 $ 0.99",
+            "Diluted $ 1.03 $ 0.98",
+            "Basic 834,940 660,462",
+            "Diluted 837,037 663,034"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended March 31,",
+            "2024 2023"
+          ],
+          [
+            "Three months ended March 31,",
+            "2024 2023"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2024,
+      "quarter": 2,
+      "id": "2024-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-08/realty-income-q2-2024-supplemental-information.pdf",
+      "source_hash": "ef66aa6179989a4b0f2ab22478601210f440274efa1756fd82ea7db19e0969db",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "source_changed": false,
+      "published_at": "2024-08-05",
+      "filed_at": "2024-08-05",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on August 5, 2024"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 930,728 $ 689,356 $ 1,717,751 $ 1,375,067",
+            "Diluted Normalized FFO $ 933,482 $ 689,697 $ 1,814,609 $ 1,376,715",
+            "FFO per common share:",
+            "Basic $ 1.07 $ 1.02 $ 2.01 $ 2.06",
+            "Diluted $ 1.07 $ 1.02 $ 2.01 $ 2.05",
+            "Normalized FFO per common share, basic and diluted $ 1.07 $ 1.02 $ 2.12 $ 2.06",
+            "Basic 870,319 674,109 852,621 667,357",
+            "Diluted 872,520 676,388 854,806 669,903"
+          ],
+          [
+            "Diluted AFFO $ 922,661 $ 673,119 $ 1,786,891 $ 1,325,279",
+            "AFFO per common share, basic and diluted $ 1.06 $ 1.00 $ 2.09 $ 1.98",
+            "Basic 870,319 674,109 852,621 667,357",
+            "Diluted 872,520 676,388 854,806 669,903"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Six months ended",
+            "2024 2023 2024 2023"
+          ],
+          [
+            "Three months ended Six months ended",
+            "2024 2023 2024 2023"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "availability": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "year": 2024,
+      "quarter": 3,
+      "id": "2024-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2024-11-04",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on November 4, 2024"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts) (unaudited)",
+          "(in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 856,393 $ 737,521 $ 2,574,144 $ 2,112,588",
+            "Diluted Normalized FFO $ 865,003 $ 740,405 $ 2,679,612 $ 2,117,120",
+            "FFO per common share, basic and diluted: $ 0.98 $ 1.04 $ 2.99 $ 3.09",
+            "Normalized FFO per common share:",
+            "Basic $ 0.99 $ 1.04 $ 3.12 $ 3.10",
+            "Diluted $ 0.99 $ 1.04 $ 3.11 $ 3.10",
+            "Basic 870,665 709,165 858,679 681,419",
+            "Diluted 873,974 711,338 861,300 683,925"
+          ],
+          [
+            "Diluted AFFO $ 917,039 $ 722,727 $ 2,703,930 $ 2,048,006",
+            "AFFO per common share:",
+            "Basic $ 1.05 $ 1.02 $ 3.14 $ 3.00",
+            "Diluted $ 1.05 $ 1.02 $ 3.14 $ 2.99",
+            "Basic 870,665 709,165 858,679 681,419",
+            "Diluted 873,974 711,338 861,300 683,925"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Nine months ended",
+            "2024 2023 2024 2023",
+            "(2) During the three and nine months ended September 30, 2024, we incurred $8.6 million and $105.5 million, respectively, of merger, transaction, and other costs consisting primarily of"
+          ],
+          [
+            "Three months ended Nine months ended",
+            "2024 2023 2024 2023"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "지원하지 않는 표/주당값 조합입니다. 검토가 필요합니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2024,
+      "quarter": 4,
+      "id": "2024-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2025-02-24",
+      "filed_evidence": {
+        "page_number": 2,
+        "text": "filed on February 24, 2025"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts) (unaudited)",
+          "(in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          5,
+          6
+        ],
+        "headings": [
+          "FFO and Normalized FFO (1)",
+          "AFFO (1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO $ 900,126 $ 715,102 $ 3,474,270 $ 2,827,690",
+            "Diluted Normalized FFO $ 890,950 $ 725,034 $ 3,570,562 $ 2,842,154",
+            "FFO per common share:",
+            "Basic $ 1.03 $ 0.98 $ 4.02 $ 4.08",
+            "Diluted $ 1.02 $ 0.98 $ 4.01 $ 4.07",
+            "Normalized FFO per common share:",
+            "Basic $ 1.01 $ 1.00 $ 4.13 $ 4.10",
+            "Diluted $ 1.01 $ 1.00 $ 4.12 $ 4.09",
+            "Basic 875,710 724,598 862,959 692,298",
+            "Diluted 879,649 726,859 865,842 694,819"
+          ],
+          [
+            "Diluted AFFO $ 924,106 $ 732,404 $ 3,628,036 $ 2,780,410",
+            "AFFO per common share:",
+            "Basic $ 1.05 $ 1.01 $ 4.20 $ 4.01",
+            "Diluted $ 1.05 $ 1.01 $ 4.19 $ 4.00",
+            "Basic 875,710 724,598 862,959 692,298",
+            "Diluted 879,649 726,859 865,842 694,819"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended Years ended",
+            "2024 2023 2024 2023",
+            "(2) For the three months ended December 31, 2024, merger, transaction, and other costs, net primarily consists of a $13.1 million adjustment to transfer taxes related to the merger with Spirit",
+            "Realty Capital, Inc. (\"Spirit\") and $3.9 million of organization costs related to the private fund. For the year ended December 31, 2024, merger, transaction, and other costs, net primarily"
+          ],
+          [
+            "Three months ended Years ended",
+            "2024 2023 2024 2023"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "FORMAT_UNSUPPORTED",
+          "message": "복수 표 제목/총액/기간/문서 제목 fingerprint가 일치하지 않습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2025,
+      "quarter": 1,
+      "id": "2025-q1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O)",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2025-05-05",
+      "filed_evidence": {
+        "page_number": 19,
+        "text": "filed on May 5, 2025"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          32,
+          33
+        ],
+        "headings": [
+          "(1)",
+          "(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO 940,080 787,023",
+            "Diluted Normalized FFO 940,359 881,127",
+            "FFO per common share, basic and diluted 1.05 0.94",
+            "Normalized FFO per common share, basic and diluted 1.05 1.05",
+            "Basic 891,666 834,940",
+            "Diluted 895,033 837,037"
+          ],
+          [
+            "Diluted AFFO 952,117 864,230",
+            "AFFO per common share:",
+            "Basic 1.07 1.03",
+            "Diluted 1.06 1.03",
+            "Basic 891,666 834,940",
+            "Diluted 895,033 837,037"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended March 31,",
+            "2025 2024"
+          ],
+          [
+            "Three months ended March 31,",
+            "2025 2024"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2025,
+      "quarter": 2,
+      "id": "2025-q2",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O)",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2025-08-06",
+      "filed_evidence": {
+        "page_number": 20,
+        "text": "filed on August 6, 2025"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          33,
+          34
+        ],
+        "headings": [
+          "(1)",
+          "(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO 958,165 930,728 1,898,245 1,717,751",
+            "Diluted Normalized FFO 958,496 933,482 1,898,855 1,814,609",
+            "FFO per common share, basic and diluted 1.06 1.07 2.11 2.01",
+            "Normalized FFO per common share, basic and diluted 1.06 1.07 2.11 2.12",
+            "Basic 902,966 870,319 897,338 852,621",
+            "Diluted 906,398 872,520 900,797 854,806"
+          ],
+          [
+            "Diluted AFFO 949,892 922,661 1,902,009 1,786,891",
+            "AFFO per common share, basic and diluted 1.05 1.06 2.11 2.09",
+            "Basic 902,966 870,319 897,338 852,621",
+            "Diluted 906,398 872,520 900,797 854,806"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended June 30, Six months ended June 30,",
+            "2025 2024 2025 2024"
+          ],
+          [
+            "Three months ended June 30, Six months ended June 30,",
+            "2025 2024 2025 2024"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2025,
+      "quarter": 3,
+      "id": "2025-q3",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O)",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2025-11-03",
+      "filed_evidence": {
+        "page_number": 20,
+        "text": "filed on November 3, 2025"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          33,
+          34
+        ],
+        "headings": [
+          "FFO and Normalized FFO(1)",
+          "AFFO(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO 983,396 856,393 2,881,641 2,574,144",
+            "Diluted Normalized FFO 996,739 865,003 2,895,594 2,679,612",
+            "FFO per common share, basic and diluted 1.07 0.98 3.18 2.99",
+            "Normalized FFO per common share:",
+            "Basic 1.09 0.99 3.20 3.12",
+            "Diluted 1.09 0.99 3.19 3.11",
+            "Basic 913,949 870,665 902,935 858,679",
+            "Diluted 917,869 873,974 906,692 861,300"
+          ],
+          [
+            "Diluted AFFO 994,319 917,039 2,896,328 2,703,930",
+            "AFFO per common share:",
+            "Basic 1.09 1.05 3.20 3.14",
+            "Diluted 1.08 1.05 3.19 3.14",
+            "Basic 913,949 870,665 902,935 858,679",
+            "Diluted 917,869 873,974 906,692 861,300"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended September 30, Nine months ended September 30,",
+            "2025 2024 2025 2024",
+            "(2) During the three and nine months ended September 30, 2025, we incurred $13.3 million and $14.0 million, respectively, of merger, transaction, and other costs, consisting primarily of placement fees"
+          ],
+          [
+            "Three months ended September 30, Nine months ended September 30,",
+            "2025 2024 2025 2024"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "year": 2025,
+      "quarter": 4,
+      "id": "2025-q4",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "issuer": "Realty Income Corporation",
+      "cik": "0000726728",
+      "issuer_evidence": "Realty Income (NYSE: O)",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "source_changed": false,
+      "published_at": null,
+      "filed_at": "2026-02-24",
+      "filed_evidence": {
+        "page_number": 20,
+        "text": "filed on February 24, 2026"
+      },
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "structure": {
+        "pages": [
+          34,
+          35
+        ],
+        "headings": [
+          "FFO and Normalized FFO(1)",
+          "AFFO(1)"
+        ],
+        "share_rows": [
+          [
+            "Diluted FFO 988,078 900,126 3,869,719 3,474,270",
+            "Diluted Normalized FFO 998,339 890,950 3,893,933 3,570,562",
+            "FFO per common share:",
+            "Basic 1.07 1.03 4.26 4.02",
+            "Diluted 1.07 1.02 4.25 4.01",
+            "Normalized FFO per common share:",
+            "Basic 1.08 1.01 4.28 4.13",
+            "Diluted 1.08 1.01 4.27 4.12",
+            "Basic 919,769 875,710 907,169 862,959",
+            "Diluted 923,648 879,649 911,015 865,842"
+          ],
+          [
+            "Diluted AFFO 998,893 924,106 3,895,221 3,628,036",
+            "AFFO per common share:",
+            "Basic 1.08 1.05 4.28 4.20",
+            "Diluted 1.08 1.05 4.28 4.19",
+            "Basic 919,769 875,710 907,169 862,959",
+            "Diluted 923,648 879,649 911,015 865,842"
+          ]
+        ],
+        "period_columns": [
+          [
+            "Three months ended December 31, Years ended December 31,",
+            "2025 2024 2025 2024",
+            "(2) During the three months and year ended December 31, 2025, we incurred $10.3 million and $24.2 million, respectively, of merger, transaction, and other costs, net, consisting primarily of placement fees"
+          ],
+          [
+            "Three months ended December 31, Years ended December 31,",
+            "2025 2024 2025 2024"
+          ]
+        ],
+        "normalized_ffo": "YES"
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    }
+  ]
+}
