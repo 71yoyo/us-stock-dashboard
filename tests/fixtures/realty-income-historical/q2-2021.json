@@ -1,0 +1,61 @@
+{
+  "source": {
+    "ticker": "O",
+    "issuer": "Realty Income Corporation",
+    "cik": "0000726728",
+    "source_type": "ISSUER_IR_PDF",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+    "accession_number": null,
+    "exhibit": "EX-99.2",
+    "document_name": "Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+    "filed_at": "2021-08-02",
+    "published_at": "2021-08-02",
+    "retrieved_at": "2026-09-30T09:44:16.461Z",
+    "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+    "excerpt_hash": "2d737905b16c19ca69be6dea6e5283010f701fe903baaedd9c2df8db03bf0584",
+    "related_sec_url": null,
+    "accession_verification": "미확인: IR PDF만 검증, accession 추정 금지",
+    "fiscal_year": 2021,
+    "fiscal_period": "Q2",
+    "fiscal_year_end": "12-31",
+    "fiscal_year_end_source": "공식 Supplemental 보고기간과 December 31 연말 기준; Phase P3의 10-K 연말 근거와 일치",
+    "page_count": 33,
+    "ffo_page": 7,
+    "affo_page": 8,
+    "extraction": {
+      "tool": "pdfplumber",
+      "x_tolerance": 2,
+      "y_tolerance": 3,
+      "ocr": false,
+      "visual_check": "Poppler 렌더링 후 네 열·행 위치 직접 확인"
+    }
+  },
+  "excerpt": {
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nOur common stock is traded on the New York Stock Exchange under\nthe symbol \"O“.",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ2 2021\nindex member",
+    "pages": [
+      {
+        "page_number": 7,
+        "text": "FFO and Normalized FFO (1)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized\nFFO. Also presented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and\ndiluted FFO and Normalized FFO per share computations.\nThree Months Ended June 30, Six Months Ended June 30,\n2021 2020 2021 2020\nNet income available to common stockholders $ 124,479 $ 107,824 $ 220,419 $ 254,651\nDepreciation and amortization 187,789 168,328 365,774 332,913\nDepreciation of furniture, fixtures and equipment (73) (152) (444) (278)\nProvisions for impairment 17,246 13,869 19,966 18,347\nGain on sales of real estate (14,901) (1,323) (23,302) (39,829)\nFFO adjustments allocable to noncontrolling interests (165) (208) (331) (363)\nFFO available to common stockholders $ 314,375 $ 288,338 $ 582,082 $ 565,441\nFFO allocable to dilutive noncontrolling interests 348 348 705 717\nDiluted FFO $ 314,723 $ 288,686 $ 582,787 $ 566,158\nFFO available to common stockholders $ 314,375 $ 288,338 $ 582,082 $ 565,441\nMerger-related costs 13,298 — 13,298 —\nNormalized FFO available to common stockholders $ 327,673 $ 288,338 $ 595,380 $ 565,441\nNormalized FFO allocable to dilutive noncontrolling interests 348 348 705 717\nDiluted Normalized FFO $ 328,021 $ 288,686 $ 596,085 $ 566,158\nFFO per common share, basic and diluted $ 0.84 $ 0.84 $ 1.56 $ 1.66\nNormalized FFO per common share, basic and diluted $ 0.88 $ 0.84 $ 1.60 $ 1.66\nDistributions paid to common stockholders $ 263,358 $ 240,470 $ 524,056 $ 474,294\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 51,017 $ 47,868 $ 58,026 $ 91,147\nNormalized FFO available to common stockholders in excess of\ndistributions paid to common stockholders $ 64,315 $ 47,868 $ 71,324 $ 91,147\nWeighted average number of common shares used for FFO and\nNormalized FFO:\nBasic 374,236,424 343,515,406 372,879,165 340,061,487\nDiluted 374,804,142 344,148,378 373,434,863 340,744,384\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ2 2021 Supplemental Operating & Financial Data 7"
+      },
+      {
+        "page_number": 8,
+        "text": "AFFO (1)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and\nAFFO. Also presented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and\ndiluted AFFO per share computations.\nThree Months Ended June 30, Six Months Ended June 30,\n2021 2020 2021 2020\nNet income available to common stockholders (2) $ 124,479 $ 107,824 $ 220,419 $ 254,651\nCumulative adjustments to calculate Normalized FFO (3) 203,194 180,514 374,961 310,790\nNormalized FFO available to common stockholders 327,673 288,338 595,380 565,441\nExecutive severance charge — — — 3,463\nLoss on extinguishment of debt — — 46,473 9,819\nAmortization of share-based compensation 4,472 4,882 8,169 8,624\nAmortization of deferred financing costs 1,710 1,476 3,375 2,836\nAmortization of net mortgage premiums (205) (356) (485) (710)\nLoss on interest rate swaps 724 1,306 1,446 1,992\nStraight-line payments from cross-currency swaps 584 623 1,202 1,346\nLeasing costs and commissions (121) (973) (827) (1,111)\nRecurring capital expenditures (27) (21) (50) (21)\nStraight-line rent (11,004) (6,242) (21,467) (14,024)\nAmortization of above and below-market leases, net 3,934 6,087 13,234 12,517\nOther adjustments (93) 121 (581) 2,291\nAFFO available to common stockholders $ 327,647 $ 295,241 $ 645,869 $ 592,463\nAFFO allocable to dilutive noncontrolling interests 344 356 695 732\nDiluted AFFO $ 327,991 $ 295,597 $ 646,564 $ 593,195\nAFFO per common share, basic and diluted $ 0.88 $ 0.86 $ 1.73 $ 1.74\nDistributions paid to common stockholders $ 263,358 $ 240,470 $ 524,056 $ 474,294\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 64,289 $ 54,771 $ 121,813 $ 118,169\nWeighted average number of common shares used for AFFO:\nBasic 374,236,424 343,515,406 372,879,165 340,061,487\nDiluted 374,804,142 344,148,378 373,434,863 340,744,384\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) As of June 30, 2021, there was $40.5 million of uncollected rent deferred as a result of lease concessions we granted in response to the COVID-19 pandemic and recognized under the\npractical expedient provided by the Financial Accounting Standards Board (FASB) and $61.2 million of uncollected rent for which we have not granted a lease concession.\n(3) See reconciling items for Normalized FFO presented under \"FFO and Normalized FFO.\"\nQ2 2021 Supplemental Operating & Financial Data 8"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 32,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich we believe are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar\nmeasurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We"
+      },
+      {
+        "page_number": 32,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit’s definition, is net income available to common\nstockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced\nby gains on property sales. Presentation of the information regarding FFO and AFFO (described on pages 7 and 8) is intended to assist the reader in"
+      },
+      {
+        "page_number": 33,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger-related costs related to our proposed merger with VEREIT."
+      }
+    ]
+  }
+}
