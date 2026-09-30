@@ -1,6 +1,8 @@
 import { reserveFundamentalCall, blockFundamentalCall, ensureFundamentalStore } from './fundamental-store.js';
 import { refreshWilliamsSignal } from './williams-store.js';
 import { MassiveCandlePendingError, MassiveCandleUnavailableError, syncCandlesFromMassive } from './massive-sync.js';
+import { SEC_FINANCIAL_METADATA_VERSION, secDifferenceMetadata, buildSecPeriodIndex,
+  resolveSecPeriodMetadata, buildFinancialProvenance, financialProvenanceStatements } from './sec-financial-metadata.js';
 
 const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
 const SEC_FACTS_BASE_URL = 'https://data.sec.gov/api/xbrl/companyfacts';
@@ -202,7 +204,8 @@ export function selectSecFacts(facts, tags, acceptedUnits) {
     for (const unit of acceptedUnits) {
       if (!Array.isArray(fact.units[unit])) continue;
       // 회사와 연도에 따라 같은 지표의 표준 태그가 바뀌므로 후보 태그를 모두 합친다.
-      records.push(...fact.units[unit].map(entry => ({ ...entry, tag, tagPriority })));
+      // 단위는 SEC의 units 키에 있으므로 원본 fact와 함께 명시적으로 보존한다.
+      records.push(...fact.units[unit].map(entry => ({ ...entry, tag, tagPriority, unit, taxonomy: 'us-gaap' })));
     }
   });
   return records;
@@ -237,7 +240,7 @@ export function latestSecValues(entries, forms, minimumYear, periodType) {
       const start = new Date(`${previous.end}T00:00:00Z`);
       start.setUTCDate(start.getUTCDate() + 1);
       candidates.push({ ...entry, start: start.toISOString().slice(0, 10), val: entry.val - previous.val,
-        derived: true });
+        derived: true, ...secDifferenceMetadata(entry, previous) });
     }
   }
   for (const entry of candidates) {
@@ -287,6 +290,9 @@ export async function syncFinancialsFromSec(environment, ticker) {
   const cash = usd(['CashAndCashEquivalentsAtCarryingValue']);
   const eps = perShare(['EarningsPerShareDiluted', 'EarningsPerShareBasicAndDiluted']);
   const dataSets = { revenue, netInterestIncome, noninterestIncome, operatingIncome, operatingExpenses, netIncome, operatingCashFlow, capitalExpenditure, grossProfit, equity, totalDebt, debtCurrent, debtNoncurrent, cash, eps };
+  // 최신 비교값의 fy/fp를 과거 기간에 복사하지 않고, 원본 공시별 현재 기간으로 식별한다.
+  const periodIndex = buildSecPeriodIndex(dataSets);
+  const metadataCoverage = { annual: 0, quarterly: 0, provenance: 0 };
 
   const writePeriod = async (periodType, forms, minimumYear, maximumRows) => {
     const dateSets = Object.fromEntries(Object.entries(dataSets)
@@ -295,6 +301,7 @@ export async function syncFinancialsFromSec(environment, ticker) {
     const coreDateSets = ['revenue', 'netInterestIncome', 'operatingIncome', 'netIncome', 'operatingCashFlow', 'eps']
       .map(name => dateSets[name]);
     const dates = [...new Set(coreDateSets.flatMap(data => [...data.keys()]))].sort().slice(-maximumRows);
+    const provenance = [];
     const statements = dates.map(end => {
       const interest = valueAt(dateSets.netInterestIncome, end);
       const noninterest = valueAt(dateSets.noninterestIncome, end);
@@ -323,14 +330,22 @@ export async function syncFinancialsFromSec(environment, ticker) {
       // 세후영업이익과 평균투하자본 검증 전에는 세전 단순비율을 ROIC로 표시하지 않는다.
       const roic = null;
       const roe = netIncomeValue !== null && equityValue ? (netIncomeValue / equityValue) * 100 : null;
-      return environment.DB.prepare(`INSERT INTO financial_metrics (ticker, period_type, fiscal_period_end, reported_date, currency, revenue, operating_income, net_income, eps, free_cash_flow, roe, roic, gross_margin, operating_margin, source, source_updated_at, cached_at)
-        VALUES (?, ?, ?, ?, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SEC EDGAR', ?, CURRENT_TIMESTAMP)
+      const periodMetadata = resolveSecPeriodMetadata(periodIndex, periodType, end,
+        coreDateSets.map(values => values.get(end)));
+      if (periodMetadata.fiscalYear !== null && periodMetadata.fiscalPeriod !== null) metadataCoverage[periodType] += 1;
+      provenance.push(...buildFinancialProvenance(dateSets, end, {
+        revenue: revenueValue, operatingIncome: operatingIncomeValue, freeCashFlow, roe, grossMargin, operatingMargin
+      }).map(record => ({ ...record, fiscalPeriodEnd: end })));
+      return environment.DB.prepare(`INSERT INTO financial_metrics (ticker, period_type, fiscal_period_end, reported_date, currency, revenue, operating_income, net_income, eps, free_cash_flow, roe, roic, gross_margin, operating_margin, source, source_updated_at, cached_at, fiscal_year, fiscal_period, period_start)
+        VALUES (?, ?, ?, ?, 'USD', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'SEC EDGAR', ?, CURRENT_TIMESTAMP, ?, ?, ?)
         ON CONFLICT(ticker, period_type, fiscal_period_end) DO UPDATE SET reported_date=excluded.reported_date, revenue=excluded.revenue,
           operating_income=excluded.operating_income, net_income=excluded.net_income, eps=excluded.eps, free_cash_flow=excluded.free_cash_flow,
           roe=excluded.roe, roic=excluded.roic, gross_margin=excluded.gross_margin, operating_margin=excluded.operating_margin,
-          source=excluded.source, source_updated_at=excluded.source_updated_at, cached_at=CURRENT_TIMESTAMP`
+          source=excluded.source, source_updated_at=excluded.source_updated_at, cached_at=CURRENT_TIMESTAMP,
+          fiscal_year=excluded.fiscal_year, fiscal_period=excluded.fiscal_period, period_start=excluded.period_start`
       ).bind(ticker, periodType, end, reportedDate, revenueValue, operatingIncomeValue, netIncomeValue, valueAt(dateSets.eps, end),
-        freeCashFlow, roe, roic, grossMargin, operatingMargin, reportedDate);
+        freeCashFlow, roe, roic, grossMargin, operatingMargin, reportedDate,
+        periodMetadata.fiscalYear, periodMetadata.fiscalPeriod, periodMetadata.periodStart);
     });
     if (statements.length) {
       // 같은 종목/기간의 SEC 계산 캐시만 원자적으로 교체한다. 잘못 분류됐던 빈 연간·Q4 행을 정리한다.
@@ -338,8 +353,10 @@ export async function syncFinancialsFromSec(environment, ticker) {
         environment.DB.prepare(`DELETE FROM financial_metrics WHERE ticker = ? AND period_type = ?
           AND source = 'SEC EDGAR' AND fiscal_period_end NOT IN (${dates.map(() => '?').join(',')})`)
           .bind(ticker, periodType, ...dates),
-        ...statements
+        ...statements,
+        ...financialProvenanceStatements(environment, ticker, periodType, provenance)
       ]);
+      metadataCoverage.provenance += provenance.length;
     }
     return statements.length;
   };
@@ -347,7 +364,8 @@ export async function syncFinancialsFromSec(environment, ticker) {
   const annualCount = await writePeriod('annual', ['10-K', '10-K/A'], minAnnualYear, 10);
   const quarterlyCount = await writePeriod('quarterly', ['10-Q', '10-Q/A', '10-K', '10-K/A'], minQuarterYear, 40);
   if (!annualCount && !quarterlyCount) throw new Error('SEC EDGAR 재무 원문에서 저장할 기간을 찾지 못했습니다.');
-  return { source: 'SEC EDGAR', annualCount, quarterlyCount };
+  return { source: 'SEC EDGAR', annualCount, quarterlyCount,
+    metadataVersion: SEC_FINANCIAL_METADATA_VERSION, metadataCoverage };
 }
 
 function isStale(lastSuccessAt, minutes) {

@@ -1,0 +1,14 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "us-stock-dashboard-api",
+  "main": "sec-financial-rollout-worker.js",
+  "compatibility_date": "2026-09-21",
+  "unsafe": {
+    "bindings": [{ "name": "SEC_USER_AGENT", "type": "inherit" }]
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "us-stock-pro",
+    "database_id": "698ab9b8-4573-40c7-b119-d7b1d681abc8"
+  }]
+}

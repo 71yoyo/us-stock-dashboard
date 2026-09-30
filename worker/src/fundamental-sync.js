@@ -1,5 +1,6 @@
 import { ensureFundamentalStore } from './fundamental-store.js';
 import { syncProfile, syncFinancialsFromSec } from './fmp-sync.js';
+import { SEC_FINANCIAL_METADATA_VERSION } from './sec-financial-metadata.js';
 // 배당 수집은 별도 Business Quant 예약 작업이 담당한다.
 const kinds = ['profile', 'financials'];
 const labels = { profile: '회사 정보', financials: '재무', dividends: '배당' };
@@ -238,7 +239,9 @@ async function latestFiling(environment, ticker) {
 async function financialTask(environment, ticker, previous) {
   const filing = await latestFiling(environment, ticker);
   const saved = await environment.DB.prepare('SELECT accession FROM sec_filing_checks WHERE ticker = ?').bind(ticker).first();
-  if (saved?.accession === filing.accession && previous.annualCount) return previous;
+  // 기존 공시 번호가 같아도 출처 저장 버전이 없으면 한 번 재처리한다. 날짜만 보고 FY/Q를 채우지 않는다.
+  if (saved?.accession === filing.accession && previous.annualCount
+    && previous.metadataVersion === SEC_FINANCIAL_METADATA_VERSION) return previous;
   const details = await syncFinancialsFromSec(environment, ticker);
   // 공시 목록이 원문보다 먼저 갱신될 수 있다. 해당 accession이 없으면 다음날 다시 읽는다.
   const facts = environment.secFacts.get(ticker);
@@ -301,7 +304,18 @@ async function executeJob(environment, job) {
   return { ticker: job.ticker, kind: job.kind, status, details, error };
 }
 
+/** 읽기 전용 운영 진단과 실제 큐가 같은 일시 중지 조건을 사용한다. 작업 성공 여부와는 별개다. */
+export function fundamentalQueueRuntimeStatus(environment) {
+  const paused = environment.SEC_FINANCIAL_ROLLOUT_MODE === 'manual';
+  return { rolloutMode: paused ? 'manual' : 'normal', status: paused ? 'PAUSED' : 'ACTIVE' };
+}
+
 export async function runFundamentalBatch(environment, requestedTicker = null) {
+  // Phase 1.6A에서는 배포만으로 전체 목록의 출처 버전이 갱신되지 않도록 자동/일반 큐를 보류한다.
+  // 지정된 5종목은 인증된 Cloudflare 원격 검증 세션에서 SEC 경로만 한 번씩 실행한다.
+  if (fundamentalQueueRuntimeStatus(environment).status === 'PAUSED') {
+    return { results: [], status: 'paused', reason: 'SEC 소규모 운영 검증 중 · 전체 재무 큐 실행 보류' };
+  }
   const scope = { ...environment, secFacts: new Map() };
   await seedJobs(scope);
   const now = new Date().toISOString();

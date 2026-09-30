@@ -1,6 +1,6 @@
 import { syncTickerDataType, syncTickerFromFmp } from './fmp-sync.js';
 import { syncGroupedCandlesFromMassive } from './massive-sync.js';
-import { runFundamentalBatch, fundamentalStatus, fundamentalDetails } from './fundamental-sync.js';
+import { runFundamentalBatch, fundamentalStatus, fundamentalDetails, fundamentalQueueRuntimeStatus } from './fundamental-sync.js';
 import { readWilliamsSignals } from './williams-store.js';
 import { businessQuantDividendView } from './businessquant-view.js';
 import { runDividendPipeline } from './businessquant-sync.js';
@@ -239,6 +239,7 @@ async function getCompany(environment, ticker) {
     latestMassiveDividendType, upcomingMassiveDeclaration] = await environment.DB.batch([
     environment.DB.prepare(`
       SELECT period_type AS periodType, fiscal_period_end AS fiscalPeriodEnd, reported_date AS reportedDate,
+        fiscal_year AS fiscalYear, fiscal_period AS fiscalPeriod, period_start AS periodStart,
         revenue, operating_income AS operatingIncome, net_income AS netIncome, eps,
         peg_ratio AS pegRatio, pe_ratio AS peRatio, ps_ratio AS psRatio, free_cash_flow AS freeCashFlow,
         roe, roic, gross_margin AS grossMargin, operating_margin AS operatingMargin, source, cached_at AS cachedAt
@@ -461,7 +462,9 @@ export default {
           && Boolean(environment.MARKET_DATA_API_KEY),
         massiveConfigured: Boolean(environment.MASSIVE_API_KEY),
         businessQuantConfigured: Boolean(environment.BUSINESS_QUANT_API_KEY),
-        dividendPipelineEnabled: environment.DIVIDEND_PIPELINE_ENABLED === 'true'
+        dividendPipelineEnabled: environment.DIVIDEND_PIPELINE_ENABLED === 'true',
+        // 운영 환경의 큐 중지 여부만 읽는다. 진단 요청으로 DB 쓰기나 수집을 시작하지 않는다.
+        fundamentalQueue: fundamentalQueueRuntimeStatus(environment)
       });
     }
 

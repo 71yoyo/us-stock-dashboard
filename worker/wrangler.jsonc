@@ -4,6 +4,7 @@
   "main": "src/index.js",
   "compatibility_date": "2026-09-21",
   "vars": {
+    "SEC_FINANCIAL_ROLLOUT_MODE": "normal",
     "DIVIDEND_PIPELINE_ENABLED": "true",
     "BUSINESS_QUANT_DAILY_FETCH_LIMIT": "24"
   },
