@@ -8,6 +8,7 @@ import { historicalDocument, historicalIds, historicalResults } from '../tests/h
 import { p5aIds, p5aDocument, p5aResults } from '../tests/helpers/realty-income-p5a-fixtures.js';
 import { assertP5caRegression } from './realty-income-p5ca-regression.mjs';
 import { auditReviewedDocument, assertP5cb1Regression } from './realty-income-p5cb1-core.mjs';
+import { auditModernDocument, assertP5cb2Regression } from './realty-income-p5cb2-core.mjs';
 
 // 네트워크/DB/운영 설정을 받지 않는다. 원문 cache에서 읽고 같은 외부 cache에 결과만 기록한다.
 const args = process.argv.slice(2);
@@ -28,7 +29,8 @@ for (const [index, id] of p5aIds.entries()) {
   const document = p5aDocument(id);
   known.set(document.source.source_url, { document, result: oldP5a[index], parse: async () => (await p5aResults())[index] });
 }
-const rows = [], legacyRows = [];
+const modernEvidence=JSON.parse(readFileSync(new URL('../tests/fixtures/realty-income-p5cb2/documents.json',import.meta.url),'utf8'));
+const rows = [], legacyRows = [], reviewedRows=[];
 for (const row of inventory) {
   const inspection = inspections.find(item => item.download.source_url === row.source_url);
   assert.ok(inspection, 'inventory source 결과 누락');
@@ -38,7 +40,11 @@ for (const row of inventory) {
   }
   const legacy = await auditDocument(row, inspection, known.get(row.source_url));
   legacyRows.push(legacy);
-  const result = await auditReviewedDocument(row,inspection,legacy);
+  const reviewed=await auditReviewedDocument(row,inspection,legacy);
+  reviewedRows.push(reviewed);
+  const evidence=modernEvidence.find(item=>item.download.source_url===row.source_url);
+  if(evidence)assert.equal(evidence.download.source_hash,inspection.download.source_hash,'수동 검토 원문의 hash 불일치');
+  const result = evidence?await auditModernDocument(row,inspection,reviewed,evidence):reviewed;
   rows.push(result);
   console.log(result.id, result.final_status, result.detected_format || 'UNKNOWN', result.records.length, result.errors.map(error => error.code).join(','));
 }
@@ -53,8 +59,9 @@ const frozenRows = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePa
 // 이전 phase의 기대값은 바꾸지 않는다. legacy oracle과 신규 review 결과를 각각 검증한다.
 const regression = assertP5caRegression(legacyRows, manifest, frozenRows);
 const p5caBaseline = JSON.parse(readFileSync(join(cache,'p5ca-regression-baseline.json'),'utf8'));
-const reviewRegression = assertP5cb1Regression(rows,p5caBaseline,legacyRows);
-console.log(JSON.stringify({ regression, reviewRegression }));
+const reviewRegression = assertP5cb1Regression(reviewedRows,p5caBaseline,legacyRows);
+const modernRegression=assertP5cb2Regression(rows,JSON.parse(readFileSync(join(cache,'p5cb1-regression-baseline.json'),'utf8')));
+console.log(JSON.stringify({ regression, reviewRegression, modernRegression }));
 writeFileSync(join(cache, 'dry-run-results.json'), JSON.stringify({ scope: 'read-only; not approved for persistence', inventory_hash:
   createHash('sha256').update(readFileSync(new URL('../tests/fixtures/realty-income-p5a/inventory.json', import.meta.url))).digest('hex'),
   summary, rows }, null, 2));

@@ -233,7 +233,7 @@ export function summarize(rows) {
   // 알 수 없는 상태가 통계에서 조용히 누락되면 coverage를 확정할 수 없다.
   requireAudit(rows.every(row => FINAL_STATUSES.includes(row.final_status)), '모든 문서의 최종 상태를 결정해야 합니다.');
   const statuses = Object.fromEntries(FINAL_STATUSES.map(status => [status, rows.filter(row => row.final_status === status).length]));
-  const formats = [...new Set([...Object.values(FORMATS), 'UNKNOWN'])].map(format => {
+  const formats = [...new Set([...Object.values(FORMATS), ...rows.map(row=>row.detected_format||'UNKNOWN'), 'UNKNOWN'])].map(format => {
     const group = rows.filter(row => (row.detected_format || 'UNKNOWN') === format);
     return { format, documents: group.length, parsed: group.filter(success).length,
       needs_review: group.filter(row => row.final_status === 'NEEDS_REVIEW').length,

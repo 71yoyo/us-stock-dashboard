@@ -1,0 +1,12 @@
+{
+  "approved": true,
+  "evidence_type": "definition_and_reconciliation_review",
+  "sec_source_hash": "e81ea5a3d33889384a0347336ce2aced13c0d854aaa0fda920ac498da17753a5",
+  "pdf_source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+  "metric_versions": {
+    "FFO":"FFO-DEPRECIABLE-V1",
+    "NORMALIZED_FFO":"NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+    "AFFO":"AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+  },
+  "note": "FY2025 SEC EX-99.1과 IR integrated PDF의 Nareit FFO, merger/transaction/other costs net 제외 NFFO, 동일 NFFO 시작점의 AFFO 조정표를 대조했다. 총액/희석총액/basic/diluted 각 공시값과 조정행을 확인했다. 테스트용 FY 한 기간에서만 명시적 동등성 view를 만들며 다른 기간/정의를 자동 병합하지 않는다."
+}

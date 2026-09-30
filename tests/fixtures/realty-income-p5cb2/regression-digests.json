@@ -1,0 +1,142 @@
+{
+  "checkpoint": "d4c353f92a745d2eb09807bec4f13e7abf03b09b",
+  "basis": "기존 offline fixture 입력의 전체 결과 digest. 원문 cache baseline과는 입력이 달라 직접 혼용하지 않는다.",
+  "rows": [
+    {
+      "id": "2016-q1",
+      "sha256": "39fead2ade675e62aa243a5e6a9fbec4a5e7d83e96da6b1fd772dd06cb389d43"
+    },
+    {
+      "id": "2016-q2",
+      "sha256": "48ca3e1752c7478f4e942e81a7260c5d7a8afbade79872508c42a3dcaa1dba09"
+    },
+    {
+      "id": "2016-q3",
+      "sha256": "25eb25bd939bb63e79cc86774763bd83298fd560d988e6b4a9d3c06bbedc9354"
+    },
+    {
+      "id": "2016-q4",
+      "sha256": "52d4741be81a83128c99ad64247b7138a2210ca708a2234616944ea7156eb316"
+    },
+    {
+      "id": "2017-q1",
+      "sha256": "85932699bfd8dbcd2101d17bd7bea14311669ef6c2591a1ae2c32a2a98db0922"
+    },
+    {
+      "id": "2017-q2",
+      "sha256": "721c88dacc3ce2bd71248445a8302ea1586a5a2637c1335573f0424d5a9f90c4"
+    },
+    {
+      "id": "2017-q3",
+      "sha256": "8c49068b16e9eae7e80a1c452565eea33ea4b64495fb060f689ce228193da269"
+    },
+    {
+      "id": "2017-q4",
+      "sha256": "bb418f5adc8d577080ad4889a406baac9a17e73f2374edd47a940929518097b3"
+    },
+    {
+      "id": "2018-q1",
+      "sha256": "8ae9105eb711f9e388d75e10d9b645d5cf3cd411622e1f966365d9a44c8aa398"
+    },
+    {
+      "id": "2018-q2",
+      "sha256": "759ed238899d21461241428771ea1ad4c89b22a763132f7b70dd22a8efb783cf"
+    },
+    {
+      "id": "2018-q3",
+      "sha256": "c69a56accbf56c241bb7b91ddd7f8850cdeb3eb53854960abefa902d81baeb05"
+    },
+    {
+      "id": "2018-q4",
+      "sha256": "777af0565c6aa344b8a35ada616a15ead948ac6da1b3703c995b5800bb801081"
+    },
+    {
+      "id": "2019-q1",
+      "sha256": "6e74795e7efe262738dfd0ae06f347dd9448263d758ac6fc57be41f58f894954"
+    },
+    {
+      "id": "2019-q2",
+      "sha256": "37d48c138f3ce13c7892f2bb39f1f25b6bee858fb7ab77b9501a8882e9b0dbae"
+    },
+    {
+      "id": "2019-q3",
+      "sha256": "dc2b49c0d465874fc8de36fcb6e77b6d210eabd333036f9bf5089abadc18026e"
+    },
+    {
+      "id": "2019-q4",
+      "sha256": "ef3561c09a9c9b91056691f459fd031bc5b8b29ef193a117f5cf77d9dd44a646"
+    },
+    {
+      "id": "2020-q1",
+      "sha256": "a210b0e4e5db6cf863ba008d684ed6ae8d2e130504385f0e51878b1cc7364ff2"
+    },
+    {
+      "id": "2020-q2",
+      "sha256": "89003cba3f147a10b832185defb9c55e79b111d3d9ae7fce0f4094c3ed7ba64b"
+    },
+    {
+      "id": "2020-q3",
+      "sha256": "7f4a0a0049453f34f4e7e4206a1501824c6afffaaab6508b2c64debfef8abf50"
+    },
+    {
+      "id": "2020-q4",
+      "sha256": "7b1cbfd7d1aff35ae57f4f8c2e813cfdfb501acb93b73ffd15cd51193277201f"
+    },
+    {
+      "id": "2021-q1",
+      "sha256": "45643f1e2ad0cf0b1982d92419450e24a135ed812450623a472eafed833545ea"
+    },
+    {
+      "id": "2021-q2",
+      "sha256": "79ff7391da62576d6df335cdbf63055c2f7d3006138c4d7393fb5308de951875"
+    },
+    {
+      "id": "2021-q3",
+      "sha256": "80bd1177538635cd7c263b1a4a0251947befe347f858f965d43831e496d436de"
+    },
+    {
+      "id": "2021-q4",
+      "sha256": "7b7e3796cbc7e893f972456028372ebe73c9c15aa7c34c825df6444c668997d6"
+    },
+    {
+      "id": "2022-q1",
+      "sha256": "7bcd8d3283b52974e069d082823185c4e4672ac589e798fc2b81c9d617445724"
+    },
+    {
+      "id": "2022-q2",
+      "sha256": "06c5fba745cc9b09ae65920ad9169a036562c4b1958c07f596f9506ace7939bc"
+    },
+    {
+      "id": "2022-q3",
+      "sha256": "40898e42dcc0b831c7f99d39a15adb3b9754ea1c7c79b2bae19e4d9adc8433a3"
+    },
+    {
+      "id": "2022-q4",
+      "sha256": "38a75e781af357cd8d37d9f12b834ebbfb334f81c671f84542a2c00f9ef07984"
+    },
+    {
+      "id": "2023-q1",
+      "sha256": "669a2e2771fdae543b1df31ff5019dab1b536ac5d846e7fb47292432a5d99344"
+    },
+    {
+      "id": "2023-q2",
+      "sha256": "9039cc222cd43e7989aafeb173d408d9abc315a2f5dc20ec5f5bd5eb44b8bf73"
+    },
+    {
+      "id": "2023-q3",
+      "sha256": "64a777da1d5b8f8e1724691d3dc303a6e8413dfdc055818d8bdfdce6f47b6f7b"
+    },
+    {
+      "id": "2023-q4",
+      "sha256": "468bbee2347d6f81044a36d5366eb81b40f9dcc093719415d16896be62d7bca8"
+    },
+    {
+      "id": "2024-q1",
+      "sha256": "1a2021e5690365ca7752bfc954f9c257168ce2c021ce02f62ac288a828242d39"
+    },
+    {
+      "id": "2024-q2",
+      "sha256": "1d7ddef51afd5e4711c42fa43d8a3b01abd83c73bddf3651c77ba4b292fba580"
+    }
+  ]
+}

@@ -1,0 +1,442 @@
+[
+  {
+    "id": "2024-q3",
+    "download": {
+      "id": "2024-q3",
+      "year": 2024,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "retrieved_at": "2026-09-30T11:45:12.738Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "bytes": 12207019,
+      "error": null
+    },
+    "page_count": 31,
+    "identity_text": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ3 2024\nindex member",
+    "filed_at": "2024-11-04",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on November 4, 2024"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized\nFFO. Also presented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and\ndiluted FFO and Normalized FFO per share computations.\nThree months ended Nine months ended\nSeptember 30, September 30,\n2024 2023 2024 2023\nNet income available to common stockholders $ 261,781 $ 233,473 $ 648,281 $ 653,904\nDepreciation and amortization 602,339 495,566 1,788,973 1,419,321\nDepreciation of furniture, fixtures and equipment (672) (817) (1,905) (1,656)\nProvisions for impairment of real estate 33,151 16,808 208,552 59,801\nGain on sales of real estate (50,563) (7,572) (92,290) (19,675)\nProportionate share of adjustments for unconsolidated entities 9,652 — 20,706 (465)\nFFO adjustments allocable to noncontrolling interests (762) (1,312) (2,575) (2,808)\nFFO available to common stockholders $ 854,926 $ 736,146 $ 2,569,742 $ 2,108,422\nFFO allocable to dilutive noncontrolling interests 1,467 1,375 4,402 4,166\nDiluted FFO $ 856,393 $ 737,521 $ 2,574,144 $ 2,112,588\nFFO available to common stockholders $ 854,926 $ 736,146 $ 2,569,742 $ 2,108,422\nMerger, transaction, and other costs (2) 8,610 2,884 105,468 4,532\nNormalized FFO available to common stockholders $ 863,536 $ 739,030 $ 2,675,210 $ 2,112,954\nNormalized FFO allocable to dilutive noncontrolling interests 1,467 1,375 4,402 4,166\nDiluted Normalized FFO $ 865,003 $ 740,405 $ 2,679,612 $ 2,117,120\nFFO per common share, basic and diluted: $ 0.98 $ 1.04 $ 2.99 $ 3.09\nNormalized FFO per common share:\nBasic $ 0.99 $ 1.04 $ 3.12 $ 3.10\nDiluted $ 0.99 $ 1.04 $ 3.11 $ 3.10\nDistributions paid to common stockholders $ 687,144 $ 543,343 $ 1,999,858 $ 1,555,679\nFFO available to common stockholders in excess of distributions paid to common stockholders $ 167,782 $ 192,803 $ 569,884 $ 552,743\nNormalized FFO available to common stockholders in excess of distributions paid to common\nstockholders $ 176,392 $ 195,687 $ 675,352 $ 557,275\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 870,665 709,165 858,679 681,419\nDiluted 873,974 711,338 861,300 683,925\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\n(2) During the three and nine months ended September 30, 2024, we incurred $8.6 million and $105.5 million, respectively, of merger, transaction, and other costs consisting primarily of\n$2.9 million and $99.8 million, respectively, of transaction and integration-related costs related to Spirit Realty Capital, Inc. (\"Spirit\") and $5.1 million for each of the respective periods related\nto the lease termination of a legacy corporate facility.\nQ3 2024 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is\ninformation regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Certain prior\nperiod amounts have been reclassified to conform to the current period presentation. These reclassifications had no impact on previously reported AFFO.\nThree months ended Nine months ended\nSeptember 30, September 30,\n2024 2023 2024 2023\nNet income available to common stockholders $ 261,781 $ 233,473 $ 648,281 $ 653,904\nCumulative adjustments to calculate Normalized FFO (2) 601,755 505,557 2,026,929 1,459,050\nNormalized FFO available to common stockholders 863,536 739,030 2,675,210 2,112,954\nExcess of redemption value over carrying value of preferred shares redeemed 5,116 — 5,116 —\nAmortization of share-based compensation 6,401 6,231 22,920 20,154\nAmortization of net debt discounts (premiums) and deferred financing costs 4,861 (10,244) 9,861 (34,441)\nAmortization of acquired interest rate swap value (3) 3,711 — 10,225 —\nNon-cash change in allowance for credit losses (4) 63,769 — 74,315 —\nLeasing costs and commissions (2,841) (1,392) (5,897) (6,868)\nRecurring capital expenditures (151) (52) (203) (190)\nStraight-line rent and expenses, net (43,930) (42,791) (136,377) (113,239)\nAmortization of above and below-market leases, net 12,973 24,939 41,053 61,967\nProportionate share of adjustments for unconsolidated entities (2,152) — (1,770) —\nOther adjustments (5) 4,279 5,649 5,064 3,499\nAFFO available to common stockholders $ 915,572 $ 721,370 $ 2,699,517 $ 2,043,836\nAFFO allocable to dilutive noncontrolling interests 1,467 1,357 4,413 4,170\nDiluted AFFO $ 917,039 $ 722,727 $ 2,703,930 $ 2,048,006\nAFFO per common share:\nBasic $ 1.05 $ 1.02 $ 3.14 $ 3.00\nDiluted $ 1.05 $ 1.02 $ 3.14 $ 2.99\nDistributions paid to common stockholders $ 687,144 $ 543,343 $ 1,999,858 $ 1,555,679\nAFFO available to common stockholders in excess of distributions paid to\ncommon stockholders $ 228,428 $ 178,027 $ 699,659 $ 488,157\nWeighted average number of common shares used for AFFO:\nBasic 870,665 709,165 858,679 681,419\nDiluted 873,974 711,338 861,300 683,925\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented on page 5 under \"FFO and Normalized FFO.\"\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the Spirit merger.\n(4) Credit losses primarily consist of a financing receivable impairment for a client in the convenience store industry that defaulted on their lease payments to us.\n(5) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, straight-line payments\nfrom cross-currency swaps, obligations related to financing lease liabilities, adjustments allocable to noncontrolling interests, and gains and losses on the sale of loans receivable.\nQ3 2024 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "printed_page": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 31,
+        "printed_page": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 31,
+        "printed_page": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs."
+      }
+    ],
+    "footnotes": [],
+    "excluded_candidates": []
+  },
+  {
+    "id": "2024-q4",
+    "download": {
+      "id": "2024-q4",
+      "year": 2024,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "retrieved_at": "2026-09-30T11:45:14.151Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+      "bytes": 17522920,
+      "error": null
+    },
+    "page_count": 31,
+    "identity_text": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ4 2024\nindex member",
+    "filed_at": "2025-02-24",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on February 24, 2025"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized\nFFO. Also presented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and\ndiluted FFO and Normalized FFO per share computations.\nThree months ended Years ended\nDecember 31, December 31,\n2024 2023 2024 2023\nNet income available to common stockholders $ 199,612 $ 218,405 $ 847,893 $ 872,309\nDepreciation and amortization 606,671 475,856 2,395,644 1,895,177\nDepreciation of furniture, fixtures and equipment (952) (583) (2,857) (2,239)\nProvisions for impairment of real estate 110,480 22,407 319,032 82,208\nGain on sales of real estate (24,985) (5,992) (117,275) (25,667)\nProportionate share of adjustments for unconsolidated entities 8,418 4,670 29,124 4,205\nFFO adjustments allocable to noncontrolling interests (1,327) (1,047) (3,902) (3,855)\nFFO available to common stockholders $ 897,917 $ 713,716 $ 3,467,659 $ 2,822,138\nFFO allocable to dilutive noncontrolling interests 2,209 1,386 6,611 5,552\nDiluted FFO $ 900,126 $ 715,102 $ 3,474,270 $ 2,827,690\nFFO available to common stockholders $ 897,917 $ 713,716 $ 3,467,659 $ 2,822,138\nMerger, transaction, and other costs, net (2) (9,176) 9,932 96,292 14,464\nNormalized FFO available to common stockholders $ 888,741 $ 723,648 $ 3,563,951 $ 2,836,602\nNormalized FFO allocable to dilutive noncontrolling interests 2,209 1,386 6,611 5,552\nDiluted Normalized FFO $ 890,950 $ 725,034 $ 3,570,562 $ 2,842,154\nFFO per common share:\nBasic $ 1.03 $ 0.98 $ 4.02 $ 4.08\nDiluted $ 1.02 $ 0.98 $ 4.01 $ 4.07\nNormalized FFO per common share:\nBasic $ 1.01 $ 1.00 $ 4.13 $ 4.10\nDiluted $ 1.01 $ 1.00 $ 4.12 $ 4.09\nDistributions paid to common stockholders $ 691,861 $ 556,114 $ 2,691,719 $ 2,111,793\nFFO available to common stockholders in excess of distributions paid to common stockholders $ 206,056 $ 157,602 $ 775,940 $ 710,345\nNormalized FFO available to common stockholders in excess of distributions paid to common\nstockholders $ 196,880 $ 167,534 $ 872,232 $ 724,809\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 875,710 724,598 862,959 692,298\nDiluted 879,649 726,859 865,842 694,819\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\n(2) For the three months ended December 31, 2024, merger, transaction, and other costs, net primarily consists of a $13.1 million adjustment to transfer taxes related to the merger with Spirit\nRealty Capital, Inc. (\"Spirit\") and $3.9 million of organization costs related to the private fund. For the year ended December 31, 2024, merger, transaction, and other costs, net primarily\nconsists of $86.7 million of transaction and integration-related costs related to the Spirit merger, $5.1 million related to the lease termination of a legacy corporate facility, and $4.5 million of\norganization costs related to the private fund.\nQ4 2024 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is\ninformation regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Certain prior\nperiod amounts have been reclassified to conform to the current period presentation. These reclassifications had no impact on previously reported AFFO.\nThree months ended Years ended\nDecember 31, December 31,\n2024 2023 2024 2023\nNet income available to common stockholders $ 199,612 $ 218,405 $ 847,893 $ 872,309\nCumulative adjustments to calculate Normalized FFO (2) 689,129 505,243 2,716,058 1,964,293\nNormalized FFO available to common stockholders 888,741 723,648 3,563,951 2,836,602\nExcess of redemption value over carrying value of preferred shares redeemed — — 5,116 —\nAmortization of share-based compensation 9,821 6,073 32,741 26,227\nAmortization of net debt discounts (premiums) and deferred financing costs 5,500 (10,127) 15,361 (44,568)\nAmortization of acquired interest rate swap value (3) 3,710 — 13,935 —\nNon-cash change in allowance for credit losses (4) 32,486 4,874 106,801 4,874\nLeasing costs and commissions (2,661) (3,010) (8,558) (9,878)\nRecurring capital expenditures (199) (141) (402) (331)\nStraight-line rent and expenses, net (35,510) (27,891) (171,887) (141,130)\nAmortization of above and below-market leases, net 14,817 17,134 55,870 79,101\nProportionate share of adjustments for unconsolidated entities (308) 932 (2,078) 932\nDeferred tax expense 3,552 — 3,552 —\nOther adjustments (5) 1,971 19,542 7,035 23,041\nAFFO available to common stockholders $ 921,920 $ 731,034 $ 3,621,437 $ 2,774,870\nAFFO allocable to dilutive noncontrolling interests 2,186 1,370 6,599 5,540\nDiluted AFFO $ 924,106 $ 732,404 $ 3,628,036 $ 2,780,410\nAFFO per common share:\nBasic $ 1.05 $ 1.01 $ 4.20 $ 4.01\nDiluted $ 1.05 $ 1.01 $ 4.19 $ 4.00\nDistributions paid to common stockholders $ 691,861 $ 556,114 $ 2,691,719 $ 2,111,793\nAFFO available to common stockholders in excess of distributions paid to\ncommon stockholders $ 230,059 $ 174,920 $ 929,718 $ 663,077\nWeighted average number of common shares used for AFFO:\nBasic 875,710 724,598 862,959 692,298\nDiluted 879,649 726,859 865,842 694,819\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented on page 5 under \"FFO and Normalized FFO.\"\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the Spirit merger.\n(4) Credit losses primarily relate to the impairment of financing receivables.\n(5) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, straight-line payments\nfrom cross-currency swaps, obligations related to financing lease liabilities, adjustments allocable to noncontrolling interests, and gains and losses on the sale of loans receivable.\nQ4 2024 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "printed_page": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 31,
+        "printed_page": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 31,
+        "printed_page": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs, net."
+      }
+    ],
+    "footnotes": [],
+    "excluded_candidates": []
+  },
+  {
+    "id": "2025-q1",
+    "download": {
+      "id": "2025-q1",
+      "year": 2025,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "retrieved_at": "2026-09-30T11:45:16.025Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "bytes": 7032710,
+      "error": null
+    },
+    "page_count": 68,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ1 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "filed_at": "2025-05-05",
+    "filed_evidence": {
+      "page_number": 19,
+      "text": "filed on May 5, 2025"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 32,
+        "text": "(1)\nFFO and Normalized FFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted FFO and\nNormalized FFO per share computations.\nThree months ended March 31,\n2025 2024\n($) ($)\nNet income available to common stockholders 249,815 129,696\nDepreciation and amortization 608,935 581,064\nDepreciation of furniture, fixtures and equipment (538) (623)\nProvisions for impairment of real estate 97,418 88,197\nGain on sales of real estate (22,537) (16,574)\nProportionate share of adjustments for unconsolidated entities 6,255 4,674\nFFO adjustments allocable to noncontrolling interests (1,693) (751)\nFFO available to common stockholders 937,655 785,683\nFFO allocable to dilutive noncontrolling interests 2,425 1,340\nDiluted FFO 940,080 787,023\nFFO available to common stockholders 937,655 785,683\nMerger, transaction, and other costs, net 279 94,104\nNormalized FFO available to common stockholders 937,934 879,787\nNormalized FFO allocable to dilutive noncontrolling interests 2,425 1,340\nDiluted Normalized FFO 940,359 881,127\nFFO per common share, basic and diluted 1.05 0.94\nNormalized FFO per common share, basic and diluted 1.05 1.05\nDistributions paid to common stockholders 711,824 636,499\nFFO after distributions 225,831 149,184\nNormalized FFO after distributions 226,110 243,288\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 891,666 834,940\nDiluted 895,033 837,037\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize metrics.\nQ1 2025 Supplemental Operating & Financial Data 15\nTable of Contents ↪"
+      },
+      {
+        "page_number": 33,
+        "text": "(1)\nAFFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information\nregarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Certain prior period amounts have\nbeen reclassified to conform to the current period presentation. These reclassifications had no impact on previously reported AFFO. Refer to the next page for footnotes.\nThree months ended March 31,\n2025 2024\n($) ($)\nNet income available to common stockholders 249,815 129,696\nCumulative adjustments to calculate Normalized FFO(2) 688,119 750,091\nNormalized FFO available to common stockholders 937,934 879,787\nDebt-related non-cash items:\nAmortization of net debt discounts and deferred financing costs 6,633 1,397\nAmortization of acquired interest rate swap value(3) 3,711 2,804\nCapital expenditures from operating properties:\nLeasing costs and commissions (880) (927)\nRecurring capital expenditures (19) —\nOther non-cash items:\nNon-cash change in allowance for credit losses(4) 19,171 1,292\nAmortization of share-based compensation 5,899 9,252\nStraight-line rent and expenses, net (43,812) (44,860)\nAmortization of above and below-market leases, net 15,326 14,274\nDeferred tax benefit (104) —\nProportionate share of adjustments for unconsolidated entities 37 920\nOther adjustments(5) 5,820 (1,068)\nAFFO available to common stockholders 949,716 862,871\nAFFO allocable to dilutive noncontrolling interests 2,401 1,359\nDiluted AFFO 952,117 864,230\nAFFO per common share:\nBasic 1.07 1.03\nDiluted 1.06 1.03\nDistributions paid to common stockholders 711,824 636,499\nAFFO after distributions 237,892 226,372\nWeighted average number of common shares used for AFFO:\nBasic 891,666 834,940\nDiluted 895,033 837,037\nQ1 2025 Supplemental Operating & Financial Data 16\nTable of Contents ↪"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 56,
+        "printed_page": 39,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 57,
+        "printed_page": 40,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 58,
+        "printed_page": 41,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs, net."
+      }
+    ],
+    "footnotes": [
+      {
+        "page_number": 34,
+        "printed_page": 17,
+        "text": "(1)\nAFFO (Continued)\n(USD and shares in thousands, except per share amounts) (unaudited)\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition of this term and an explanation of how we utilize this metric.\n(2) Refer to the reconciling items for Normalized FFO presented on the \"FFO and Normalized FFO\" page.\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the merger with Spirit Realty Capital, Inc. (\"Spirit\").\n(4) Credit losses primarily relate to the impairment of financing receivables.\n(5) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, obligations related to financing\nlease liabilities, and adjustments allocable to noncontrolling interests.\nQ1 2025 Supplemental Operating & Financial Data 17\nTable of Contents ↪"
+      }
+    ],
+    "excluded_candidates": [
+      {
+        "page_number": 10,
+        "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 11,
+        "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 12,
+        "heading": "HISTORICAL FFO AND AFFO",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 60,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      },
+      {
+        "page_number": 61,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      }
+    ]
+  },
+  {
+    "id": "2025-q2",
+    "download": {
+      "id": "2025-q2",
+      "year": 2025,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "retrieved_at": "2026-09-30T11:45:16.958Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "bytes": 6751910,
+      "error": null
+    },
+    "page_count": 68,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ2 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "filed_at": "2025-08-06",
+    "filed_evidence": {
+      "page_number": 20,
+      "text": "filed on August 6, 2025"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 33,
+        "text": "(1)\nFFO and Normalized FFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted FFO and\nNormalized FFO per share computations.\nThree months ended June 30, Six months ended June 30,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 196,919 256,804 446,734 386,500\nDepreciation and amortization 647,849 605,570 1,256,784 1,186,634\nDepreciation of furniture, fixtures and equipment (604) (610) (1,142) (1,233)\nProvisions for impairment of real estate 142,254 87,204 239,672 175,401\nGain on sales of real estate (38,566) (25,153) (61,103) (41,727)\nProportionate share of adjustments for unconsolidated entities 9,085 6,380 15,340 11,054\nFFO adjustments allocable to noncontrolling interests (1,189) (1,062) (2,882) (1,813)\nFFO available to common stockholders 955,748 929,133 1,893,403 1,714,816\nFFO allocable to dilutive noncontrolling interests 2,417 1,595 4,842 2,935\nDiluted FFO 958,165 930,728 1,898,245 1,717,751\nFFO available to common stockholders 955,748 929,133 1,893,403 1,714,816\nMerger, transaction, and other costs, net 331 2,754 610 96,858\nNormalized FFO available to common stockholders 956,079 931,887 1,894,013 1,811,674\nNormalized FFO allocable to dilutive noncontrolling interests 2,417 1,595 4,842 2,935\nDiluted Normalized FFO 958,496 933,482 1,898,855 1,814,609\nFFO per common share, basic and diluted 1.06 1.07 2.11 2.01\nNormalized FFO per common share, basic and diluted 1.06 1.07 2.11 2.12\nDistributions paid to common stockholders 727,450 676,215 1,439,274 1,312,714\nFFO after distributions 228,298 252,918 454,129 402,102\nNormalized FFO after distributions 228,629 255,672 454,739 498,960\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 902,966 870,319 897,338 852,621\nDiluted 906,398 872,520 900,797 854,806\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize metrics.\nQ2 2025 Supplemental Operating & Financial Data 15\nTable of Contents ↪"
+      },
+      {
+        "page_number": 34,
+        "text": "(1)\nAFFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information\nregarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Certain prior period amounts have\nbeen reclassified to conform to the current period presentation. These reclassifications had no impact on previously reported AFFO. Refer to the next page for footnotes.\nThree months ended June 30, Six months ended June 30,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 196,919 256,804 446,734 386,500\nCumulative adjustments to calculate Normalized FFO(2) 759,160 675,083 1,447,279 1,425,174\nNormalized FFO available to common stockholders 956,079 931,887 1,894,013 1,811,674\nDebt-related non-cash items:\nAmortization of net debt discounts and deferred financing costs 8,257 799 14,890 2,196\nAmortization of acquired interest rate swap value(3) 3,555 3,710 7,266 6,514\nCapital expenditures from operating properties:\nLeasing costs and commissions (1,985) (2,129) (2,865) (3,056)\nRecurring capital expenditures (221) (52) (240) (52)\nOther non-cash items:\nNon-cash change in allowance for credit losses(4) 1,109 9,254 20,280 10,546\nAmortization of share-based compensation 8,110 7,267 14,009 16,519\nStraight-line rent and expenses, net (30,226) (47,587) (74,038) (92,447)\nAmortization of above and below-market leases, net 6,287 13,806 21,613 28,080\nDeferred tax expense 413 — 309 —\nProportionate share of adjustments for unconsolidated entities (1,678) (538) (1,641) 382\nOther adjustments(5) (2,209) 4,657 3,611 3,589\nAFFO available to common stockholders 947,491 921,074 1,897,207 1,783,945\nAFFO allocable to dilutive noncontrolling interests 2,401 1,587 4,802 2,946\nDiluted AFFO 949,892 922,661 1,902,009 1,786,891\nAFFO per common share, basic and diluted 1.05 1.06 2.11 2.09\nDistributions paid to common stockholders 727,450 676,215 1,439,274 1,312,714\nAFFO after distributions 220,041 244,859 457,933 471,231\nWeighted average number of common shares used for AFFO:\nBasic 902,966 870,319 897,338 852,621\nDiluted 906,398 872,520 900,797 854,806\nQ2 2025 Supplemental Operating & Financial Data 16\nTable of Contents ↪"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 57,
+        "printed_page": 39,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 58,
+        "printed_page": 40,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 59,
+        "printed_page": 41,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs, net."
+      }
+    ],
+    "footnotes": [
+      {
+        "page_number": 35,
+        "printed_page": 17,
+        "text": "(1)\nAFFO (Continued)\n(USD and shares in thousands, except per share amounts) (unaudited)\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition of this term and an explanation of how we utilize this metric.\n(2) Refer to the reconciling items for Normalized FFO presented on the \"FFO and Normalized FFO\" page.\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the merger with Spirit.\n(4) Credit losses primarily relate to the impairment of financing receivables.\n(5) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, obligations related to financing\nlease liabilities, and adjustments allocable to noncontrolling interests.\nQ2 2025 Supplemental Operating & Financial Data 17\nTable of Contents ↪"
+      }
+    ],
+    "excluded_candidates": [
+      {
+        "page_number": 11,
+        "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 12,
+        "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 13,
+        "heading": "HISTORICAL FFO AND AFFO",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 61,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      },
+      {
+        "page_number": 62,
+        "heading": "Appendix (Continued)*",
+        "role": "appendix"
+      }
+    ]
+  },
+  {
+    "id": "2025-q3",
+    "download": {
+      "id": "2025-q3",
+      "year": 2025,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "retrieved_at": "2026-09-30T11:45:17.893Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+      "bytes": 6419121,
+      "error": null
+    },
+    "page_count": 69,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ3 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "filed_at": "2025-11-03",
+    "filed_evidence": {
+      "page_number": 20,
+      "text": "filed on November 3, 2025"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 33,
+        "text": "FFO and Normalized FFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also presented is\ninformation regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted FFO and Normalized FFO per share\ncomputations.\nThree months ended September 30, Nine months ended September 30,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 315,771 261,781 762,505 648,281\nDepreciation and amortization 631,981 602,339 1,888,765 1,788,973\nDepreciation of furniture, fixtures and equipment (711) (672) (1,853) (1,905)\nProvisions for impairment of real estate 75,391 33,151 315,063 208,552\nGain on sales of real estate (49,107) (50,563) (110,210) (92,290)\nProportionate share of adjustments for unconsolidated entities 9,003 9,652 24,343 20,706\nFFO adjustments allocable to noncontrolling interests (1,278) (762) (4,160) (2,575)\nFFO available to common stockholders 981,050 854,926 2,874,453 2,569,742\nFFO allocable to dilutive noncontrolling interests 2,346 1,467 7,188 4,402\nDiluted FFO 983,396 856,393 2,881,641 2,574,144\nFFO available to common stockholders 981,050 854,926 2,874,453 2,569,742\nMerger, transaction, and other costs, net(2) 13,343 8,610 13,953 105,468\nNormalized FFO available to common stockholders 994,393 863,536 2,888,406 2,675,210\nNormalized FFO allocable to dilutive noncontrolling interests 2,346 1,467 7,188 4,402\nDiluted Normalized FFO 996,739 865,003 2,895,594 2,679,612\nFFO per common share, basic and diluted 1.07 0.98 3.18 2.99\nNormalized FFO per common share:\nBasic 1.09 0.99 3.20 3.12\nDiluted 1.09 0.99 3.19 3.11\nDistributions paid to common stockholders 737,859 687,144 2,177,133 1,999,858\nFFO after distributions 243,191 167,782 697,320 569,884\nNormalized FFO after distributions 256,534 176,392 711,273 675,352\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 913,949 870,665 902,935 858,679\nDiluted 917,869 873,974 906,692 861,300\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize metrics.\n(2) During the three and nine months ended September 30, 2025, we incurred $13.3 million and $14.0 million, respectively, of merger, transaction, and other costs, consisting primarily of placement fees\nincurred in fundraising for the U.S. Private Fund Business (the \"Fund\").\nQ3 2025 Supplemental Operating & Financial Data 15\nTable of Contents ↪"
+      },
+      {
+        "page_number": 34,
+        "text": "AFFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information regarding\ndistributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Refer to the next page for footnotes.\nThree months ended September 30, Nine months ended September 30,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 315,771 261,781 762,505 648,281\nCumulative adjustments to calculate Normalized FFO(2) 678,622 601,755 2,125,901 2,026,929\nNormalized FFO available to common stockholders 994,393 863,536 2,888,406 2,675,210\nDebt-related non-cash items:\nAmortization of net debt discounts and deferred financing costs 9,138 4,861 24,028 9,861\nAmortization of acquired interest rate swap value(3) 2,251 3,711 9,517 10,225\nCapital expenditures from operating properties:\nLeasing costs and commissions (1,754) (2,841) (4,619) (5,897)\nRecurring capital expenditures (42) (151) (282) (203)\nOther non-cash items:\nNon-cash change in allowance for credit losses 11,581 63,769 31,861 74,315\nAmortization of share-based compensation 7,719 6,401 21,728 22,920\nStraight-line rent and expenses, net (43,474) (43,930) (117,512) (136,377)\nAmortization of above and below-market leases, net 10,462 12,973 32,075 41,053\nDeferred tax expense 3,829 — 4,138 —\nProportionate share of adjustments for unconsolidated entities (650) (2,152) (2,291) (1,770)\nExcess of redemption value over carrying value of preferred shares redeemed — 5,116 — 5,116\nOther adjustments(4) (1,465) 4,279 2,146 5,064\nAFFO available to common stockholders 991,988 915,572 2,889,195 2,699,517\nAFFO allocable to dilutive noncontrolling interests 2,331 1,467 7,133 4,413\nDiluted AFFO 994,319 917,039 2,896,328 2,703,930\nAFFO per common share:\nBasic 1.09 1.05 3.20 3.14\nDiluted 1.08 1.05 3.19 3.14\nDistributions paid to common stockholders 737,859 687,144 2,177,133 1,999,858\nAFFO after distributions 254,129 228,428 712,062 699,659\nWeighted average number of common shares used for AFFO:\nBasic 913,949 870,665 902,935 858,679\nDiluted 917,869 873,974 906,692 861,300\nQ3 2025 Supplemental Operating & Financial Data 16\nTable of Contents ↪"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 58,
+        "printed_page": 40,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 59,
+        "printed_page": 41,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 60,
+        "printed_page": 42,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs, net."
+      }
+    ],
+    "footnotes": [
+      {
+        "page_number": 35,
+        "printed_page": 17,
+        "text": "AFFO(1) (Continued)\n(USD and shares in thousands, except per share amounts) (unaudited)\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition of this term and an explanation of how we utilize this metric.\n(2) Refer to the reconciling items for Normalized FFO presented on the \"FFO and Normalized FFO\" page.\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the merger with Spirit.\n(4) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, obligations related to financing\nlease liabilities, and adjustments allocable to noncontrolling interests.\nQ3 2025 Supplemental Operating & Financial Data 17\nTable of Contents ↪"
+      }
+    ],
+    "excluded_candidates": [
+      {
+        "page_number": 11,
+        "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 12,
+        "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 13,
+        "heading": "HISTORICAL FFO AND AFFO",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 62,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      },
+      {
+        "page_number": 63,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      }
+    ]
+  },
+  {
+    "id": "2025-q4",
+    "download": {
+      "id": "2025-q4",
+      "year": 2025,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "retrieved_at": "2026-09-30T11:45:18.792Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "bytes": 5000409,
+      "error": null
+    },
+    "page_count": 71,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ4 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "filed_at": "2026-02-24",
+    "filed_evidence": {
+      "page_number": 20,
+      "text": "filed on February 24, 2026"
+    },
+    "candidate_tables": [
+      {
+        "page_number": 34,
+        "text": "FFO and Normalized FFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also presented is information regarding\ndistributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted FFO and Normalized FFO per share computations.\nThree months ended December 31, Years ended December 31,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 296,085 199,612 1,058,590 847,893\nDepreciation and amortization 635,435 606,671 2,524,200 2,395,644\nDepreciation of furniture, fixtures and equipment (769) (952) (2,622) (2,857)\nProvisions for impairment of real estate 119,434 110,480 434,497 319,032\nGain on sales of real estate (67,430) (24,985) (177,640) (117,275)\nProportionate share of adjustments for unconsolidated entities 9,002 8,418 33,345 29,124\nFFO adjustments allocable to noncontrolling interests (5,887) (1,327) (10,047) (3,902)\nFFO available to common stockholders 985,870 897,917 3,860,323 3,467,659\nFFO allocable to dilutive noncontrolling interests 2,208 2,209 9,396 6,611\nDiluted FFO 988,078 900,126 3,869,719 3,474,270\nFFO available to common stockholders 985,870 897,917 3,860,323 3,467,659\nMerger, transaction, and other costs, net(2) 10,261 (9,176) 24,214 96,292\nNormalized FFO available to common stockholders 996,131 888,741 3,884,537 3,563,951\nNormalized FFO allocable to dilutive noncontrolling interests 2,208 2,209 9,396 6,611\nDiluted Normalized FFO 998,339 890,950 3,893,933 3,570,562\nFFO per common share:\nBasic 1.07 1.03 4.26 4.02\nDiluted 1.07 1.02 4.25 4.01\nNormalized FFO per common share:\nBasic 1.08 1.01 4.28 4.13\nDiluted 1.08 1.01 4.27 4.12\nDistributions paid to common stockholders 743,762 691,861 2,920,895 2,691,719\nFFO after distributions 242,108 206,056 939,428 775,940\nNormalized FFO after distributions 252,369 196,880 963,642 872,232\nWeighted average number of common shares used for FFO and Normalized FFO:\nBasic 919,769 875,710 907,169 862,959\nDiluted 923,648 879,649 911,015 865,842\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize metrics.\n(2) During the three months and year ended December 31, 2025, we incurred $10.3 million and $24.2 million, respectively, of merger, transaction, and other costs, net, consisting primarily of placement fees\nincurred in fundraising for our U.S. Private Fund Business (the \"Fund\").\nQ4 2025 Supplemental Operating & Financial Data 16\nTable of Contents ↪"
+      },
+      {
+        "page_number": 35,
+        "text": "AFFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information regarding\ndistributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Refer to the next page for footnotes.\nThree months ended December 31, Years ended December 31,\n2025 2024 2025 2024\n($) ($) ($) ($)\nNet income available to common stockholders 296,085 199,612 1,058,590 847,893\nCumulative adjustments to calculate Normalized FFO(2) 700,046 689,129 2,825,947 2,716,058\nNormalized FFO available to common stockholders 996,131 888,741 3,884,537 3,563,951\nDebt-related non-cash items:\nAmortization of net debt discounts and deferred financing costs 12,677 5,500 36,705 15,361\nAmortization of acquired interest rate swap value(3) 1,531 3,710 11,048 13,935\nCapital expenditures from operating properties:\nLeasing costs and commissions (4,862) (2,661) (9,481) (8,558)\nRecurring capital expenditures (53) (199) (335) (402)\nOther non-cash items:\nNon-cash change in allowance for credit losses 4,977 32,486 36,838 106,801\nAmortization of share-based compensation 9,042 9,821 30,770 32,741\nStraight-line rent and expenses, net (51,705) (35,510) (169,217) (171,887)\nAmortization of above and below-market leases, net 15,153 14,817 47,228 55,870\nDeferred tax (benefit) expense (3,535) 3,552 603 3,552\nProportionate share of adjustments for unconsolidated entities (700) (308) (2,991) (2,078)\nExcess of redemption value over carrying value of preferred shares redeemed — — — 5,116\nOther adjustments(4) 18,047 1,971 20,193 7,035\nAFFO available to common stockholders 996,703 921,920 3,885,898 3,621,437\nAFFO allocable to dilutive noncontrolling interests 2,190 2,186 9,323 6,599\nDiluted AFFO 998,893 924,106 3,895,221 3,628,036\nAFFO per common share:\nBasic 1.08 1.05 4.28 4.20\nDiluted 1.08 1.05 4.28 4.19\nDistributions paid to common stockholders 743,762 691,861 2,920,895 2,691,719\nAFFO after distributions 252,941 230,059 965,003 929,718\nWeighted average number of common shares used for AFFO:\nBasic 919,769 875,710 907,169 862,959\nDiluted 923,648 879,649 911,015 865,842\nQ4 2025 Supplemental Operating & Financial Data 17\nTable of Contents ↪"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 59,
+        "printed_page": 41,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we believe are not as pertinent to the measurement of our ongoing operating performance."
+      },
+      {
+        "page_number": 60,
+        "printed_page": 42,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on property sales."
+      },
+      {
+        "page_number": 61,
+        "printed_page": 43,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding merger, transaction, and other costs, net."
+      }
+    ],
+    "footnotes": [
+      {
+        "page_number": 36,
+        "printed_page": 18,
+        "text": "AFFO(1) (Continued)\n(USD and shares in thousands, except per share amounts) (unaudited)\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition of this term and an explanation of how we utilize this metric.\n(2) Refer to the reconciling items for Normalized FFO presented on the FFO and Normalized FFO page.\n(3) Includes the amortization of the purchase price allocated to interest rate swaps acquired in the merger with Spirit.\n(4) Includes non-cash foreign currency losses (gains) from remeasurement to USD, mark-to-market adjustments on investments and derivatives that are non-cash in nature, obligations related to financing\nlease liabilities, and adjustments allocable to noncontrolling interests.\nQ4 2025 Supplemental Operating & Financial Data 18\nTable of Contents ↪"
+      }
+    ],
+    "excluded_candidates": [
+      {
+        "page_number": 11,
+        "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 12,
+        "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 13,
+        "heading": "HISTORICAL FFO AND AFFO",
+        "role": "release_or_summary"
+      },
+      {
+        "page_number": 64,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      },
+      {
+        "page_number": 65,
+        "heading": "Appendix (Continued)",
+        "role": "appendix"
+      }
+    ]
+  }
+]

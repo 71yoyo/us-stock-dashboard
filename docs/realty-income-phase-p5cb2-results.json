@@ -1,0 +1,804 @@
+{
+  "scope": "read-only; persistence/production approval unchanged",
+  "input": "external verified cache",
+  "regression": {
+    "protected_documents": 34,
+    "full_deep_equality": true
+  },
+  "official_expected": {
+    "checked": 132,
+    "pass": 132,
+    "fail": 0
+  },
+  "cross_source": {
+    "compared": 12,
+    "exact": 12,
+    "difference": 0,
+    "conflict": 0,
+    "automatic_merge": false
+  },
+  "summary": {
+    "visited": 40,
+    "source_available": 40,
+    "statuses": {
+      "VERIFIED_PARSED": 9,
+      "PARSED": 31,
+      "NEEDS_REVIEW": 0,
+      "UNKNOWN_FORMAT": 0,
+      "WRONG_ISSUER": 0,
+      "SOURCE_UNAVAILABLE": 0,
+      "PARSER_ERROR": 0
+    },
+    "formats": [
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+        "documents": 5,
+        "parsed": 5,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+        "documents": 4,
+        "parsed": 4,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 2,
+        "parsed": 2,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+        "documents": 17,
+        "parsed": 17,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+        "documents": 4,
+        "parsed": 4,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      }
+    ],
+    "years": [
+      {
+        "year": 2016,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED"
+        ]
+      },
+      {
+        "year": 2017,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2018,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2019,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2020,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2021,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2022,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2023,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2024,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2025,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      }
+    ],
+    "quarterly": {
+      "scope": "quarterly",
+      "primary_periods_only": true,
+      "opportunities": 40,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 40,
+          "total/diluted": 33,
+          "per_share/basic": 40,
+          "per_share/diluted": 40
+        },
+        "AFFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 40,
+          "total/diluted": 33,
+          "per_share/basic": 40,
+          "per_share/diluted": 40
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": 19,
+          "confirmed_not_reported": 21,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 19,
+            "total/diluted": 19,
+            "per_share/basic": 19,
+            "per_share/diluted": 19
+          },
+          "total/not_applicable": 19,
+          "total/diluted": 19,
+          "per_share/basic": 19,
+          "per_share/diluted": 19
+        }
+      }
+    },
+    "annual": {
+      "scope": "annual",
+      "primary_periods_only": true,
+      "opportunities": 10,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 10,
+          "total/diluted": 9,
+          "per_share/basic": 10,
+          "per_share/diluted": 10
+        },
+        "AFFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 10,
+          "total/diluted": 9,
+          "per_share/basic": 10,
+          "per_share/diluted": 10
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": 5,
+          "confirmed_not_reported": 5,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 5,
+            "total/diluted": 5,
+            "per_share/basic": 5,
+            "per_share/diluted": 5
+          },
+          "total/not_applicable": 5,
+          "total/diluted": 5,
+          "per_share/basic": 5,
+          "per_share/diluted": 5
+        }
+      }
+    },
+    "dedup": {
+      "observations": 1344,
+      "unique_keys": 950,
+      "unique_values": 950,
+      "distinct_value_variants": 950,
+      "provenance": 1344,
+      "conflicts": [],
+      "validated_unique_keys": 162
+    },
+    "comparison": {
+      "comparable": 394,
+      "exact_match": 394,
+      "difference": 0,
+      "restated_candidates": []
+    }
+  },
+  "modern_documents": [
+    {
+      "id": "2024-q3",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "records": 48,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-V1"
+      ],
+      "unit": {
+        "raw_label": "(in thousands, except per share amounts) (unaudited)",
+        "measurement": "in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "94f702ea7cd365619a8c9c3147623ec1ca920e773e40470f709c830a3976152f",
+      "table_identity": {
+        "document_family": "supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "quarter_and_9m",
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "measurement": "in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 5,
+            "printed_page": 5
+          },
+          {
+            "physical_page": 6,
+            "printed_page": 6
+          }
+        ],
+        "excluded_candidates": [],
+        "definitions_after_tables": true
+      }
+    },
+    {
+      "id": "2024-q4",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+      "records": 48,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+      ],
+      "unit": {
+        "raw_label": "(in thousands, except per share amounts) (unaudited)",
+        "measurement": "in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "ffd44c64caa31c4b02c24bcbb9c053a3e2d5f631909d9ce22e4d402811a25db5",
+      "table_identity": {
+        "document_family": "supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "quarter_and_fy",
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "measurement": "in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 5,
+            "printed_page": 5
+          },
+          {
+            "physical_page": 6,
+            "printed_page": 6
+          }
+        ],
+        "excluded_candidates": [],
+        "definitions_after_tables": true
+      }
+    },
+    {
+      "id": "2025-q1",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "records": 24,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+      ],
+      "unit": {
+        "raw_label": "(USD and shares in thousands, except per share amounts) (unaudited)",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "fe692909ac2d803e5f4fd56eb99cbd5cc5ae58160c9637f74ec9d7c91e7e06b0",
+      "table_identity": {
+        "document_family": "integrated_earnings_supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "single_quarter",
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "joint_basic_diluted",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 32,
+            "printed_page": 15
+          },
+          {
+            "physical_page": 33,
+            "printed_page": 16
+          }
+        ],
+        "excluded_candidates": [
+          {
+            "page_number": 10,
+            "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 11,
+            "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 12,
+            "heading": "HISTORICAL FFO AND AFFO",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 60,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          },
+          {
+            "page_number": 61,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          }
+        ],
+        "definitions_after_tables": true
+      }
+    },
+    {
+      "id": "2025-q2",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "records": 48,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+      ],
+      "unit": {
+        "raw_label": "(USD and shares in thousands, except per share amounts) (unaudited)",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "29e6def9ccaa0e6cb4bffd9e3c79c876495892a2fbf742ad7e3ed5bec6502e08",
+      "table_identity": {
+        "document_family": "integrated_earnings_supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "quarter_and_6m",
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "joint_basic_diluted",
+          "AFFO": "joint_basic_diluted"
+        },
+        "diluted_total": "present",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 33,
+            "printed_page": 15
+          },
+          {
+            "physical_page": 34,
+            "printed_page": 16
+          }
+        ],
+        "excluded_candidates": [
+          {
+            "page_number": 11,
+            "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 12,
+            "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 13,
+            "heading": "HISTORICAL FFO AND AFFO",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 61,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          },
+          {
+            "page_number": 62,
+            "heading": "Appendix (Continued)*",
+            "role": "appendix"
+          }
+        ],
+        "definitions_after_tables": true
+      }
+    },
+    {
+      "id": "2025-q3",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+      "records": 48,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+      ],
+      "unit": {
+        "raw_label": "(USD and shares in thousands, except per share amounts) (unaudited)",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "b571e7e85640b6bb3f376e9ce777c6d7b68f7a39c015d261d5d0eb7087298eab",
+      "table_identity": {
+        "document_family": "integrated_earnings_supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "quarter_and_9m",
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 33,
+            "printed_page": 15
+          },
+          {
+            "physical_page": 34,
+            "printed_page": 16
+          }
+        ],
+        "excluded_candidates": [
+          {
+            "page_number": 11,
+            "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 12,
+            "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 13,
+            "heading": "HISTORICAL FFO AND AFFO",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 62,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          },
+          {
+            "page_number": 63,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          }
+        ],
+        "definitions_after_tables": true
+      }
+    },
+    {
+      "id": "2025-q4",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "records": 48,
+      "definitions": [
+        "FFO-DEPRECIABLE-V1",
+        "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+        "AFFO-NFFO-TRANSACTION-OTHER-NET-V1"
+      ],
+      "unit": {
+        "raw_label": "(USD and shares in thousands, except per share amounts) (unaudited)",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "monetary": "USD thousand",
+        "monetary_multiplier": 1000,
+        "per_share": "USD/share",
+        "per_share_multiplier": 1,
+        "weighted_shares": "shares thousand",
+        "weighted_shares_multiplier": 1000
+      },
+      "table_fingerprint": "a42346c68c11d32efc56ea52b75204b61e8e7ded2f62c77f88b8152135ee1dc1",
+      "table_identity": {
+        "document_family": "integrated_earnings_supplemental",
+        "section": "Supplemental Operating & Financial Data",
+        "headings": [
+          "FFO and Normalized FFO",
+          "AFFO"
+        ],
+        "period_columns": "quarter_and_fy",
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "measurement": "USD and shares in thousands, except per share amounts",
+        "qualifier": "unaudited",
+        "reconciliation_identity": {
+          "FFO": "net_income_to_ffo",
+          "NORMALIZED_FFO": "ffo_cost_exclusion",
+          "AFFO": "nffo_to_affo"
+        },
+        "selected_pages": [
+          {
+            "physical_page": 34,
+            "printed_page": 16
+          },
+          {
+            "physical_page": 35,
+            "printed_page": 17
+          }
+        ],
+        "excluded_candidates": [
+          {
+            "page_number": 11,
+            "heading": "FUNDS FROM OPERATIONS (FFO) AND NORMALIZED FUNDS FROM OPERATIONS (Normalized FFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 12,
+            "heading": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 13,
+            "heading": "HISTORICAL FFO AND AFFO",
+            "role": "release_or_summary"
+          },
+          {
+            "page_number": 64,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          },
+          {
+            "page_number": 65,
+            "heading": "Appendix (Continued)",
+            "role": "appendix"
+          }
+        ],
+        "definitions_after_tables": true
+      }
+    }
+  ]
+}

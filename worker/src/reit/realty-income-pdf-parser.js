@@ -83,7 +83,7 @@ function shareRows(lines, name, columnCount) {
 
 function extractMetric(page, metric, detection, source, options = {}) {
   const name = metric === 'NORMALIZED_FFO' ? 'Normalized FFO' : metric;
-  const lines = linesOf(page), columns = periods(page, source), unit = tableUnit(page);
+  const lines = linesOf(page), columns = periods(page, source), unit = (options.tableUnit || tableUnit)(page);
   const commonLabel = metric === 'AFFO' && rowsFor(lines, 'Total AFFO available to common stockholders').length
     ? 'Total AFFO available to common stockholders' : `${name} available to common stockholders`;
   const commonRows = rowsFor(lines, commonLabel);
