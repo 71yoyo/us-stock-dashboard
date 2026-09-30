@@ -1,0 +1,16 @@
+{
+  "ticker": "O",
+  "source_type": "SEC_EXHIBIT",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/726728/000072672826000009/o-991q42025.htm",
+  "accession_number": "0000726728-26-000009",
+  "exhibit": "EX-99.1",
+  "document_name": "o-991q42025.htm",
+  "filed_at": "2026-02-24",
+  "published_at": "2026-02-24",
+  "retrieved_at": "2026-09-30T09:07:49.928Z",
+  "source_hash": "e81ea5a3d33889384a0347336ce2aced13c0d854aaa0fda920ac498da17753a5",
+  "excerpt_hash": "7a614b2db51490f33344353900728384c4412690f4f2bab330389da98f95701c",
+  "fiscal_period": "Q4",
+  "fiscal_year_end": "12-31",
+  "fiscal_year_end_source": "Form 10-K fiscal year ended December 31; EX-99.1 reporting period title"
+}
