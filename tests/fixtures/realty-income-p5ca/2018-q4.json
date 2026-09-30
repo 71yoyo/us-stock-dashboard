@@ -1,0 +1,78 @@
+{
+  "id": "2018-q4",
+  "inventory": {
+    "year": 2018,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/2-20-19-Realty-Income-Q4-2018-Operating-Results.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Corporation-2018-Form-10KA.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q4-2018-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2018-q4",
+      "year": 2018,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:44:47.839Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+      "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+      "bytes": 3387670,
+      "error": null
+    },
+    "page_count": 26,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "an S&P 500\nSUPPLEMENTAL OPERATING\ncompany\n& FINANCIAL DATA S&P High Yield\nDividend Aristocrats®\nindex member\nQ4 2018",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "Funds From Operations (FFO)\n(dollars in thousands, except per share amounts)\nThree months ended Year ended\nDecember 31, December 31,\n2018 2017 2018 2017\nNet income available to common stockholders $ 85,072 $ 60,852 $ 363,614 $ 301,514\nDepreciation and amortization 137,711 127,033 539,780 498,788\nDepreciation of furniture, fixtures and equipment (158) (118) (650) (557)\nProvisions for impairment 1,235 6,679 26,269 14,751\nGain on sales of real estate (5,825) (23,208) (24,643) (40,898)\nFFO adjustments allocable to noncontrolling interests (292) (250) (1,113) (933)\nFFO available to common stockholders $ 217,743 $ 170,988 $ 903,257 $ 772,665\nFFO allocable to dilutive noncontrolling interests 473 — 867 877\nDiluted FFO $ 218,216 $ 170,988 $ 904,124 $ 773,542\nFFO per common share:\nBasic $ 0.73 $ 0.61 $ 3.12 $ 2.83\nDiluted $ 0.73 $ 0.61 $ 3.12 $ 2.82\nDistributions paid to common stockholders $ 196,835 $ 179,306 $ 761,582 $ 689,294\nFFO available to common stockholders in excess of (less than)\ndistributions paid to common stockholders $ 20,908 $ (8,318) $ 141,675 $ 83,371\nWeighted average number of common shares used for FFO per share computations:\nBasic 297,730,206 281,923,090 289,427,430 273,465,680\nDiluted 298,609,734 282,023,488 289,923,984 273,936,752\nQ4 2018 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThree months ended Year ended\nDecember 31, December 31,\n2018 2017 2018 2017\nNet income available to common stockholders $ 85,072 $ 60,852 $ 363,614 $ 301,514\nCumulative adjustments to calculate FFO (1) 132,671 110,136 539,643 471,151\nFFO available to common stockholders 217,743 170,988 903,257 772,665\nExecutive severance charge 18,651 — 18,651 —\nLoss on extinguishment of debt — 42,426 — 42,426\nExcess of redemption value over carrying value\nof Class F preferred share redemption — — — 13,373\nAmortization of share-based compensation 2,943 3,305 15,470 13,946\nAmortization of deferred financing costs 1,119 1,193 3,991 5,326\nAmortization of net mortgage (premiums) discounts (354) 1,114 (1,520) (466)\nLoss (gain) on interest rate swaps 331 (2,022) (2,733) (3,250)\nLeasing costs and commissions (1,076) (326) (3,907) (1,575)\nRecurring capital expenditures (555) (376) (1,084) (912)\nStraight-line rent (6,480) (4,859) (24,687) (17,191)\nAmortization of above and below-market leases 4,427 3,800 16,852 14,013\nOther adjustments 64 69 268 283\nTotal AFFO available to common stockholders $ 236,813 $ 215,312 $ 924,558 $ 838,638\nAFFO allocable to dilutive noncontrolling interests 487 293 901 1,178\nDiluted AFFO $ 237,300 $ 215,605 $ 925,459 $ 839,816\nAFFO per common share:\nBasic $ 0.80 $ 0.76 $ 3.19 $ 3.07\nDiluted $ 0.79 $ 0.76 $ 3.19 $ 3.06\nDistributions paid to common stockholders $ 196,835 $ 179,306 $ 761,582 $ 689,294\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 39,978 $ 36,006 $ 162,976 $ 149,344\nWeighted average number of common shares used for AFFO per share computations:\nBasic 297,730,206 281,923,090 289,427,430 273,465,680\nDiluted 298,609,734 282,428,692 289,923,984 274,024,934\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ4 2018 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (NAREIT’s) definition, as net income available to\ncommon stockholders, plus depreciation and amortization of real estate assets, plus impairments of depreciable real estate assets, and reduced by gains on property\nsales. Presentation of the information regarding FFO and AFFO (described on page 6) is intended to assist the reader in comparing the operating performance of\ndifferent REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with other REITs may not be meaningful. FFO\nand AFFO should not be considered as alternatives to reviewing our cash flows from operating, investing, and financing activities. In addition, FFO and AFFO should not"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution).\nThree months ended Year ended\nDecember 31, December 31,"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and AFFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO\nper share computations."
+      }
+    ],
+    "filed_at": "2019-02-20",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on February 20, 2019"
+    },
+    "error": null
+  }
+}

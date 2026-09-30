@@ -1,0 +1,158 @@
+{
+  "checkpoint": "05c68bd7164334f4e8e78af8b28e05013cf532cd",
+  "documents": [
+    {
+      "id": "2016-q2",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+      "record_count": 24,
+      "records_digest": "174e7f0f407ab1d1c1646d6d75f4d8a0a667574604abe7917e1163d550848282",
+      "definitions_digest": "ec3be8bd3d2a70f3b6e9f2f9510b459eae965abd7ce893cb9cf47bd159c2bc46"
+    },
+    {
+      "id": "2016-q3",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "source_hash": "063b13a42d2a04e66938d9f125a4b70092b5ce2f9c5b77ea35860437b671e927",
+      "record_count": 24,
+      "records_digest": "282435b74b015ae34ee7e48f3603f1bd051f1da5f9c03337d85a6ad44b23ff46",
+      "definitions_digest": "ec3be8bd3d2a70f3b6e9f2f9510b459eae965abd7ce893cb9cf47bd159c2bc46"
+    },
+    {
+      "id": "2016-q4",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+      "source_hash": "f989d35506f2f0bf1b6a17d24865ca5d87ae770aa7273458373ae313e3900d10",
+      "record_count": 24,
+      "records_digest": "327e29febbd2d95cfcc726b0cdf6d2e7a1c22fe87129c57255da1d93f30edff4",
+      "definitions_digest": "ec3be8bd3d2a70f3b6e9f2f9510b459eae965abd7ce893cb9cf47bd159c2bc46"
+    },
+    {
+      "id": "2017-q1",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "source_hash": "9ce4f079b00bcfec93973f52379997b39c574c8562026862aa6515cd2be66824",
+      "record_count": 12,
+      "records_digest": "04fb57f0d92055cba4271f78a8ea353fb5e08799cebddb05969bdf906a10e4e7",
+      "definitions_digest": "ec3be8bd3d2a70f3b6e9f2f9510b459eae965abd7ce893cb9cf47bd159c2bc46"
+    },
+    {
+      "id": "2017-q2",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "source_hash": "760253a5528e0a9ab9cae466131aa69f0b2da6b7fdcd5e0c0734b08051c2008d",
+      "record_count": 24,
+      "records_digest": "b0537da1d645ff0149389bfa3e964bab5e4ef1cee91f5bbcd08a4bdf3b857243",
+      "definitions_digest": "ec3be8bd3d2a70f3b6e9f2f9510b459eae965abd7ce893cb9cf47bd159c2bc46"
+    },
+    {
+      "id": "2018-q3",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+      "record_count": 32,
+      "records_digest": "022ebc63ee66c9ee7a33a69afb99b1d42c3d0a3954ffb1be8a94b48a1bc3f624",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2018-q4",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+      "record_count": 32,
+      "records_digest": "58f3d09cf2407ba8456af0c42fe8aba7ccd8452f9879923efb3e340e3c00944a",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2019-q2",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "source_hash": "9dd38670e6a33f5b00c50a3c05ae936010a8eac16fb53e667ea08d099517be99",
+      "record_count": 32,
+      "records_digest": "d721b32fd01fe71ed128c6e4eba375bb590a343c01d00d57a37e9254eee9bd37",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2019-q3",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "source_hash": "6230d56ebb347957a63f8ba544f9403c0b14ddeedb7572cd9fe9926917760981",
+      "record_count": 32,
+      "records_digest": "e0a507c7380c5282993a97705e0d4056107908cb79fcf00e5460fe28e66217ab",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2020-q2",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "source_hash": "07ef77962a05159c2cf78af3e9344ad6e4b8034efac5f7585078517416c00d79",
+      "record_count": 32,
+      "records_digest": "8013023963619efd9eba9d55c7663dee104cc5c4598123539fa31a3670985e5d",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2020-q3",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "source_hash": "c6997a2b155d46c6a81c5a173cf2932efad493fa474f3406be6b9406734d9873",
+      "record_count": 32,
+      "records_digest": "8b91f1037940e10a4ccd9dc13a38dbb8ad6fc4209d69a85aff108789a58eb6c2",
+      "definitions_digest": "7764ccf7949bda1a7d21c6361a879e07a868ac9f768ebb9ca482a74147f7245e"
+    },
+    {
+      "id": "2021-q2",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+      "record_count": 48,
+      "records_digest": "5896791fef4cde3633a00d0af1e822dc26784d862f9017ac1da2567a5418e82b",
+      "definitions_digest": "dc7b872caddc250b44ea324c48d4bc8a36a9e96bed8fa33ef05aa84aa0fa65d0"
+    },
+    {
+      "id": "2022-q1",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "source_hash": "594ce150c695a369a896be2fd25f4022330bda2ab7baa30fc5234713bdfc9f29",
+      "record_count": 24,
+      "records_digest": "0bb888d09f235e99e6bd4c448ba0f3c9b342a3d2c7abc28bc7252bae24e7dcfb",
+      "definitions_digest": "7442b9a1a1f9d20a277a2bd3dcffabf2e8f40fea62dfe99137a857e828d00163"
+    },
+    {
+      "id": "2022-q2",
+      "status": "PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+      "record_count": 48,
+      "records_digest": "c91cef106bffbad849adf12667f64bab61cea6c669139278fcbe35d7209d9651",
+      "definitions_digest": "7442b9a1a1f9d20a277a2bd3dcffabf2e8f40fea62dfe99137a857e828d00163"
+    },
+    {
+      "id": "2022-q3",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+      "record_count": 48,
+      "records_digest": "8430cd5717f89e036a8376e351270687980065b82c4bec2962896daf1f6cf0c6",
+      "definitions_digest": "7442b9a1a1f9d20a277a2bd3dcffabf2e8f40fea62dfe99137a857e828d00163"
+    },
+    {
+      "id": "2023-q3",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+      "record_count": 48,
+      "records_digest": "f579d1e87ed727e4127f499c9df671937261d85bef41a8619e1bb3736952cc2f",
+      "definitions_digest": "7442b9a1a1f9d20a277a2bd3dcffabf2e8f40fea62dfe99137a857e828d00163"
+    },
+    {
+      "id": "2024-q2",
+      "status": "VERIFIED_PARSED",
+      "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+      "source_hash": "ef66aa6179989a4b0f2ab22478601210f440274efa1756fd82ea7db19e0969db",
+      "record_count": 48,
+      "records_digest": "5949da47346d72f08a9cf2ac549e7b8fcb852f23ff68085279b9697a81563aac",
+      "definitions_digest": "7442b9a1a1f9d20a277a2bd3dcffabf2e8f40fea62dfe99137a857e828d00163"
+    }
+  ]
+}

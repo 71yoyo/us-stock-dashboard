@@ -1,0 +1,78 @@
+{
+  "id": "2019-q4",
+  "inventory": {
+    "year": 2019,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/2-19-20-Realty-Income-Q4-2019-Earnings.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Corporation-2019-Form-10K.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q4-2019-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2019-q4",
+      "year": 2019,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:44:51.443Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+      "source_hash": "5efad6af715c96c0750ec3a24f0369cc10f1a9c0843689f64a45b6026212f7da",
+      "bytes": 2464924,
+      "error": null
+    },
+    "page_count": 29,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "SUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\nDividend Aristocrats®\nQ4 2019\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "Funds From Operations (FFO)\n(dollars in thousands, except per share amounts)\nThree Months Ended Year Ended\nDecember 31, December 31,\n2019 2018 2019 2018\nNet income available to common stockholders $ 129,297 $ 85,072 $ 436,482 $ 363,614\nDepreciation and amortization 156,594 137,711 593,961 539,780\nDepreciation of furniture, fixtures and equipment (127) (158) (565) (650)\nProvisions for impairment 8,950 1,235 40,186 26,269\nGain on sales of real estate (14,168) (5,825) (29,996) (24,643)\nFFO adjustments allocable to noncontrolling interests (150) (292) (477) (1,113)\nFFO available to common stockholders $ 280,396 $ 217,743 $ 1,039,591 $ 903,257\nFFO allocable to dilutive noncontrolling interests 372 473 1,403 867\nDiluted FFO $ 280,768 $ 218,216 $ 1,040,994 $ 904,124\nFFO per common share:\nBasic and Diluted $ 0.85 $ 0.73 $ 3.29 $ 3.12\nDistributions paid to common stockholders $ 222,476 $ 196,834 $ 852,134 $ 761,582\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 57,920 $ 20,909 $ 187,457 $ 141,675\nWeighted average number of common shares used for FFO:\nBasic 328,565,734 297,730,206 315,837,012 289,427,430\nDiluted 329,364,027 298,609,734 316,601,350 289,923,984\nQ4 2019 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThree Months Ended Year Ended\nDecember 31, December 31,\n2019 2018 2019 2018\nNet income available to common stockholders $ 129,297 $ 85,072 $ 436,482 $ 363,614\nCumulative adjustments to calculate FFO (1) 151,099 132,671 603,109 539,643\nFFO available to common stockholders 280,396 217,743 1,039,591 903,257\nExecutive severance charge — 18,651 — 18,651\nAmortization of share-based compensation 3,184 2,943 13,662 15,470\nAmortization of deferred financing costs 1,283 1,119 4,754 3,991\nAmortization of net mortgage premiums (354) (354) (1,415) (1,520)\nLoss (gain) on interest rate swaps 694 331 2,752 (2,733)\nStraight-line payments from cross-currency swaps 1,762 — 4,316 —\nLeasing costs and commissions (222) (1,076) (2,102) (3,907)\nRecurring capital expenditures (224) (555) (801) (1,084)\nStraight-line rent (8,940) (6,480) (28,674) (24,687)\nAmortization of above and below-market leases 6,109 4,427 19,336 16,852\nOther adjustments (1,702) 64 (1,404) 268\nAFFO available to common stockholders $ 281,986 $ 236,813 $ 1,050,015 $ 924,558\nAFFO allocable to dilutive noncontrolling interests 378 487 1,442 901\nDiluted AFFO $ 282,364 $ 237,300 $ 1,051,457 $ 925,459\nAFFO per common share:\nBasic $ 0.86 $ 0.80 $ 3.32 $ 3.19\nDiluted $ 0.86 $ 0.79 $ 3.32 $ 3.19\nDistributions paid to common stockholders $ 222,476 $ 196,834 $ 852,134 $ 761,582\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 59,510 $ 39,979 $ 197,881 $ 162,976\nWeighted average number of common shares used for AFFO:\nBasic 328,565,734 297,730,206 315,837,012 289,427,430\nDiluted 329,364,027 298,609,734 316,601,350 289,923,984\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ4 2019 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (Nareit’s) definition, as net income available to common\nstockholders, plus depreciation and amortization of real estate assets, plus impairments of depreciable real estate assets, and reduced by gains on property sales.\nPresentation of the information regarding FFO and AFFO (described on page 6) is intended to assist the reader in comparing the operating performance of different\nREITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with other REITs may not be meaningful. FFO and AFFO\nshould not be considered as alternatives to reviewing our cash flows from operating, investing, and financing activities. In addition, FFO and AFFO should not be"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution).\nThree Months Ended Year Ended\nDecember 31, December 31,"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and AFFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO\nper share computations."
+      }
+    ],
+    "filed_at": "2020-02-19",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on February 19, 2020"
+    },
+    "error": null
+  }
+}

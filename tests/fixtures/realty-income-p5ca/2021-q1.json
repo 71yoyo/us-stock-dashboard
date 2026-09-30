@@ -1,0 +1,78 @@
+{
+  "id": "2021-q1",
+  "inventory": {
+    "year": 2021,
+    "quarter": 1,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Announces-Operating-Results-for-Q1-2021-new.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/028a82d3-3ad9-493d-8404-4f6b4bad1b9e-new.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2021-q1",
+      "year": 2021,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+      "retrieved_at": "2026-09-30T11:44:56.732Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+      "source_hash": "23db5c2ff9f79fb148ae283140f845a42972d14f2ad51bf4cf413b8c647707ef",
+      "bytes": 8622298,
+      "error": null
+    },
+    "page_count": 33,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ1 2021\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 7,
+        "text": "Funds From Operations(1)\n(dollars in thousands, except per share amounts)\nThree Months Ended March 31,\n2021 2020\nNet income available to common stockholders $ 95,940 $ 146,827\nDepreciation and amortization 177,985 164,585\nDepreciation of furniture, fixtures and equipment (371) (126)\nProvisions for impairment 2,720 4,478\nGain on sales of real estate (8,401) (38,506)\nFFO adjustments allocable to noncontrolling interests (166) (154)\nFFO available to common stockholders $ 267,707 $ 277,104\nFFO allocable to dilutive noncontrolling interests — 369\nDiluted FFO $ 267,707 $ 277,473\nFFO per common share:\nBasic and diluted $ 0.72 $ 0.82\nDistributions paid to common stockholders $ 260,697 $ 233,824\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 7,010 $ 43,280\nWeighted average number of common shares used for FFO:\nBasic 371,522,607 336,624,567\nDiluted 371,601,901 337,439,634\n(1) FFO is a non-GAAP financial measure. Please see Glossary for our definition and an explanation of how we utilize this metric.\nQ1 2021 Supplemental Operating & Financial Data 7"
+      },
+      {
+        "page_number": 8,
+        "text": "Adjusted Funds From Operations(1)\n(dollars in thousands, except per share amounts)\nThree Months Ended March 31,\n2021 2020\nNet income available to common stockholders (2) $ 95,940 $ 146,827\nCumulative adjustments to calculate FFO (3) 171,767 130,277\nFFO available to common stockholders 267,707 277,104\nExecutive severance charge — 3,463\nLoss on extinguishment of debt 46,473 9,819\nAmortization of share-based compensation 3,697 3,742\nAmortization of deferred financing costs 1,665 1,360\nAmortization of net mortgage premiums (280) (354)\nLoss on interest rate swaps 722 686\nStraight-line payments from cross-currency swaps 618 723\nLeasing costs and commissions (706) (138)\nRecurring capital expenditures (23) —\nStraight-line rent (10,463) (7,782)\nAmortization of above and below-market leases, net 9,300 6,430\nOther adjustments (488) 2,170\nAFFO available to common stockholders $ 318,222 $ 297,223\nAFFO allocable to dilutive noncontrolling interests 351 376\nDiluted AFFO $ 318,573 $ 297,599\nAFFO per common share:\nBasic and diluted $ 0.86 $ 0.88\nDistributions paid to common stockholders $ 260,697 $ 233,824\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 57,525 $ 63,399\nWeighted average number of common shares used for AFFO:\nBasic 371,522,607 336,624,567\nDiluted 372,065,020 337,439,634\n(1) AFFO is a non-GAAP financial measure. Please see Glossary for our definition and an explanation of how we utilize this metric.\n(2) As of March 31, 2021, there was $22,258 of uncollected rent deferred as a result of lease concessions we granted in response to the COVID-19 pandemic and recognized under the\npractical expedient provided by the Financial Accounting Standards Board (FASB) and $69,822 of uncollected rent for which we have not granted a lease concession. As the COVID-19\npandemic did not affect our rent collections until April 2020, there was no related impact for the three months ended March 31, 2020.\n(3) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ1 2021 Supplemental Operating & Financial Data 8"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 32,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich we believe are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar\nmeasurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We\nbelieve AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance of real estate\ncompanies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional"
+      },
+      {
+        "page_number": 32,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich we believe are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar\nmeasurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We\nbelieve AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance of real estate\ncompanies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional"
+      },
+      {
+        "page_number": 32,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit’s definition, is net income available to common\nstockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced\nby gains on property sales. Presentation of the information regarding FFO and AFFO (described on pages 7 and 8) is intended to assist the reader in\ncomparing the operating performance of different REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so\ncomparisons with other REITs may not be meaningful. FFO and AFFO should not be considered as alternatives to reviewing our cash flows from"
+      }
+    ],
+    "filed_at": "2021-05-03",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on May 3, 2021"
+    },
+    "error": null
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "method": "수동 PDF 시각 확인: 공시 common total (USD thousand) 및 diluted/share (USD/share). parser 출력으로 생성하지 않음.",
+  "review_date": "2026-09-30",
+  "samples": [
+    { "id": "2016-q1", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [170629,0.68], "AFFO": [175918,0.70] }
+    ] },
+    { "id": "2017-q3", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [211192,0.77], "AFFO": [213601,0.77] },
+      { "scope": "ytd", "FFO": [601677,2.22], "AFFO": [623327,2.30] }
+    ] },
+    { "id": "2018-q1", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [224882,0.79], "AFFO": [224560,0.79] }
+    ] },
+    { "id": "2018-q2", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [226082,0.79], "AFFO": [226988,0.80] },
+      { "scope": "ytd", "FFO": [450964,1.58], "AFFO": [451549,1.59] }
+    ] },
+    { "id": "2019-q4", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [280396,0.85], "AFFO": [281986,0.86] },
+      { "scope": "annual", "FFO": [1039591,3.29], "AFFO": [1050015,3.32] }
+    ] },
+    { "id": "2021-q4", "pages": [7,8], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [326163,0.63], "AFFO": [486047,0.94], "NORMALIZED_FFO": [463495,0.89] },
+      { "scope": "annual", "FFO": [1240580,2.99], "AFFO": [1488753,3.59], "NORMALIZED_FFO": [1407993,3.39] }
+    ] },
+    { "id": "2023-q2", "pages": [5,6], "mode": "canonical", "periods": [
+      { "scope": "quarterly", "FFO": [687985,1.02], "AFFO": [671737,1.00], "NORMALIZED_FFO": [688326,1.02] },
+      { "scope": "ytd", "FFO": [1372276,2.05], "AFFO": [1322466,1.98], "NORMALIZED_FFO": [1373924,2.06] }
+    ] },
+    { "id": "2023-q4", "pages": [5,6], "mode": "structure_only_definition_review", "periods": [
+      { "scope": "quarterly", "FFO": [713716,0.98], "AFFO": [731034,1.01], "NORMALIZED_FFO": [723648,1.00] },
+      { "scope": "annual", "FFO": [2822138,4.07], "AFFO": [2774870,4.00], "NORMALIZED_FFO": [2836602,4.09] }
+    ] }
+  ]
+}

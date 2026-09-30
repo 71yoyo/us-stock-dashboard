@@ -1,0 +1,74 @@
+{
+  "id": "2016-q1",
+  "inventory": {
+    "year": 2016,
+    "quarter": 1,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/4-26-16-Q1-2016-EarningsPR.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q12016-10-Q.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q1-16-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2016-q1",
+      "year": 2016,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:44:40.561Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+      "source_hash": "55469622981fa3b76d11b0c0b2b64e7806c34a8b8ee223d82583f5f7c1e2798d",
+      "bytes": 1773827,
+      "error": null
+    },
+    "page_count": 26,
+    "identity_text": "Realty Income, The Monthly Dividend Company , is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "an S&P 500\nSUPPLEMENTAL OPERATING\ncompany\n& FINANCIAL DATA S&P High Yield\nDividend Aristocrats®\nQ1 2016 index member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FUNDS FROM OPERATIONS (FFO)\n(dollars in thousands, except per share amounts)\nThree months ended\nMarch 31,\n2016 2015\nNet income available to common stockholders $ 63,473 $ 60,494\nDepreciation and amortization 107,933 98,037\nDepreciation of furniture, fixtures and equipment (193) (185)\nProvisions for impairment on investment properties 1,923 2,087\nGain on sale of investment properties (2,289) (7,218)\nFFO adjustments allocable to noncontrolling interests (218) (315)\nFFO available to common stockholders $ 170,629 $ 152,900\nFFO per common share, basic and diluted $ 0.68 $ 0.68\nDistributions paid to common stockholders $ 147,345 $ 126,682\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 23,284 $ 26,218\nWeighted average number of common shares used for computation per share:\nBasic 250,173,815 225,346,407\nDiluted 250,381,001 225,508,832\nQ1 2016 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "ADJUSTED FUNDS FROM OPERATIONS (AFFO)\n(dollars in thousands , except per share amounts)\nThree months ended\nMarch 31,\n2016 2015\nNet income available to common stockholders $ 63,473 $ 60,494\nCumulative adjustments to calculate FFO (1) 107,156 92,406\nFFO available to common stockholders 170,629 152,900\nAmortization of share-based compensation 2,605 2,552\nAmortization of deferred financing costs 1,299 1,293\nAmortization of net mortgage premiums (1,041) (1,884)\nGain on early extinguishment of mortgage debt (60) (78)\nLoss on interest rate swaps 5,778 1,058\nLeasing costs and commissions (191) (313)\nRecurring capital expenditures (72) (1,032)\nStraight-line rent (5,151) (4,191)\nAmortization of above and below-market leases 2,052 1,742\nOther adjustments 70 74\nTotal AFFO available to common stockholders $ 175,918 $ 152,121\nAFFO per common share:\nBasic $ 0.70 $ 0.68\nDiluted $ 0.70 $ 0.67\nDistributions paid to common stockholders $ 147,345 $ 126,682\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 28,573 $ 25,439\nWeighted average number of common shares used for computation per share:\nBasic 250,173,815 225,346,407\nDiluted 250,381,001 225,508,832\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ1 2016 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (NAREIT) definition, as net income available to\ncommon stockholders, plus depreciation and amortization of real estate assets, plus impairments of real estate assets, and reduced by gains on property sales.\nThree months ended\nMarch 31,\n2016 2015"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution).\nThree months ended\nMarch 31,"
+      }
+    ],
+    "filed_at": "2016-04-26",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on April 26, 2016"
+    },
+    "error": null
+  }
+}

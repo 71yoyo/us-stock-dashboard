@@ -1,0 +1,82 @@
+{
+  "id": "2023-q1",
+  "inventory": {
+    "year": 2023,
+    "quarter": 1,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/05-03-23-realty-income-announces-operating-results-for-the-three-months-ended-march-31-2023.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/o-3-31-23-10q-document.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "realty-income-q1-2023-supplemental-information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2023-q1",
+      "year": 2023,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+      "retrieved_at": "2026-09-30T11:45:04.829Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+      "source_hash": "4be46a4e492faf44d790ea0e863c551eab3ae7d0ef50b5e5c2ec13216b87e884",
+      "bytes": 11980834,
+      "error": null
+    },
+    "page_count": 31,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ1 2023\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended March 31,\n2023 2022\nNet income available to common stockholders $ 225,016 $ 199,369\nDepreciation and amortization 451,477 403,762\nDepreciation of furniture, fixtures and equipment (542) (478)\nProvisions for impairment 13,178 7,038\nGain on sales of real estate (4,279) (10,156)\nProportionate share of adjustments for unconsolidated entities — 2,235\nFFO adjustments allocable to noncontrolling interests (559) (354)\nFFO available to common stockholders $ 684,291 $ 601,416\nFFO allocable to dilutive noncontrolling interests 1,420 808\nDiluted FFO $ 685,711 $ 602,224\nFFO available to common stockholders $ 684,291 $ 601,416\nMerger and integration-related costs 1,307 6,519\nNormalized FFO available to common stockholders $ 685,598 $ 607,935\nNormalized FFO allocable to dilutive noncontrolling interests 1,420 808\nDiluted Normalized FFO $ 687,018 $ 608,743\nFFO per common share\nBasic $ 1.04 $ 1.01\nDiluted $ 1.03 $ 1.01\nNormalized FFO per common share, basic and diluted $ 1.04 $ 1.02\nDistributions paid to common stockholders $ 497,245 $ 438,280\nFFO available to common stockholders in excess of distributions paid to common stockholders $ 187,046 $ 163,136\nNormalized FFO available to common stockholders in excess of distributions paid to common\nstockholders $ 188,353 $ 169,655\nWeighted average number of common shares used for FFO and normalized FFO\nBasic 660,462,399 593,827,299\nDiluted 663,034,011 595,102,548\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ1 2023 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended March 31,\n2023 2022\nNet income available to common stockholders $ 225,016 $ 199,369\nCumulative adjustments to calculate Normalized FFO (2) 460,582 408,566\nNormalized FFO available to common stockholders 685,598 607,935\nAmortization of share-based compensation 6,300 5,002\nAmortization of net debt premiums and deferred financing costs (13,688) (17,096)\nNon-cash (gain) loss on interest rate swaps (1,801) 722\nStraight-line impact of cash settlement on interest rate swaps (3) 1,797 —\nLeasing costs and commissions (444) (2,373)\nRecurring capital expenditures (53) (13)\nStraight-line rent and expenses, net (36,485) (27,822)\nAmortization of above and below-market leases, net 17,358 13,642\nProportionate share of adjustments for unconsolidated entities — (2,064)\nOther adjustments (4) (7,854) 2,165\nAFFO available to common stockholders $ 650,728 $ 580,098\nAFFO allocable to dilutive noncontrolling interests 1,431 820\nDiluted AFFO $ 652,159 $ 580,918\nAFFO per common share\nBasic $ 0.99 $ 0.98\nDiluted $ 0.98 $ 0.98\nDistributions paid to common stockholders $ 497,245 $ 438,280\nAFFO available to common stockholders in excess of distributions paid to common stockholders $ 153,483 $ 141,818\nWeighted average number of common shares used for AFFO:\nBasic 660,462,399 593,827,299\nDiluted 663,034,011 595,102,548\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented on page 5 under \"FFO and Normalized FFO.\"\n(3) Represents the straight-line amortization of $72.0 million gain realized upon the termination of $500.0 million in notional interest rate swaps, over the term of the $750.0 million of\n5.625% senior unsecured notes due October 2032.\n(4) Includes foreign currency gain and loss as a result of intercompany debt and remeasurement transactions, mark-to-market adjustments on investments and derivatives that do not\nqualify for hedge accounting, obligations related to financing lease liabilities, and adjustments allocable to noncontrolling interests.\nQ1 2023 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides\nuseful information to investors because it is a widely accepted industry measure of the operating performance of real estate companies that is used by\nindustry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional measure to compare the operating"
+      },
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides\nuseful information to investors because it is a widely accepted industry measure of the operating performance of real estate companies that is used by\nindustry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional measure to compare the operating"
+      },
+      {
+        "page_number": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders,\nplus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on\nproperty sales. Presentation of the information regarding FFO and AFFO (described on pages 5 and 6) is intended to assist the reader in comparing the\noperating performance of different REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with\nother REITs may not be meaningful. FFO and AFFO should not be considered alternatives to reviewing our cash flows from operating, investing, and"
+      },
+      {
+        "page_number": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger and integration-related costs associated with our merger with VEREIT.\nSame Store Pool, for purposes of determining the properties used to calculate our same store rental revenue, includes all properties that we owned for\nthe entire year-to-date period, for both the current and prior year except for properties during the current or prior year that were:\n(i) vacant at any time,"
+      }
+    ],
+    "filed_at": "2023-05-03",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on May 3, 2023"
+    },
+    "error": null
+  }
+}

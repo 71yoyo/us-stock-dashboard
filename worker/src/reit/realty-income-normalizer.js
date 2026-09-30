@@ -23,6 +23,11 @@ export function historicalDefinitions(excerpt, tables) {
   const versions = { FFO: depreciable ? 'FFO-DEPRECIABLE-V1' : 'FFO-REAL-ESTATE-V1',
     AFFO: depreciable ? 'AFFO-FFO-DEPRECIABLE-V1' : 'AFFO-FFO-REAL-ESTATE-V1' };
   if (tables.normalized) {
+    if (tables.structural_strategy) {
+      // 같은 비용 범위로 이미 승인한 표현만 재사용한다. 새로운 issuer/조정 범위는 P5C-B로 남긴다.
+      const approvedMeaning = /FFO excluding merger and integration-related costs(?: (?:related to our Mergers with VEREIT|associated with our merger with VEREIT))?\./i.test(text);
+      evidence(approvedMeaning, 'DEFINITION_REVIEW', '구조는 읽을 수 있으나 Normalized FFO 비용 제외 범위의 정의 검토가 필요합니다.');
+    }
     const vereit = /FFO excluding merger-related costs related to our proposed merger with VEREIT/.test(text);
     const integration = /FFO excluding merger and integration-related costs/.test(text);
     evidence(vereit !== integration && /Normalized FFO available to common stockholders/.test(tables.affo.text),
@@ -37,7 +42,7 @@ export function historicalDefinitions(excerpt, tables) {
 }
 
 // PDF adapter는 중간값만 만든다. 단위/키/상태/출처를 DB 계약으로 만드는 경로는 하나다.
-export function normalizeHistoricalMetrics({ observations, definitions, source, format, inputHash, availability, definitionEvidence }) {
+export function normalizeHistoricalMetrics({ observations, definitions, source, format, inputHash, availability, definitionEvidence, structuralFeatures }) {
   const keys = new Set();
   const records = observations.map(observation => {
     const definition = definitions.find(row => row.metric_code === observation.metric_code);
@@ -52,9 +57,11 @@ export function normalizeHistoricalMetrics({ observations, definitions, source, 
       canonical_unit: perShare ? 'USD/share' : 'USD', validation_status: 'parsed', validation: null,
       sources: [{ ...source, input_hash: inputHash, format_id: format, extraction_method: 'pdf_text_no_ocr',
         table_title: page.text.split('\n')[0], section: row_label, page_number: page.page_number,
-        weighted_share_count_raw_unit: /\(dollars in thousands, except per share amounts\)|except per share and share count data/.test(page.text) ? 'shares' : 'shares thousand',
+        weighted_share_count_raw_unit: /\(dollars in thousands\s*, except per share amounts\)|except per share and share count data/.test(page.text) ? 'shares' : 'shares thousand',
         weighted_share_count_usage: '출처만 보존. 총액/주당값 계산 또는 역산에 사용하지 않음.',
-        share_disclosure, availability, definition_evidence: definitionEvidence }] };
+        share_disclosure, availability, definition_evidence: definitionEvidence,
+        ...(structuralFeatures ? { structural_features:structuralFeatures,
+          ...(perShare && ['basic_and_diluted_joint', 'joint_basic_diluted'].includes(share_disclosure) ? { source_basis:'joint_basic_diluted' } : {}) } : {}) }] };
     assertMetricRecord(record);
     const key = metricRecordKey(record);
     evidence(!keys.has(key), 'DUPLICATE_LABEL', '동일 지표/기간/basis가 중복됐습니다.');

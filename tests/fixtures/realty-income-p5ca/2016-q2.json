@@ -1,0 +1,78 @@
+{
+  "id": "2016-q2",
+  "inventory": {
+    "year": 2016,
+    "quarter": 2,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/7-27-2016-Realty-Income-Q2-2016-Earnings-PR.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Corporation-10-Q-2Q2016.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q2-16-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2016-q2",
+      "year": 2016,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:44:41.466Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+      "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+      "bytes": 1658561,
+      "error": null
+    },
+    "page_count": 27,
+    "identity_text": "Realty Income, The Monthly Dividend Company , is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "an S&P 500\nSUPPLEMENTAL OPERATING\ncompany\n& FINANCIAL DATA S&P High Yield\nDividend Aristocrats®\nQ2 2016 index member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "Funds From Operations (FFO)\n(dollars in thousands, except per share amounts)\nThree months ended Six months ended\nJune 30, June 30,\n2016 2015 2016 2015\nNet income available to common stockholders $ 69,045 $ 59,317 $ 132,518 $ 119,810\nDepreciation and amortization 110,342 101,101 218,275 199,138\nDepreciation of furniture, fixtures and equipment (195) (240) (388) (425)\nProvisions for impairment on investment properties 6,269 3,230 8,192 5,317\nGain on sale of investment properties (8,658) (3,675) (10,948) (10,893)\nFFO adjustments allocable to noncontrolling interests (155) (263) (373) (577)\nFFO available to common stockholders $ 176,648 $ 159,470 $ 347,276 $ 312,370\nFFO per common share, basic and diluted $ 0.70 $ 0.69 $ 1.38 $ 1.36\nDistributions paid to common stockholders $ 151,236 $ 131,595 $ 298,581 $ 258,277\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 25,412 $ 27,875 $ 48,695 $ 54,093\nWeighted average number of common shares used for FFO per share computations:\nBasic 253,375,546 232,403,586 251,792,989 228,932,782\nDiluted 254,254,243 232,886,185 252,073,685 229,061,762\nQ2 2016 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThree months ended Six months ended\nJune 30, June 30,\n2016 2015 2016 2015\nNet income available to common stockholders $ 69,045 $ 59,317 $ 132,518 $ 119,810\nCumulative adjustments to calculate FFO (1) 107,603 100,153 214,758 192,560\nFFO available to common stockholders 176,648 159,470 347,276 312,370\nAmortization of share-based compensation 3,947 2,811 6,552 5,362\nAmortization of deferred financing costs 1,299 1,281 2,598 2,575\nAmortization of net mortgage premiums (754) (1,862) (1,855) (3,824)\nLoss on interest rate swaps 2,109 899 7,886 1,958\nLeasing costs and commissions (86) (149) (277) (461)\nRecurring capital expenditures (174) (977) (246) (2,009)\nStraight-line rent (4,323) (4,444) (9,474) (8,635)\nAmortization of above and below-market leases 2,143 1,954 4,195 3,696\nOther adjustments 67 77 138 152\nAFFO available to common stockholders $ 180,876 $ 159,060 $ 356,793 $ 311,184\nAFFO per common share, basic and diluted $ 0.71 $ 0.68 $ 1.42 $ 1.36\nDistributions paid to common stockholders $ 151,236 $ 131,595 $ 298,581 $ 258,277\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 29,640 $ 27,465 $ 58,212 $ 52,907\nWeighted average number of common shares used for AFFO per share computations:\nBasic 253,375,546 232,403,586 251,792,989 228,932,782\nDiluted 253,937,221 232,886,185 252,378,957 229,061,762\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ2 2016 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (NAREIT) definition, as net income available to\ncommon stockholders, plus depreciation and amortization of real estate assets, plus impairments of real estate assets, and reduced by gains on property sales.\nPresentation of the information regarding FFO and AFFO (described on page 6) is intended to assist the reader in comparing the operating performance of different\nREITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with other REITs may not be meaningful. FFO and AFFO\nshould not be considered as alternatives to reviewing our cash flows from operating, investing, and financing activities. In addition, FFO and AFFO should not be"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution).\nThree months ended Six months ended\nJune 30, June 30,"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and AFFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted\nAFFO per share computations."
+      }
+    ],
+    "filed_at": "2016-07-27",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filedon July 27,2016"
+    },
+    "error": null
+  }
+}

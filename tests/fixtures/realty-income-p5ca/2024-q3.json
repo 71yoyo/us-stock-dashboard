@@ -1,0 +1,65 @@
+{
+  "id": "2024-q3",
+  "inventory": {
+    "year": 2024,
+    "quarter": 3,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/11-04-24-realty-income-announces-operating-results-for-the-three-and-nine-months-ended-september-30-2024.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/09-30-24-10q-document-final.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "realty-income-q3-2024-supplemental-information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2024-q3",
+      "year": 2024,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "retrieved_at": "2026-09-30T11:45:12.738Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "bytes": 12207019,
+      "error": null
+    },
+    "page_count": 31,
+    "identity_text": "Realty Income (NYSE: O), an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ3 2024\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized\nFFO. Also presented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and\nThree months ended Nine months ended\n2024 2023 2024 2023\nFFO available to common stockholders $ 854,926 $ 736,146 $ 2,569,742 $ 2,108,422\nDiluted FFO $ 856,393 $ 737,521 $ 2,574,144 $ 2,112,588\nFFO available to common stockholders $ 854,926 $ 736,146 $ 2,569,742 $ 2,108,422\nNormalized FFO available to common stockholders $ 863,536 $ 739,030 $ 2,675,210 $ 2,112,954\nDiluted Normalized FFO $ 865,003 $ 740,405 $ 2,679,612 $ 2,117,120\nFFO per common share, basic and diluted: $ 0.98 $ 1.04 $ 2.99 $ 3.09\nNormalized FFO per common share:\nBasic $ 0.99 $ 1.04 $ 3.12 $ 3.10\nDiluted $ 0.99 $ 1.04 $ 3.11 $ 3.10\nFFO available to common stockholders in excess of distributions paid to common stockholders $ 167,782 $ 192,803 $ 569,884 $ 552,743\nNormalized FFO available to common stockholders in excess of distributions paid to common\nBasic 870,665 709,165 858,679 681,419\nDiluted 873,974 711,338 861,300 683,925\n(2) During the three and nine months ended September 30, 2024, we incurred $8.6 million and $105.5 million, respectively, of merger, transaction, and other costs consisting primarily of\nQ3 2024 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is\ninformation regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Certain prior\nThree months ended Nine months ended\n2024 2023 2024 2023\nNormalized FFO available to common stockholders 863,536 739,030 2,675,210 2,112,954\nAFFO available to common stockholders $ 915,572 $ 721,370 $ 2,699,517 $ 2,043,836\nDiluted AFFO $ 917,039 $ 722,727 $ 2,703,930 $ 2,048,006\nAFFO per common share:\nBasic $ 1.05 $ 1.02 $ 3.14 $ 3.00\nDiluted $ 1.05 $ 1.02 $ 3.14 $ 2.99\nAFFO available to common stockholders in excess of distributions paid to\nBasic 870,665 709,165 858,679 681,419\nDiluted 873,974 711,338 861,300 683,925\nQ3 2024 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [],
+    "filed_at": "2024-11-04",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on November 4, 2024"
+    },
+    "error": null
+  }
+}

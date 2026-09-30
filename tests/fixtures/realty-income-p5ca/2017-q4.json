@@ -1,0 +1,78 @@
+{
+  "id": "2017-q4",
+  "inventory": {
+    "year": 2017,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Earnings-Press-Release.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/O-Realty-Income-Corporation-10-K-2018-02-22.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q4-2017-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2017-q4",
+      "year": 2017,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:44:45.245Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+      "source_hash": "9271642af031129aaaad1aca0687a3826f3740319024e0877af61a5c13c864ea",
+      "bytes": 1385426,
+      "error": null
+    },
+    "page_count": 27,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O\"",
+    "document_title": "an S&P 500\nSUPPLEMENTAL OPERATING\ncompany\n& FINANCIAL DATA S&P High Yield\nDividend Aristocrats®\nQ4 2017 index member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "Funds From Operations (FFO)\n(dollars in thousands, except per share amounts)\nThree months ended Year ended\nDecember 31, December 31,\n2017 2016 2017 2016\nNet income available to common stockholders $ 60,852 $ 85,671 $ 301,514 $ 288,491\nDepreciation and amortization 127,033 117,752 498,788 449,943\nDepreciation of furniture, fixtures and equipment (118) (172) (557) (747)\nProvisions for impairment 6,679 3,709 14,751 20,664\nGain on sales of real estate (23,208) (6,696) (40,898) (21,979)\nFFO adjustments allocable to noncontrolling interests (250) (431) (933) (977)\nFFO available to common stockholders $ 170,988 $ 199,833 $ 772,665 $ 735,395\nFFO allocable to dilutive noncontrolling interests - 266 877 1,435\nDiluted FFO $ 170,988 $ 200,099 $ 773,542 $ 736,830\nFFO per common share:\nBasic $ 0.61 $ 0.77 $ 2.83 $ 2.88\nDiluted $ 0.61 $ 0.77 $ 2.82 $ 2.88\nDistributions paid to common stockholders $ 179,306 $ 156,741 $ 689,294 $ 610,516\nFFO available to common stockholders (less than) in excess of\ndistributions paid to common stockholders $ (8,318) $ 43,092 $ 83,371 $ 124,879\nWeighted average number of common shares used for FFO per share computations:\nBasic 281,923,090 258,373,179 273,465,680 255,066,500\nDiluted 282,023,488 259,010,432 273,936,752 255,822,679\nQ4 2017 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThree months ended Year ended\nDecember 31, December 31,\n2017 2016 2017 2016\nNet income available to common stockholders $ 60,852 $ 85,671 $ 301,514 $ 288,491\nCumulative adjustments to calculate FFO (1) 110,136 114,162 471,151 446,904\nFFO available to common stockholders 170,988 199,833 772,665 735,395\nExcess of redemption value over carrying value\nof Class F preferred share redemption - - 13,373 -\nAmortization of share-based compensation 3,305 2,803 13,946 12,007\nAmortization of deferred financing costs 1,193 1,492 5,326 5,352\nAmortization of net mortgage discounts (premiums) 1,114 (745) (466) (3,414)\nLoss on extinguishment of debt 42,426 - 42,426 -\nGain on interest rate swaps (2,022) (7,474) (3,250) (1,639)\nLeasing costs and commissions (326) (233) (1,575) (797)\nRecurring capital expenditures (376) (193) (912) (679)\nStraight-line rent (4,859) (5,239) (17,191) (19,451)\nAmortization of above and below-market leases 3,800 ) 2,627 14,013 9,297\nOther adjustments 69 93 283 303\nTotal AFFO available to common stockholders $ 215,312 $ 192,964 $ 838,638 $ 736,374\nAFFO allocable to dilutive noncontrolling interests 293 262 1,178 1,455\nDiluted AFFO $ 215,605 $ 193,226 $ 839,816 $ 737,829\nAFFO per common share\nBasic $ 0.76 $ 0.75 $ 3.07 $ 2.89\nDiluted $ 0.76 $ 0.75 $ 3.06 $ 2.88\nDistributions paid to common stockholders $ 179,306 $ 156,741 $ 689,294 $ 610,516\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 36,006 $ 36,223 $ 149,344 $ 125,858\nWeighted average number of common shares used for AFFO per share computations:\nBasic 281,923,090 258,373,179 273,465,680 255,066,500\nDiluted 282,428,692 259,010,432 274,024,934 255,822,679\n(1) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ4 2017 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 5,
+        "text": "We define FFO, a non-GAAP measure, consistent with the National Association of Real Estate Investment Trusts’ (NAREIT’s) definition, as net income available to\ncommon stockholders, plus depreciation and amortization of real estate assets, plus impairments of depreciable real estate assets, and reduced by gains on property\nsales. Presentation of the information regarding FFO and AFFO (described on page 6) is intended to assist the reader in comparing the operating performance of\ndifferent REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with other REITs may not be meaningful. FFO\nand AFFO should not be considered as alternatives to reviewing our cash flows from operating, investing, and financing activities. In addition, FFO and AFFO should"
+      },
+      {
+        "page_number": 6,
+        "text": "We define AFFO as FFO adjusted for unique revenue and expense items, which the company believes are not as pertinent to the measurement of the company’s\nongoing operating performance. Most companies in our industry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for\nDistribution) or \"FAD\" (for Funds Available for Distribution).\nThree months ended Year ended\nDecember 31, December 31,"
+      },
+      {
+        "page_number": 6,
+        "text": "Adjusted Funds From Operations (AFFO)\n(dollars in thousands, except per share amounts)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and AFFO. Also\npresented is information regarding distributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted\nAFFO per share computations."
+      }
+    ],
+    "filed_at": "2018-02-21",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filedon February 21, 2018"
+    },
+    "error": null
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": "2020-q4",
+  "inventory": {
+    "year": 2020,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Exhibit-99.1-Q4-2020-2.22.21.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/ce9fe170-d010-4561-8d21-3a5a36373526.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2020-q4",
+      "year": 2020,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+      "retrieved_at": "2026-09-30T11:44:55.575Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+      "source_hash": "7c4c9738f401d11cfff227012cb89ca26afb1e8c23c619f9e408485ce685c127",
+      "bytes": 8104492,
+      "error": null
+    },
+    "page_count": 35,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ4 2020\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 9,
+        "text": "Funds From Operations(1)\n(dollars in thousands, except per share amounts)\nThree Months Ended December 31, Year Ended December 31,\n2020 2019 2020 2019\nNet income available to common stockholders $ 117,931 $ 129,297 $ 395,486 $ 436,482\nDepreciation and amortization 175,041 156,594 677,038 593,961\nDepreciation of furniture, fixtures and equipment (153) (127) (588) (565)\nProvisions for impairment 23,790 8,950 147,232 40,186\nGain on sales of real estate (22,667) (14,168) (76,232) (29,996)\nFFO adjustments allocable to noncontrolling interests (242) (150) (817) (477)\nFFO available to common stockholders $ 293,700 $ 280,396 $ 1,142,119 $ 1,039,591\nFFO allocable to dilutive noncontrolling interests 355 372 1,418 1,403\nDiluted FFO $ 294,055 $ 280,768 $ 1,143,537 $ 1,040,994\nFFO per common share:\nBasic and diluted $ 0.83 $ 0.85 $ 3.31 $ 3.29\nDistributions paid to common stockholders $ 247,632 $ 222,476 $ 964,167 $ 852,134\nFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 46,068 $ 57,920 $ 177,952 $ 187,457\nWeighted average number of common shares used for FFO:\nBasic 354,437,466 328,565,734 345,280,126 315,837,012\nDiluted 355,050,977 329,364,027 345,878,377 316,601,350\n(1) FFO is a non-GAAP financial measure. Please see Glossary for our definition and an explanation of how we utilize this metric.\nQ4 2020 Supplemental Operating & Financial Data 9"
+      },
+      {
+        "page_number": 10,
+        "text": "Adjusted Funds From Operations(1)\n(dollars in thousands, except per share amounts)\nThree Months Ended December 31, Year Ended December 31,\n2020 2019 2020 2019\nNet income available to common stockholders (2) $ 117,931 $ 129,297 $ 395,486 $ 436,482\nCumulative adjustments to calculate FFO (3) 175,769 151,099 746,633 603,109\nFFO available to common stockholders 293,700 280,396 1,142,119 1,039,591\nExecutive severance charge — — 3,463 —\nLoss on extinguishment of debt — — 9,819 —\nAmortization of share-based compensation 3,083 3,184 14,727 13,662\nAmortization of deferred financing costs 1,176 1,283 4,968 4,754\nAmortization of net mortgage premiums (238) (354) (1,258) (1,415)\nLoss on interest rate swaps 1,238 694 4,353 2,752\nStraight-line payments from cross-currency swaps 613 1,762 2,573 4,316\nLeasing costs and commissions (846) (222) (1,859) (2,102)\nRecurring capital expenditures (72) (224) (198) (801)\nStraight-line rent (6,033) (8,940) (26,502) (28,674)\nAmortization of above and below-market leases, net 8,015 6,109 22,940 19,336\nOther adjustments (2,982) (1,702) (2,519) (1,404)\nAFFO available to common stockholders $ 297,654 $ 281,986 $ 1,172,626 $ 1,050,015\nAFFO allocable to dilutive noncontrolling interests 359 378 1,438 1,442\nDiluted AFFO $ 298,013 $ 282,364 $ 1,174,064 $ 1,051,457\nAFFO per common share:\nBasic $ 0.84 $ 0.86 $ 3.40 $ 3.32\nDiluted $ 0.84 $ 0.86 $ 3.39 $ 3.32\nDistributions paid to common stockholders $ 247,632 $ 222,476 $ 964,167 $ 852,134\nAFFO available to common stockholders\nin excess of distributions paid to common stockholders $ 50,022 $ 59,510 $ 208,459 $ 197,881\nWeighted average number of common shares used for AFFO:\nBasic 354,437,466 328,565,734 345,280,126 315,837,012\nDiluted 355,050,977 329,364,027 345,878,377 316,601,350\n(1) AFFO is a non-GAAP financial measure. Please see Glossary for our definition and an explanation of how we utilize this metric.\n(2) As of December 31, 2020, there was $24.5 million of uncollected rent deferred as a result of lease concessions we granted in response to the COVID-19 pandemic and recognized under the\npractical expedient provided by the Financial Accounting Standards Board (FASB) and $51.9 million of uncollected rent for which we have not granted a lease concession. Deferrals\naccounted for as modifications totaling $12,000 and $236,000 for the three months and year ended December 31, 2020, respectively, have not been added back to AFFO.\n(3) See reconciling items for FFO presented under \"Funds from Operations (FFO).”\nQ4 2020 Supplemental Operating & Financial Data 10"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 34,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich the company believes are not as pertinent to the measurement of the company’s ongoing operating performance. Most companies in our\nindustry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for\nDistribution). We believe AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance\nof real estate companies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an"
+      },
+      {
+        "page_number": 34,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich the company believes are not as pertinent to the measurement of the company’s ongoing operating performance. Most companies in our\nindustry use a similar measurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for\nDistribution). We believe AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance\nof real estate companies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an"
+      },
+      {
+        "page_number": 34,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the National Association of Real Estate Investment Trusts’ (Nareit’s)\ndefinition, is net income available to common stockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of\ndepreciable real estate assets, and reduced by gains on property sales. Presentation of the information regarding FFO and AFFO (described on pages\n9 and 10) is intended to assist the reader in comparing the operating performance of different REITs, although it should be noted that not all REITs\ncalculate FFO and AFFO in the same way, so comparisons with other REITs may not be meaningful. FFO and AFFO should not be considered as"
+      }
+    ],
+    "filed_at": "2021-02-22",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on February 22, 2021"
+    },
+    "error": null
+  }
+}

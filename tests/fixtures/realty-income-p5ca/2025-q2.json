@@ -1,0 +1,65 @@
+{
+  "id": "2025-q2",
+  "inventory": {
+    "year": 2025,
+    "quarter": 2,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/08-06-25-realty-income-announces-operating-results-for-the-three-and-six-months-ended-june-30-2025.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-10-q-06-30-25.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2025-q2",
+      "year": 2025,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "retrieved_at": "2026-09-30T11:45:16.958Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "bytes": 6751910,
+      "error": null
+    },
+    "page_count": 68,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ2 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "candidate_tables": [
+      {
+        "page_number": 33,
+        "text": "(1)\nFFO and Normalized FFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also\nThree months ended June 30, Six months ended June 30,\n2025 2024 2025 2024\nFFO available to common stockholders 955,748 929,133 1,893,403 1,714,816\nDiluted FFO 958,165 930,728 1,898,245 1,717,751\nFFO available to common stockholders 955,748 929,133 1,893,403 1,714,816\nNormalized FFO available to common stockholders 956,079 931,887 1,894,013 1,811,674\nDiluted Normalized FFO 958,496 933,482 1,898,855 1,814,609\nFFO per common share, basic and diluted 1.06 1.07 2.11 2.01\nNormalized FFO per common share, basic and diluted 1.06 1.07 2.11 2.12\nBasic 902,966 870,319 897,338 852,621\nDiluted 906,398 872,520 900,797 854,806\nQ2 2025 Supplemental Operating & Financial Data 15"
+      },
+      {
+        "page_number": 34,
+        "text": "(1)\nAFFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information\nThree months ended June 30, Six months ended June 30,\n2025 2024 2025 2024\nNormalized FFO available to common stockholders 956,079 931,887 1,894,013 1,811,674\nAFFO available to common stockholders 947,491 921,074 1,897,207 1,783,945\nDiluted AFFO 949,892 922,661 1,902,009 1,786,891\nAFFO per common share, basic and diluted 1.05 1.06 2.11 2.09\nBasic 902,966 870,319 897,338 852,621\nDiluted 906,398 872,520 900,797 854,806\nQ2 2025 Supplemental Operating & Financial Data 16"
+      }
+    ],
+    "definition_excerpts": [],
+    "filed_at": "2025-08-06",
+    "filed_evidence": {
+      "page_number": 20,
+      "text": "filed on August 6, 2025"
+    },
+    "error": null
+  }
+}

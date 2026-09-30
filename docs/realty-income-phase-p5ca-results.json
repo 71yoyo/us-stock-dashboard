@@ -1,0 +1,2897 @@
+{
+  "summary": {
+    "visited": 40,
+    "source_available": 40,
+    "statuses": {
+      "VERIFIED_PARSED": 9,
+      "PARSED": 22,
+      "NEEDS_REVIEW": 3,
+      "UNKNOWN_FORMAT": 6,
+      "WRONG_ISSUER": 0,
+      "SOURCE_UNAVAILABLE": 0,
+      "PARSER_ERROR": 0
+    },
+    "formats": [
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+        "documents": 5,
+        "parsed": 4,
+        "needs_review": 1,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+        "documents": 3,
+        "parsed": 3,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+        "documents": 1,
+        "parsed": 1,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+        "documents": 4,
+        "parsed": 4,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 2,
+        "parsed": 2,
+        "needs_review": 0,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+        "documents": 3,
+        "parsed": 2,
+        "needs_review": 1,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+        "documents": 15,
+        "parsed": 14,
+        "needs_review": 1,
+        "unknown": 0,
+        "failed": 0
+      },
+      {
+        "format": "UNKNOWN",
+        "documents": 6,
+        "parsed": 0,
+        "needs_review": 0,
+        "unknown": 6,
+        "failed": 0
+      }
+    ],
+    "years": [
+      {
+        "year": 2016,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED"
+        ]
+      },
+      {
+        "year": 2017,
+        "documents": 4,
+        "parsed": 3,
+        "statuses": [
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2018,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2019,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2020,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2021,
+        "documents": 4,
+        "parsed": 3,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "NEEDS_REVIEW",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2022,
+        "documents": 4,
+        "parsed": 4,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "PARSED"
+        ]
+      },
+      {
+        "year": 2023,
+        "documents": 4,
+        "parsed": 3,
+        "statuses": [
+          "PARSED",
+          "PARSED",
+          "VERIFIED_PARSED",
+          "NEEDS_REVIEW"
+        ]
+      },
+      {
+        "year": 2024,
+        "documents": 4,
+        "parsed": 2,
+        "statuses": [
+          "PARSED",
+          "VERIFIED_PARSED",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      },
+      {
+        "year": 2025,
+        "documents": 4,
+        "parsed": 0,
+        "statuses": [
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT",
+          "UNKNOWN_FORMAT"
+        ]
+      }
+    ],
+    "quarterly": {
+      "scope": "quarterly",
+      "primary_periods_only": true,
+      "opportunities": 40,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 31,
+          "total/diluted": 24,
+          "per_share/basic": 31,
+          "per_share/diluted": 31
+        },
+        "AFFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "total/not_applicable": 31,
+          "total/diluted": 24,
+          "per_share/basic": 31,
+          "per_share/diluted": 31
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 40,
+          "confirmed_reported_opportunities": 19,
+          "confirmed_not_reported": 21,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 19,
+            "total/diluted": 19,
+            "per_share/basic": 19,
+            "per_share/diluted": 19
+          },
+          "total/not_applicable": 11,
+          "total/diluted": 11,
+          "per_share/basic": 11,
+          "per_share/diluted": 11
+        }
+      }
+    },
+    "annual": {
+      "scope": "annual",
+      "primary_periods_only": true,
+      "opportunities": 10,
+      "metrics": {
+        "FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 6,
+          "total/diluted": 5,
+          "per_share/basic": 6,
+          "per_share/diluted": 6
+        },
+        "AFFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": null,
+          "confirmed_not_reported": 0,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "total/not_applicable": 6,
+          "total/diluted": 5,
+          "per_share/basic": 6,
+          "per_share/diluted": 6
+        },
+        "NORMALIZED_FFO": {
+          "expected_opportunities": 10,
+          "confirmed_reported_opportunities": 5,
+          "confirmed_not_reported": 5,
+          "unknown_disclosure": 0,
+          "reported_basis_opportunities": {
+            "total/not_applicable": 5,
+            "total/diluted": 5,
+            "per_share/basic": 5,
+            "per_share/diluted": 5
+          },
+          "total/not_applicable": 2,
+          "total/diluted": 2,
+          "per_share/basic": 2,
+          "per_share/diluted": 2
+        }
+      }
+    },
+    "dedup": {
+      "observations": 952,
+      "unique_keys": 658,
+      "unique_values": 658,
+      "distinct_value_variants": 658,
+      "provenance": 952,
+      "conflicts": [],
+      "validated_unique_keys": 162
+    },
+    "comparison": {
+      "comparable": 294,
+      "exact_match": 294,
+      "difference": 0,
+      "restated_candidates": []
+    }
+  },
+  "rows": [
+    {
+      "id": "2016-q1",
+      "year": 2016,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+      "source_hash": "55469622981fa3b76d11b0c0b2b64e7806c34a8b8ee223d82583f5f7c1e2798d",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands , except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "separate"
+        },
+        "diluted_total": "absent",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 12,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q2",
+      "year": 2016,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+      "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q3",
+      "year": 2016,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q3/Realty-Income-Q32016-Supplemental-Information.pdf",
+      "source_hash": "063b13a42d2a04e66938d9f125a4b70092b5ce2f9c5b77ea35860437b671e927",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2016-q4",
+      "year": 2016,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q4/Realty-Income-Q4-16-Supplemental-Information.pdf",
+      "source_hash": "f989d35506f2f0bf1b6a17d24865ca5d87ae770aa7273458373ae313e3900d10",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 12,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q1",
+      "year": 2017,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q1/Realty-Income-Q1-17-Supplemental-Information.pdf",
+      "source_hash": "9ce4f079b00bcfec93973f52379997b39c574c8562026862aa6515cd2be66824",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 12,
+      "validated_count": 6,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q2",
+      "year": 2017,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q2/Realty-Income-Q2-17-Supplemental-Information.pdf",
+      "source_hash": "760253a5528e0a9ab9cae466131aa69f0b2da6b7fdcd5e0c0734b08051c2008d",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-REAL-ESTATE-V1",
+        "AFFO-FFO-REAL-ESTATE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q3",
+      "year": 2017,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q3/Realty-Income-Q3-2017-Supplemental-Information.pdf",
+      "source_hash": "78ff55288371e4fa02207798a3839985cef0f8aea2e7eb8f35462bc20515fd10",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "separate"
+        },
+        "diluted_total": "absent",
+        "period_columns": "quarter_and_9m"
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2017-q4",
+      "year": 2017,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+      "source_hash": "9271642af031129aaaad1aca0687a3826f3740319024e0877af61a5c13c864ea",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "DUPLICATE_LABEL",
+          "message": "총액 행의 중복/누락 구조가 다릅니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2018-q1",
+      "year": 2018,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q1/Realty-Income-Q1-2018-Supplemental-Information.pdf",
+      "source_hash": "fa6936d9d64f0a2aa08ed287f2202f75b2b5b8d0d722ad1573f3f8fddaa164df",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "joint_basic_diluted"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 16,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q2",
+      "year": 2018,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q2/Realty-Income-Q2-2018-Supplemental-Information.pdf",
+      "source_hash": "4a3da96e69c9d8af0709561d560c243aa5d96e901287348f9e42ad055b47089a",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "joint_basic_diluted"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_6m"
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q3",
+      "year": 2018,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/Realty-Income-Q3-2018-Supplemental-Information.pdf",
+      "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2018-q4",
+      "year": 2018,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+      "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q1",
+      "year": 2019,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q1/Realty-Income-Q1-2019-Supplemental-Information_0.pdf",
+      "source_hash": "1854d98f10be8a5f93dc1f1f1c295ddcb105c49b528fc032f9c75088a55fb3b3",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "joint_basic_diluted"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 16,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q2",
+      "year": 2019,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q2/Realty-Income-Q2-2019-Supplemental-Information.pdf",
+      "source_hash": "9dd38670e6a33f5b00c50a3c05ae936010a8eac16fb53e667ea08d099517be99",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q3",
+      "year": 2019,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q3/Realty-Income-Q3-2019-Supplemental-Information.pdf",
+      "source_hash": "6230d56ebb347957a63f8ba544f9403c0b14ddeedb7572cd9fe9926917760981",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2019-q4",
+      "year": 2019,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+      "source_hash": "5efad6af715c96c0750ec3a24f0369cc10f1a9c0843689f64a45b6026212f7da",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted_subrow",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_fy"
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q1",
+      "year": 2020,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q1-2020-Supplemental-Information-.pdf",
+      "source_hash": "fcb438de9e12dfc11a63d5f6d5b2c971d46342b5233a18ed060cdbb86f753eb6",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "joint_basic_diluted"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 16,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q2",
+      "year": 2020,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q2-2020-Supplemental-Information.pdf",
+      "source_hash": "07ef77962a05159c2cf78af3e9344ad6e4b8034efac5f7585078517416c00d79",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2020-q3",
+      "year": 2020,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q3-2020-Supplemental-Information.pdf",
+      "source_hash": "c6997a2b155d46c6a81c5a173cf2932efad493fa474f3406be6b9406734d9873",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 16,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        9,
+        10
+      ]
+    },
+    {
+      "id": "2020-q4",
+      "year": 2020,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+      "source_hash": "7c4c9738f401d11cfff227012cb89ca26afb1e8c23c619f9e408485ce685c127",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted_subrow",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_fy"
+      },
+      "errors": [],
+      "record_count": 32,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        9,
+        10
+      ]
+    },
+    {
+      "id": "2021-q1",
+      "year": 2021,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+      "source_hash": "23db5c2ff9f79fb148ae283140f845a42972d14f2ad51bf4cf413b8c647707ef",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "NO",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "not_reported",
+          "total/diluted": "not_reported",
+          "per_share/basic": "not_reported",
+          "per_share/diluted": "not_reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted_subrow",
+          "NORMALIZED_FFO": "absent",
+          "AFFO": "joint_basic_diluted_subrow"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 16,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-FFO-DEPRECIABLE-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2021-q2",
+      "year": 2021,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+      "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-VEREIT-V1",
+        "NFFO-VEREIT-MERGER-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2021-q3",
+      "year": 2021,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q3-2021-Supplemental-Information-11.1.21-new.pdf",
+      "source_hash": "d396c280c95f64579dcf9ac6ca3916edc8626a76df5439e77733dfaf3192dfd2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(dollars in thousands, except per share amounts)",
+          "(dollars in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "DEFINITION_UNKNOWN",
+          "message": "Normalized FFO 정의/실제 AFFO 시작점이 모호합니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2021-q4",
+      "year": 2021,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+      "source_hash": "51b1139d20bad8a53dbd065629652b818425ace6fa9c60df4a1cf258baa7f696",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_fy"
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": "2022-q1",
+      "year": 2022,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2022/Realty-Income-Q1-2022-Supplemental-Information-5.4.22-links.pdf",
+      "source_hash": "594ce150c695a369a896be2fd25f4022330bda2ab7baa30fc5234713bdfc9f29",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q2",
+      "year": 2022,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+      "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q3",
+      "year": 2022,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+      "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2022-q4",
+      "year": 2022,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/realty-income-q4-2022-supplemental-information-2-21-23.pdf",
+      "source_hash": "3d8dee71ecf340545763f3173ea6ab2ab74ee43cf41ff874c9c561870823fad8",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "joint_basic_diluted",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_fy"
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q1",
+      "year": 2023,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+      "source_hash": "4be46a4e492faf44d790ea0e863c551eab3ae7d0ef50b5e5c2ec13216b87e884",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share and share count data)",
+          "(in thousands, except per share and share count data)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares",
+          "shares"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "joint_basic_diluted",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q2",
+      "year": 2023,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-07/Realty%20Income%20Q2%202023%20Supplemental%20Information%20Final%20Compressed.pdf",
+      "source_hash": "b03aba23a8a0a887d38d2614556b4d31abd3b127d37a3ebe0f224e6bc6fb9bb0",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "joint_basic_diluted",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_6m"
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q3",
+      "year": 2023,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/realty-income-q3-2023-supplemental-information.pdf",
+      "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2023-q4",
+      "year": 2023,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/realty-income-q4-2023-supplemental-information.pdf",
+      "source_hash": "c66653ef9ad07904e80a2b36d3c18d453f894a388fb432e3cbbe3c3ed7b71fa0",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "needs_review",
+      "final_status": "NEEDS_REVIEW",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "separate",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "quarter_and_fy"
+      },
+      "structure_status": "parsed",
+      "definition_status": "needs_review",
+      "errors": [
+        {
+          "code": "DEFINITION_REVIEW",
+          "message": "구조는 읽을 수 있으나 Normalized FFO 비용 제외 범위의 정의 검토가 필요합니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2024-q1",
+      "year": 2024,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-05/Realty_Income_Q1_2024_Supplemental_Information_FINAL.pdf",
+      "source_hash": "7e444de79246610797dabbd26b3fb843f701a32d2f7b8461e1aea83d4fcace86",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "structural_strategy": {
+        "share_layouts": {
+          "FFO": "separate",
+          "NORMALIZED_FFO": "joint_basic_diluted",
+          "AFFO": "separate"
+        },
+        "diluted_total": "present",
+        "period_columns": "single_quarter"
+      },
+      "errors": [],
+      "record_count": 24,
+      "validated_count": 0,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2024-q2",
+      "year": 2024,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-08/realty-income-q2-2024-supplemental-information.pdf",
+      "source_hash": "ef66aa6179989a4b0f2ab22478601210f440274efa1756fd82ea7db19e0969db",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+      "adapter": "parseRealtyIncomePdfText (read-only audit; production approval unchanged)",
+      "parser_status": "parsed",
+      "final_status": "VERIFIED_PARSED",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts)",
+          "(in thousands, except per share amounts)"
+        ],
+        "raw_unit": "USD thousand",
+        "multiplier": 1000,
+        "per_share_unit": "USD/share",
+        "weighted_share_count_unit": [
+          "shares thousand",
+          "shares thousand"
+        ],
+        "supported": true
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [],
+      "record_count": 48,
+      "validated_count": 24,
+      "definition_versions": [
+        "FFO-DEPRECIABLE-V1",
+        "AFFO-NFFO-INTEGRATION-V1",
+        "NFFO-MERGER-INTEGRATION-V1"
+      ],
+      "source_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "2024-q3",
+      "year": 2024,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+      "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts) (unaudited)",
+          "(in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "UNIT_UNKNOWN",
+          "message": "이번 strategy는 기존 USD thousand grammar만 지원합니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2024-q4",
+      "year": 2024,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+      "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(in thousands, except per share amounts) (unaudited)",
+          "(in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "UNIT_UNKNOWN",
+          "message": "이번 strategy는 기존 USD thousand grammar만 지원합니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q1",
+      "year": 2025,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q2",
+      "year": 2025,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+      "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q3",
+      "year": 2025,
+      "quarter": 3,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+      "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    },
+    {
+      "id": "2025-q4",
+      "year": 2025,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "http_status": 200,
+      "source_status": "AVAILABLE",
+      "period_verified": true,
+      "detected_format": null,
+      "adapter": null,
+      "parser_status": "NOT_RUN",
+      "final_status": "UNKNOWN_FORMAT",
+      "normalized_ffo": "YES",
+      "unit_audit": {
+        "raw_currency": "USD",
+        "raw_unit_labels": [
+          "(USD and shares in thousands, except per share amounts) (unaudited)",
+          "(USD and shares in thousands, except per share amounts) (unaudited)"
+        ],
+        "raw_unit": null,
+        "multiplier": null,
+        "per_share_unit": null,
+        "weighted_share_count_unit": null,
+        "supported": false
+      },
+      "basis_disclosure": {
+        "FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "NORMALIZED_FFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        },
+        "AFFO": {
+          "total/not_applicable": "reported",
+          "total/diluted": "reported",
+          "per_share/basic": "reported",
+          "per_share/diluted": "reported"
+        }
+      },
+      "errors": [
+        {
+          "code": "TABLE_AMBIGUITY",
+          "message": "공식 FFO/AFFO 표 제목을 확인할 수 없습니다."
+        }
+      ],
+      "record_count": 0,
+      "validated_count": 0,
+      "definition_versions": [],
+      "source_pages": []
+    }
+  ],
+  "scope": "P5C-A offline cache audit; not approved for persistence",
+  "regression": {
+    "baseline_checkpoint": "05c68bd7164334f4e8e78af8b28e05013cf532cd",
+    "existing_documents": 17,
+    "full_deep_equality": true,
+    "deferred_documents": 8
+  },
+  "network_downloads_this_phase": 0
+}

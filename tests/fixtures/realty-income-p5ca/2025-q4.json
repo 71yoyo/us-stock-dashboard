@@ -1,0 +1,65 @@
+{
+  "id": "2025-q4",
+  "inventory": {
+    "year": 2025,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/02-24-26-realty-income-announces-operating-results-for-the-three-months-and-year-ended-december-31-2025.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-realty-income-12-31-25-10k.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "q4-2025-supplemental-report.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2025-q4",
+      "year": 2025,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "retrieved_at": "2026-09-30T11:45:18.792Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+      "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+      "bytes": 5000409,
+      "error": null
+    },
+    "page_count": 71,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ4 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "candidate_tables": [
+      {
+        "page_number": 34,
+        "text": "FFO and Normalized FFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also presented is information regarding\ndistributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted FFO and Normalized FFO per share computations.\nThree months ended December 31, Years ended December 31,\n2025 2024 2025 2024\nFFO available to common stockholders 985,870 897,917 3,860,323 3,467,659\nDiluted FFO 988,078 900,126 3,869,719 3,474,270\nFFO available to common stockholders 985,870 897,917 3,860,323 3,467,659\nNormalized FFO available to common stockholders 996,131 888,741 3,884,537 3,563,951\nDiluted Normalized FFO 998,339 890,950 3,893,933 3,570,562\nFFO per common share:\nBasic 1.07 1.03 4.26 4.02\nDiluted 1.07 1.02 4.25 4.01\nNormalized FFO per common share:\nBasic 1.08 1.01 4.28 4.13\nDiluted 1.08 1.01 4.27 4.12\nBasic 919,769 875,710 907,169 862,959\nDiluted 923,648 879,649 911,015 865,842\nQ4 2025 Supplemental Operating & Financial Data 16"
+      },
+      {
+        "page_number": 35,
+        "text": "AFFO(1)\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information regarding\ndistributions paid to common stockholders and the weighted average number of common shares used for the basic and diluted AFFO per share computations. Refer to the next page for footnotes.\nThree months ended December 31, Years ended December 31,\n2025 2024 2025 2024\nNormalized FFO available to common stockholders 996,131 888,741 3,884,537 3,563,951\nAFFO available to common stockholders 996,703 921,920 3,885,898 3,621,437\nDiluted AFFO 998,893 924,106 3,895,221 3,628,036\nAFFO per common share:\nBasic 1.08 1.05 4.28 4.20\nDiluted 1.08 1.05 4.28 4.19\nBasic 919,769 875,710 907,169 862,959\nDiluted 923,648 879,649 911,015 865,842\nQ4 2025 Supplemental Operating & Financial Data 17"
+      }
+    ],
+    "definition_excerpts": [],
+    "filed_at": "2026-02-24",
+    "filed_evidence": {
+      "page_number": 20,
+      "text": "filed on February 24, 2026"
+    },
+    "error": null
+  }
+}

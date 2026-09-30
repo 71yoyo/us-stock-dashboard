@@ -33,7 +33,7 @@ function periods(page, source) {
   const dates = prefix.match(/(?:March 31|June 30|September 30|December 31),/g) || [];
   const yearEnd = source.fiscal_period === 'Q4';
   const date = dateNames[quarter - 1];
-  const second = yearEnd ? 'Year' : quarter === 3 ? 'Nine months' : 'Six months';
+  const second = yearEnd ? 'Years?' : quarter === 3 ? 'Nine months' : 'Six months';
   const groupFirst = new RegExp(`^Three months ended ${second} ended ${date} ${date}$`, 'i');
   const dateInGroup = new RegExp(`^Three months ended ${date} ${second} ended ${date}$`, 'i');
   evidence(quarter === 1 ? /^Three months ended March 31,$/i.test(header) : groupFirst.test(header) || dateInGroup.test(header),
@@ -55,7 +55,7 @@ function periods(page, source) {
 function tableUnit(page) {
   // 최근 문서의 multiplier를 복사하지 않고 각 표 제목 바로 아래 단위 + 달러 기호를 검증한다.
   const lines = linesOf(page);
-  evidence(/^\((?:dollars )?in thousands, except per share (?:amounts|and share count data)\)$/.test(lines[1])
+  evidence(/^\((?:dollars )?in thousands\s*, except per share (?:amounts|and share count data)\)$/.test(lines[1])
     && /\$/.test(page.text), 'UNIT_UNKNOWN', '표의 달러/천 단위 명시를 확인할 수 없습니다.');
   return 'USD thousand';
 }
@@ -68,6 +68,13 @@ function shareRows(lines, name, columnCount) {
     return ['basic', 'diluted'].map(basis => ({ ...row, basis, disclosure: 'basic_and_diluted_joint' }));
   }
   const index = lines.indexOf(header[0]);
+  // 명시적 공동행은 산술 계산 없이 같은 공시값을 두 basis로 기록한다. 별도 conflicting 행은 차단한다.
+  if (/^Basic and Diluted\s+\$/i.test(lines[index + 1] || '')) {
+    evidence(!/^(?:Basic|Diluted)\b/i.test(lines[index + 2] || ''), 'BASIS_AMBIGUITY', '공동행과 별도 basis 행이 충돌합니다.');
+    const sourceLabel = lines[index + 1].match(/^Basic and Diluted/i)[0];
+    const values = rowNumbers(lines[index + 1], sourceLabel, columnCount);
+    return ['basic', 'diluted'].map(basis => ({ values, label:`${name} per common share / ${sourceLabel}`, basis, disclosure:'joint_basic_diluted' }));
+  }
   evidence(/^Basic\s/.test(lines[index + 1] || '') && /^Diluted\s/.test(lines[index + 2] || '')
     && !/^(Basic|Diluted)\s/.test(lines[index + 3] || ''), 'BASIS_AMBIGUITY', '주당값 행과 주식수 행을 구별할 수 없습니다.');
   return ['basic', 'diluted'].map((basis, offset) => ({ values: rowNumbers(lines[index + 1 + offset], offset ? 'Diluted' : 'Basic', columnCount),
@@ -103,19 +110,33 @@ function extractMetric(page, metric, detection, source) {
     page, row_label: basis.label, share_disclosure: basis.disclosure })));
 }
 
+export function extractRealtyIncomePdfStructure(document, detection) {
+  const { source } = document;
+  const metrics = detection.normalized ? ['FFO', 'NORMALIZED_FFO', 'AFFO'] : ['FFO', 'AFFO'];
+  const observations = metrics.flatMap(metric => extractMetric(metric === 'AFFO' ? detection.affo : detection.ffo, metric, detection, source));
+  const availability = [];
+  if (!detection.normalized) availability.push({ metric_code:'NORMALIZED_FFO', status:'not_reported', value:null,
+    reason:'대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지.' });
+  if (!detection.diluted) for (const metric of metrics) availability.push({ metric_code:metric,
+    value_basis:'total', share_basis:'diluted', status:'not_reported', value:null, reason:'diluted total 공시행 없음. 주당값×주식수 역산 금지.' });
+  return { observations, availability };
+}
+
 export async function parseRealtyIncomePdfText(document, detection) {
+  let structure;
   try {
     const { source, excerpt } = document;
+    if (detection.structural_strategy) structure = extractRealtyIncomePdfStructure(document, detection);
     const definitions = historicalDefinitions(excerpt, detection);
-    const metrics = detection.normalized ? ['FFO', 'NORMALIZED_FFO', 'AFFO'] : ['FFO', 'AFFO'];
-    const observations = metrics.flatMap(metric => extractMetric(metric === 'AFFO' ? detection.affo : detection.ffo, metric, detection, source));
-    const availability = [];
-    if (!detection.normalized) availability.push({ metric_code: 'NORMALIZED_FFO', status: 'not_reported', value: null,
-      reason: '대표 조정표에서 Normalized FFO를 공시하지 않음. 임의 계산 금지.' });
-    if (!detection.diluted) for (const metric of metrics) availability.push({ metric_code: metric,
-      value_basis: 'total', share_basis: 'diluted', status: 'not_reported', value: null, reason: 'diluted total 공시행 없음. 주당값×주식수 역산 금지.' });
+    const { observations, availability } = structure || extractRealtyIncomePdfStructure(document, detection);
     return normalizeHistoricalMetrics({ observations, definitions, source, format: detection.format, inputHash: await excerptHash(excerpt),
+      structuralFeatures:detection.structural_strategy,
       availability, definitionEvidence: { paragraphs: excerpt.definition_excerpts,
         ffo_table: detection.ffo.text, affo_table: detection.affo.text, note: '레이아웃과 정의는 별개. 실제 조정항목을 보존하며 자동 비교/재계산하지 않음.' } });
-  } catch (error) { return failedDocument(error); }
+  } catch (error) {
+    const failure = failedDocument(error);
+    // 구조 성공과 정의 승인 실패를 분리하되 검토 중인 numeric record는 만들지 않는다.
+    return structure && ['DEFINITION_UNKNOWN', 'DEFINITION_REVIEW'].includes(error.code)
+      ? { ...failure, structure_status:'parsed', definition_status:'needs_review' } : failure;
+  }
 }

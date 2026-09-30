@@ -1,5 +1,6 @@
 import { REALTY_INCOME_DOCUMENTS } from './realty-income-mappings.js';
 import { P5A_DOCUMENTS } from './realty-income-p5a-samples.js';
+import { STRUCTURAL_LEGACY_FORMAT, structuralPdfFingerprint } from './realty-income-structural-strategy.js';
 
 // P4는 확인한 네 PDF만 승인한다. 미조사 URL/기간을 연도만으로 같은 형식이라고 추측하지 않는다.
 export const HISTORICAL_DOCUMENTS = [
@@ -24,7 +25,8 @@ export const FORMATS = {
   modern: 'REALTY_INCOME_SEC_HTML_V1',
   legacyJoint: 'REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL',
   cashMixed: 'REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO',
-  normalizedAffoSeparate: 'REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO'
+  normalizedAffoSeparate: 'REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO',
+  structuralLegacy: STRUCTURAL_LEGACY_FORMAT
 };
 export class DocumentFailure extends Error {
   constructor(code, message) { super(message); this.code = code; }
@@ -54,6 +56,17 @@ function issuerEvidence(source, identity) {
 
 // 형식 조사 자체는 승인과 별개다. 읽기 전용 audit가 동일 규칙을 재사용해도 운영 승인 목록은 확장되지 않는다.
 export function pdfFingerprint(excerpt) {
+  // 기존 format과 provenance를 먼저 보존한다. 새 조합만 독립 feature strategy로 분류한다.
+  try {
+    const legacy = legacyPdfFingerprint(excerpt);
+    if (!/^Basic and Diluted\s+\$/im.test(legacy.ffo.text + '\n' + legacy.affo.text)) return legacy;
+  } catch (error) {
+    if (!['FORMAT_UNSUPPORTED', 'BASIS_AMBIGUITY'].includes(error.code)) throw error;
+  }
+  return structuralPdfFingerprint(excerpt);
+}
+
+function legacyPdfFingerprint(excerpt) {
   evidence(Array.isArray(excerpt.pages) && excerpt.pages.length === 2
     && new Set(excerpt.pages.map(page => page.page_number)).size === 2, 'TABLE_AMBIGUITY', '대표 FFO/AFFO 두 페이지가 필요합니다.');
   const ffo = excerpt.pages.find(page => /^(?:Funds From Operations \(FFO\)|FFO and Normalized FFO)/.test(page.text));

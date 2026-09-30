@@ -1,0 +1,82 @@
+{
+  "id": "2021-q4",
+  "inventory": {
+    "year": 2021,
+    "quarter": 4,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Exhibit-99.1-Q4-2021-final-new1.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/c27991b0-330e-4663-a29a-4f15d5356f6a-new.pdf",
+    "period_type": "Q4/FY",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty-Income-Q4-2021-Supplemental-Information.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "Q4 supplemental은 3개월/Q4 및 연간/FY 조정표 후보. 10-K/annual report는 별도 문서이며 중복 숫자를 재저장하지 않음."
+  },
+  "inspection": {
+    "download": {
+      "id": "2021-q4",
+      "year": 2021,
+      "quarter": 4,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+      "retrieved_at": "2026-09-30T11:45:00.253Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+      "source_hash": "51b1139d20bad8a53dbd065629652b818425ace6fa9c60df4a1cf258baa7f696",
+      "bytes": 7675378,
+      "error": null
+    },
+    "page_count": 33,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ4 2021\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 7,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended December 31, Year Ended December 31,\n2021 2020 2021 2020\nNet income available to common stockholders $ 4,041 $ 117,931 $ 359,456 $ 395,486\nDepreciation and amortization 333,229 175,041 897,835 677,038\nDepreciation of furniture, fixtures and equipment (352) (153) (1,026) (588)\nProvisions for impairment 7,990 23,790 38,967 147,232\nGain on sales of real estate (20,402) (22,667) (55,798) (76,232)\nProportionate share of adjustments for unconsolidated entities 1,931 — 1,931 —\nFFO adjustments allocable to noncontrolling interests (274) (242) (785) (817)\nFFO available to common stockholders $ 326,163 $ 293,700 $ 1,240,580 $ 1,142,119\nFFO allocable to dilutive noncontrolling interests — 355 — 1,418\nDiluted FFO $ 326,163 $ 294,055 $ 1,240,580 $ 1,143,537\nFFO available to common stockholders $ 326,163 $ 293,700 $ 1,240,580 $ 1,142,119\nMerger and integration-related costs 137,332 — 167,413 —\nNormalized FFO available to common stockholders $ 463,495 $ 293,700 $ 1,407,993 $ 1,142,119\nNormalized FFO allocable to dilutive noncontrolling interests — 355 1,642 1,418\nDiluted Normalized FFO $ 463,495 $ 294,055 $ 1,409,635 $ 1,143,537\nFFO per common share, basic and diluted $ 0.63 $ 0.83 $ 2.99 $ 3.31\nNormalized FFO per common share:\nBasic $ 0.89 $ 0.83 $ 3.40 $ 3.31\nDiluted $ 0.89 $ 0.83 $ 3.39 $ 3.31\nDistributions paid to common stockholders $ 371,179 $ 247,632 $ 1,169,026 $ 964,167\nFFO available to common stockholders in (deficit) excess of distributions paid to\ncommon stockholders $ (45,016) $ 46,068 $ 71,554 $ 177,952\nNormalized FFO available to common stockholders in excess of distributions paid $ 92,316 $ 46,068 $ 238,967 $ 177,952\nWeighted average number of common shares used for FFO:\nBasic 519,116,544 354,437,466 414,535,283 345,280,126\nDiluted 519,438,347 355,050,977 414,769,846 345,878,377\nWeighted average number of common shares used for Normalized FFO:\nBasic 519,116,544 354,437,466 414,535,283 345,280,126\nDiluted 519,438,347 355,050,977 415,270,063 345,878,377\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ4 2021 Supplemental Operating & Financial Data 7"
+      },
+      {
+        "page_number": 8,
+        "text": "AFFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended December 31, Year Ended December 31,\n2021 2020 2021 2020\nNet income available to common stockholders (2) $ 4,041 $ 117,931 $ 359,456 $ 395,486\nCumulative adjustments to calculate Normalized FFO (3) 459,454 175,769 1,048,537 746,633\nNormalized FFO available to common stockholders 463,495 293,700 1,407,993 1,142,119\nExecutive severance charge — — — 3,463\nLoss on extinguishment of debt 46,722 — 97,178 9,819\nAmortization of share-based compensation 3,750 3,083 16,234 14,727\nAmortization of net debt premiums and deferred financing costs (10,466) 938 (6,182) 3,710\nLoss on interest rate swaps 726 1,238 2,905 4,353\nStraight-line payments from cross-currency swaps 513 613 2,228 2,573\nLeasing costs and commissions (4,175) (846) (6,201) (1,859)\nRecurring capital expenditures (787) (72) (1,202) (198)\nStraight-line rent (25,082) (6,033) (61,350) (26,502)\nAmortization of above and below-market leases, net 14,424 8,015 37,970 22,940\nProportionate share of adjustments for unconsolidated entities (1,948) — (1,948) —\nOther adjustments (1,125) (2,982) 1,128 (2,519)\nAFFO available to common stockholders $ 486,047 $ 297,654 $ 1,488,753 $ 1,172,626\nAFFO allocable to dilutive noncontrolling interests — 359 1,619 1,438\nDiluted AFFO $ 486,047 $ 298,013 $ 1,490,372 $ 1,174,064\nAFFO per common share:\nBasic $ 0.94 $ 0.84 $ 3.59 $ 3.40\nDiluted $ 0.94 $ 0.84 $ 3.59 $ 3.39\nDistributions paid to common stockholders $ 371,179 $ 247,632 $ 1,169,026 $ 964,167\nAFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 114,868 $ 50,022 $ 319,727 $ 208,459\nWeighted average number of common shares used for AFFO:\nBasic 519,116,544 354,437,466 414,535,283 345,280,126\nDiluted 519,438,347 355,050,977 415,270,063 345,878,377\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) As of December 31, 2021, there was $58.7 million of uncollected rent deferred as a result of lease concessions we granted in response to the COVID-19 pandemic and recognized under the\npractical expedient provided by the Financial Accounting Standards Board (FASB) and $41.3 million of uncollected rent for which we have not granted a lease concession.\n(3) See reconciling items for Normalized FFO presented under \"FFO and Normalized FFO.\"\nQ4 2021 Supplemental Operating & Financial Data 8"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 32,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich we believe are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar\nmeasurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We\nbelieve AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance of real estate\ncompanies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional"
+      },
+      {
+        "page_number": 32,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items,\nwhich we believe are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar\nmeasurement to AFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We\nbelieve AFFO provides useful information to investors because it is a widely accepted industry measure of the operating performance of real estate\ncompanies that is used by industry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional"
+      },
+      {
+        "page_number": 32,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit’s definition, is net income available to common\nstockholders, plus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced\nby gains on property sales. Presentation of the information regarding FFO and AFFO (described on pages 7 and 8) is intended to assist the reader in\ncomparing the operating performance of different REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so\ncomparisons with other REITs may not be meaningful. FFO and AFFO should not be considered as alternatives to reviewing our cash flows from"
+      },
+      {
+        "page_number": 33,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger and integration-related costs related to our Mergers with VEREIT.\nSame Store Pool, for purposes of determining the properties used to calculate our same store rental revenue, includes all properties that we owned for\nthe entire year-to-date period, for both the current and prior year except for properties during the current or prior year that were:\n(i) vacant at any time,"
+      }
+    ],
+    "filed_at": "2022-02-22",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on February 22, 2022"
+    },
+    "error": null
+  }
+}

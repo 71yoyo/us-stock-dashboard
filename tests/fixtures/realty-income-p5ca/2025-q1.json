@@ -1,0 +1,65 @@
+{
+  "id": "2025-q1",
+  "inventory": {
+    "year": 2025,
+    "quarter": 1,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Announces_Operating_Results_for_the_Three_Months_Ended_March_31_2025.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_10-Q_03_31_25.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2025-q1",
+      "year": 2025,
+      "quarter": 1,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "retrieved_at": "2026-09-30T11:45:16.025Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+      "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+      "bytes": 7032710,
+      "error": null
+    },
+    "page_count": 68,
+    "identity_text": "Realty Income (NYSE: O)",
+    "document_title": "Earnings\nRelease &\nSupplemental\nInformation\nQ1 2025\nAn S&P 500 Dividend\nAristocrats® index member",
+    "candidate_tables": [
+      {
+        "page_number": 32,
+        "text": "(1)\nFFO and Normalized FFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to FFO and Normalized FFO. Also\nThree months ended March 31,\n2025 2024\nFFO available to common stockholders 937,655 785,683\nDiluted FFO 940,080 787,023\nFFO available to common stockholders 937,655 785,683\nNormalized FFO available to common stockholders 937,934 879,787\nDiluted Normalized FFO 940,359 881,127\nFFO per common share, basic and diluted 1.05 0.94\nNormalized FFO per common share, basic and diluted 1.05 1.05\nBasic 891,666 834,940\nDiluted 895,033 837,037\nQ1 2025 Supplemental Operating & Financial Data 15"
+      },
+      {
+        "page_number": 33,
+        "text": "(1)\nAFFO\n(USD and shares in thousands, except per share amounts) (unaudited)\nThe following is a reconciliation of net income available to common stockholders (which we believe is the most comparable GAAP measure) to Normalized FFO and AFFO. Also presented is information\nThree months ended March 31,\n2025 2024\nNormalized FFO available to common stockholders 937,934 879,787\nAFFO available to common stockholders 949,716 862,871\nDiluted AFFO 952,117 864,230\nAFFO per common share:\nBasic 1.07 1.03\nDiluted 1.06 1.03\nBasic 891,666 834,940\nDiluted 895,033 837,037\nQ1 2025 Supplemental Operating & Financial Data 16"
+      }
+    ],
+    "definition_excerpts": [],
+    "filed_at": "2025-05-05",
+    "filed_evidence": {
+      "page_number": 19,
+      "text": "filed on May 5, 2025"
+    },
+    "error": null
+  }
+}

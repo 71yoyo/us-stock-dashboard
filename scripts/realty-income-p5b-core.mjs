@@ -32,7 +32,7 @@ export function tablePair(inspection) {
 
 export function unitAudit(pair) {
   const units = Object.values(pair).map(page => page.text.split('\n').slice(0, 4).find(line => /\bthousands\b|\bmillions\b/.test(line)) ?? null);
-  const supported = units.every(unit => /^\((?:dollars )?in thousands, except per share (?:amounts|and share count data)\)$/.test(unit));
+  const supported = units.every(unit => /^\((?:dollars )?in thousands\s*, except per share (?:amounts|and share count data)\)$/.test(unit));
   return { raw_currency: units.every(unit => /(?:dollars|USD|in thousands)/.test(unit)) ? 'USD' : null,
     raw_unit_labels: units, raw_unit: supported ? 'USD thousand' : null, multiplier: supported ? 1000 : null,
     per_share_unit: supported ? 'USD/share' : null,
@@ -60,6 +60,30 @@ export function basisDisclosure(pair) {
     };
   }
   return metrics;
+}
+
+// 실제 cache와 최소 offline fixture가 같은 발췌/출처 생성 경로를 사용한다.
+export function buildAuditExcerpt(inspection, pair = tablePair(inspection)) {
+  return { identity_text: inspection.identity_text, document_title: inspection.document_title,
+    pages: Object.values(pair).map(page => {
+      const lines = page.text.split('\n'), start = lines.findIndex(line => /Three months ended/i.test(line));
+      let table = start >= 2 ? [...lines.slice(0, 2), ...lines.slice(start)].join('\n') : page.text;
+      table = table.replace(/^FUNDS FROM OPERATIONS \(FFO\)/, 'Funds From Operations (FFO)')
+        .replace(/^ADJUSTED FUNDS FROM OPERATIONS \(AFFO\)/, 'Adjusted Funds From Operations (AFFO)')
+        .replace(/^Funds From Operations\s*\(1\)/, 'Funds From Operations (FFO) (1)')
+        .replace(/^Adjusted Funds From Operations\s*\(1\)/, 'Adjusted Funds From Operations (AFFO) (1)');
+      return { page_number: page.page_number, text: table };
+    }), definition_excerpts: inspection.definition_excerpts };
+}
+
+export async function buildAuditSource(row, inspection, pair, excerpt) {
+  return { ticker: 'O', cik: '0000726728', issuer: 'Realty Income Corporation', source_type: 'ISSUER_IR_PDF',
+    source_url: row.source_url, source_hash: inspection.download.source_hash, excerpt_hash: await excerptHash(excerpt),
+    document_name: row.document_name, fiscal_year: row.year, fiscal_period: `Q${row.quarter}`, fiscal_year_end: '12-31',
+    fiscal_year_end_source: '문서 기간 열 (Quarter/FY 12월 31일 연말)', published_at: inspection.filed_at,
+    publication_date_basis: 'PDF에 명시된 해당 분기 earnings exhibit의 SEC 공개일; IR 게시일 별도 미확인',
+    filed_at: inspection.filed_at, retrieved_at: inspection.download.retrieved_at, accession_number: row.accession, exhibit: row.exhibit,
+    page_count: inspection.page_count, ffo_page: pair.ffo.page_number, affo_page: pair.affo.page_number };
 }
 
 export async function auditDocument(row, inspection, known = null) {
@@ -107,17 +131,7 @@ export async function auditDocument(row, inspection, known = null) {
     period_columns: Object.values(pair).map(page => page.text.split('\n').filter(line => /months ended|Years? ended|^\d{4} \d{4}/i.test(line))),
     normalized_ffo: out.normalized_ffo };
   // 원문 발췌의 의미는 바꾸지 않는다. 표 앞의 설명은 definition 근거로 따로 보존한다.
-  const excerpt = { identity_text: identity, document_title: inspection.document_title,
-    pages: Object.values(pair).map(page => {
-      const lines = page.text.split('\n'), start = lines.findIndex(line => /Three months ended/i.test(line));
-      let table = start >= 2 ? [...lines.slice(0, 2), ...lines.slice(start)].join('\n') : page.text;
-      // 의미가 동일한 대소문자/제목 acronym·각주 차이만 정규화한다. 행 조합이나 열 구조는 손대지 않는다.
-      table = table.replace(/^FUNDS FROM OPERATIONS \(FFO\)/, 'Funds From Operations (FFO)')
-        .replace(/^ADJUSTED FUNDS FROM OPERATIONS \(AFFO\)/, 'Adjusted Funds From Operations (AFFO)')
-        .replace(/^Funds From Operations\s*\(1\)/, 'Funds From Operations (FFO) (1)')
-        .replace(/^Adjusted Funds From Operations\s*\(1\)/, 'Adjusted Funds From Operations (AFFO) (1)');
-      return { page_number: page.page_number, text: table };
-    }), definition_excerpts: inspection.definition_excerpts };
+  const excerpt = buildAuditExcerpt(inspection, pair);
   let detection;
   try { detection = { status: 'detected', ...pdfFingerprint(excerpt) }; }
   catch (error) {
@@ -125,6 +139,7 @@ export async function auditDocument(row, inspection, known = null) {
     out.errors.push({ code: error.code || 'FORMAT_UNSUPPORTED', message: error.message }); return out;
   }
   out.detected_format = detection.format;
+  if (detection.structural_strategy) out.structural_strategy = detection.structural_strategy;
   if (known) requireAudit(detection.format === known.result.format, '[REGRESSION BLOCKER] 기존 문서 format 변경');
   if (!out.unit_audit.supported) { out.final_status = 'NEEDS_REVIEW'; out.errors.push({ code: 'UNIT_UNKNOWN' }); return out; }
   out.adapter = 'parseRealtyIncomePdfText (read-only audit; production approval unchanged)';
@@ -137,16 +152,12 @@ export async function auditDocument(row, inspection, known = null) {
     } else {
       // 날짜가 없으면 가짜 publication date를 채우지 않는다. 공시일은 PDF에 명시된 SEC 공개일 근거만 사용한다.
       if (!inspection.filed_at) { out.final_status = 'NEEDS_REVIEW'; out.errors.push({ code: 'PUBLICATION_DATE_UNCONFIRMED' }); return out; }
-      const source = { ticker: 'O', cik: '0000726728', issuer: out.issuer, source_type: 'ISSUER_IR_PDF',
-        source_url: row.source_url, source_hash: download.source_hash, excerpt_hash: await excerptHash(excerpt),
-        document_name: row.document_name, fiscal_year: row.year, fiscal_period: `Q${row.quarter}`, fiscal_year_end: '12-31',
-        fiscal_year_end_source: '문서 기간 열 (Quarter/FY 12월 31일 연말)', published_at: inspection.filed_at,
-        publication_date_basis: 'PDF에 명시된 해당 분기 earnings exhibit의 SEC 공개일; IR 게시일 별도 미확인',
-        filed_at: inspection.filed_at, retrieved_at: download.retrieved_at, accession_number: row.accession, exhibit: row.exhibit,
-        page_count: inspection.page_count, ffo_page: pair.ffo.page_number, affo_page: pair.affo.page_number };
+      const source = await buildAuditSource(row, inspection, pair, excerpt);
       const result = await parseRealtyIncomePdfText({ source, excerpt }, detection);
       if (result.status !== 'parsed') {
         out.parser_status = result.status; out.errors = result.errors;
+        if (result.structure_status) out.structure_status = result.structure_status;
+        if (result.definition_status) out.definition_status = result.definition_status;
         out.final_status = result.errors?.some(error => error.code === 'DOCUMENT_INVALID') ? 'PARSER_ERROR' : 'NEEDS_REVIEW'; return out;
       }
       requireAudit(result.records.every(record => record.validation_status === 'parsed'), '신규 문서의 자동 validated 승격 금지');

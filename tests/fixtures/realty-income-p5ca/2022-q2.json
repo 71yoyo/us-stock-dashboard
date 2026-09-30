@@ -1,0 +1,82 @@
+{
+  "id": "2022-q2",
+  "inventory": {
+    "year": 2022,
+    "quarter": 2,
+    "archive_issuer_label": "Realty Income",
+    "supplemental_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+    "earnings_url": "https://www.realtyincome.com/sites/realty-income/files/08%2003%2022%20Realty%20Income%20Announces%20Operating%20Results%20for%20the%20Three%20and%20Six%20Months%20Ended%20June%2030%202022.pdf",
+    "filing_url": "https://www.realtyincome.com/sites/realty-income/files/2022-05/O-6.30.22-10Q-Document-8.4.22.pdf",
+    "period_type": "quarterly",
+    "source_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+    "source_type": "ISSUER_IR_PDF",
+    "source_channel": "IR",
+    "accession": null,
+    "exhibit": null,
+    "document_name": "Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+    "document_format": "PDF",
+    "issuer": "Realty Income Corporation",
+    "CIK": "0000726728",
+    "identity_evidence": "공식 IR archive issuer heading (본문 검증은 검증된 표본만)",
+    "published_at": null,
+    "filed_at": null,
+    "available": null,
+    "availability_evidence": "IR 자료실 링크 존재; HTTP/본문 확보 가능 여부는 미확인",
+    "format_detected": null,
+    "adapter_candidate": null,
+    "status": "UNKNOWN_FORMAT",
+    "normalized_ffo": "UNKNOWN",
+    "notes": "기간은 IR 분기 heading에서 확인; 본문 미확인 문서는 지원 확정 금지."
+  },
+  "inspection": {
+    "download": {
+      "id": "2022-q2",
+      "year": 2022,
+      "quarter": 2,
+      "source_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+      "retrieved_at": "2026-09-30T11:45:02.176Z",
+      "http_status": 200,
+      "final_url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+      "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+      "bytes": 13467114,
+      "error": null
+    },
+    "page_count": 31,
+    "identity_text": "Realty Income, The Monthly Dividend Company®, is an S&P 500\nNew York Stock Exchange\nthe symbol \"O“",
+    "document_title": "Exhibit 99.2\nSUPPLEMENTAL OPERATING An S&P 500\ncompany\n& FINANCIAL DATA\nS&P 500\n®\nDividend Aristocrats\nQ2 2022\nindex member",
+    "candidate_tables": [
+      {
+        "page_number": 5,
+        "text": "FFO and Normalized FFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended June 30, Six Months Ended June 30,\n2022 2021 2022 2021\nNet income available to common stockholders $ 223,207 $ 124,479 $ 422,576 $ 220,419\nDepreciation and amortization 409,437 187,789 813,199 365,774\nDepreciation of furniture, fixtures and equipment (489) (73) (967) (444)\nProvisions for impairment 7,691 17,246 14,729 19,966\nGain on sales of real estate (40,572) (14,901) (50,728) (23,302)\nProportionate share of adjustments for unconsolidated entities 9,860 — 12,095 —\nFFO adjustments allocable to noncontrolling interests (319) (165) (673) (331)\nFFO available to common stockholders $ 608,815 $ 314,375 $ 1,210,231 $ 582,082\nFFO allocable to dilutive noncontrolling interests 776 348 1,584 705\nDiluted FFO $ 609,591 $ 314,723 $ 1,211,815 $ 582,787\nFFO available to common stockholders $ 608,815 $ 314,375 $ 1,210,231 $ 582,082\nMerger and integration-related costs 2,729 13,298 9,248 13,298\nNormalized FFO available to common stockholders $ 611,544 $ 327,673 $ 1,219,479 $ 595,380\nNormalized FFO allocable to dilutive noncontrolling interests 776 348 1,584 705\nDiluted Normalized FFO $ 612,320 $ 328,021 $ 1,221,063 $ 596,085\nFFO per common share, basic and diluted $ 1.01 $ 0.84 $ 2.02 $ 1.56\nNormalized FFO per common share, basic and diluted $ 1.02 $ 0.88 $ 2.04 $ 1.60\nDistributions paid to common stockholders $ 445,829 $ 263,358 $ 884,109 $ 524,056\nFFO available to common stockholders in excess of distributions paid to common\nstockholders $ 162,986 $ 51,017 $ 326,122 $ 58,026\nNormalized FFO available to common stockholders in excess of distributions paid\nto common stockholders $ 165,715 $ 64,315 $ 335,370 $ 71,324\nWeighted average number of common shares used for FFO and normalized FFO:\nBasic 601,672,201 374,236,424 597,778,173 372,879,165\nDiluted 603,091,375 374,804,142 599,201,411 373,434,863\n(1) FFO and Normalized FFO are non-GAAP financial measures. Please see the Glossary for our definitions of these terms and an explanation of how we utilize these metrics.\nQ2 2022 Supplemental Operating & Financial Data 5"
+      },
+      {
+        "page_number": 6,
+        "text": "AFFO (1)\n(in thousands, except per share and share count data)\nThree Months Ended June 30, Six Months Ended June 30,\n2022 2021 2022 2021\nNet income available to common stockholders $ 223,207 $ 124,479 $ 422,576 $ 220,419\nCumulative adjustments to calculate Normalized FFO (2) 388,337 203,194 796,903 374,961\nNormalized FFO available to common stockholders 611,544 327,673 1,219,479 595,380\n(Gain) loss on extinguishment of debt (127) — (127) 46,473\nAmortization of share-based compensation 6,641 4,472 11,643 8,169\nAmortization of net debt premiums and deferred financing costs (16,948) 1,505 (34,044) 2,890\nLoss on interest rate swaps 724 724 1,446 1,446\nStraight-line payments from cross-currency swaps 367 584 884 1,202\nLeasing costs and commissions (794) (121) (3,167) (827)\nRecurring capital expenditures (173) (27) (186) (50)\nStraight-line rent and expenses (27,554) (11,004) (55,376) (21,467)\nAmortization of above and below-market leases, net 16,402 3,934 30,044 13,234\nProportionate share of adjustments for unconsolidated entities (2,090) — (4,154) —\nOther adjustments(3) (4,264) (93) (2,616) (581)\nAFFO available to common stockholders $ 583,728 $ 327,647 $ 1,163,826 $ 645,869\nAFFO allocable to dilutive noncontrolling interests 787 344 1,607 695\nDiluted AFFO $ 584,515 $ 327,991 $ 1,165,433 $ 646,564\nAFFO per common share:\nBasic $ 0.97 $ 0.88 $ 1.95 $ 1.73\nDiluted $ 0.97 $ 0.88 $ 1.94 $ 1.73\nDistributions paid to common stockholders $ 445,829 $ 263,358 $ 884,109 $ 524,056\nAFFO available to common stockholders in excess of distributions\npaid to common stockholders $ 137,899 $ 64,289 $ 279,717 $ 121,813\nWeighted average number of common shares used for AFFO:\nBasic 601,672,201 374,236,424 597,778,173 372,879,165\nDiluted 603,091,375 374,804,142 599,201,411 373,434,863\n(1) AFFO is a non-GAAP financial measure. Please see the Glossary for our definition and an explanation of how we utilize this metric.\n(2) See reconciling items for Normalized FFO presented under \"FFO and Normalized FFO.\"\n(3) Includes adjustments allocable to noncontrolling interests, obligations related to financing lease liabilities, mark-to-market adjustments on investments and derivatives that do not qualify for\nhedge accounting, and foreign currency gain and loss as a result of intercompany debt and remeasurement transactions.\nQ2 2022 Supplemental Operating & Financial Data 6"
+      }
+    ],
+    "definition_excerpts": [
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides\nuseful information to investors because it is a widely accepted industry measure of the operating performance of real estate companies that is used by\nindustry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional measure to compare the operating"
+      },
+      {
+        "page_number": 30,
+        "text": "Adjusted Funds From Operations (AFFO), a non-GAAP financial measure, is defined as FFO adjusted for unique revenue and expense items, which we\nbelieve are not as pertinent to the measurement of our ongoing operating performance. Most companies in our industry use a similar measurement to\nAFFO, but they may use the term \"CAD\" (for Cash Available for Distribution) or \"FAD\" (for Funds Available for Distribution). We believe AFFO provides\nuseful information to investors because it is a widely accepted industry measure of the operating performance of real estate companies that is used by\nindustry analysts and investors who look at and compare those companies. In particular, AFFO provides an additional measure to compare the operating"
+      },
+      {
+        "page_number": 31,
+        "text": "Funds From Operations (FFO), a non-GAAP financial measure, consistent with the Nareit definition, is net income available to common stockholders,\nplus depreciation and amortization of real estate assets, plus provisions for impairments of depreciable real estate assets, and reduced by gain on\nproperty sales. Presentation of the information regarding FFO and AFFO (described on pages 5 and 6) is intended to assist the reader in comparing the\noperating performance of different REITs, although it should be noted that not all REITs calculate FFO and AFFO in the same way, so comparisons with\nother REITs may not be meaningful. FFO and AFFO should not be considered alternatives to reviewing our cash flows from operating, investing, and"
+      },
+      {
+        "page_number": 31,
+        "text": "Normalized Funds from Operations Available to Common Stockholders (Normalized FFO), a non-GAAP financial measure, is FFO excluding\nmerger and integration-related costs associated with our merger with VEREIT.\nSame Store Pool, for purposes of determining the properties used to calculate our same store rental revenue, includes all properties that we owned for\nthe entire year-to-date period, for both the current and prior year except for properties during the current or prior year that were:\n(i) vacant at any time,"
+      }
+    ],
+    "filed_at": "2022-08-03",
+    "filed_evidence": {
+      "page_number": 2,
+      "text": "filed on August 3, 2022"
+    },
+    "error": null
+  }
+}

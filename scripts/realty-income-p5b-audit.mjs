@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { verifyInventory, auditDocument, summarize } from './realty-income-p5b-core.mjs';
 import { historicalDocument, historicalIds, historicalResults } from '../tests/helpers/realty-income-historical-fixtures.js';
 import { p5aIds, p5aDocument, p5aResults } from '../tests/helpers/realty-income-p5a-fixtures.js';
+import { assertP5caRegression } from './realty-income-p5ca-regression.mjs';
 
 // 네트워크/DB/운영 설정을 받지 않는다. 원문 cache에서 읽고 같은 외부 cache에 결과만 기록한다.
 const args = process.argv.slice(2);
@@ -42,6 +43,12 @@ const summary = summarize(rows);
 const knownRows = rows.filter(row => known.has(row.source_url));
 assert.equal(knownRows.length, 9);
 assert.ok(knownRows.every(row => row.final_status === 'VERIFIED_PARSED'), '[REGRESSION BLOCKER] 기존 9개 재검증 실패');
+// 결과 cache를 쓰기 전에 불변 baseline과 비교한다. 비교 대상은 실행 결과로 갱신하지 않는다.
+const manifest = JSON.parse(readFileSync(new URL('../tests/fixtures/realty-income-p5ca/p5b-regression.json', import.meta.url), 'utf8'));
+const baselinePath = join(cache, 'p5b-regression-baseline.json');
+const frozenRows = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, 'utf8')).rows : null;
+const regression = assertP5caRegression(rows, manifest, frozenRows);
+console.log(JSON.stringify({ regression }));
 writeFileSync(join(cache, 'dry-run-results.json'), JSON.stringify({ scope: 'read-only; not approved for persistence', inventory_hash:
   createHash('sha256').update(readFileSync(new URL('../tests/fixtures/realty-income-p5a/inventory.json', import.meta.url))).digest('hex'),
   summary, rows }, null, 2));
