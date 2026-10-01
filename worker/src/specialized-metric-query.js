@@ -77,7 +77,18 @@ export async function querySpecializedMetrics(DB, input) {
   const { results: values } = await DB.prepare(`SELECT v.* FROM company_metric_values v WHERE ${where}
     ORDER BY v.period_end,v.period_start,v.fiscal_year,v.fiscal_period,v.definition_owner,v.definition_version,v.record_key`)
     .bind(...bindings).all();
-  const { results: sources } = await DB.prepare(`SELECT s.* FROM company_metric_sources s
+  // 원문 excerpt 등 큰 JSON은 DB에 그대로 보존한다. 조회 응답에 필요한 6개 metadata만 SQL에서 추출해
+  // Worker의 불필요한 JSON 전송/파싱 CPU를 줄인다. 객체가 아닌 손상 metadata는 기존 오류 검사를 유지한다.
+  const { results: sources } = await DB.prepare(`SELECT s.record_key,s.source_type,s.source_url,s.source_hash,
+    s.document_name,s.section,s.page_number,
+    CASE WHEN json_type(s.source_metadata_json)='object' THEN json_object(
+      'physical_page',json_extract(s.source_metadata_json,'$.physical_page'),
+      'printed_page',json_extract(s.source_metadata_json,'$.printed_page'),
+      'fiscal_year',json_extract(s.source_metadata_json,'$.fiscal_year'),
+      'fiscal_period',json_extract(s.source_metadata_json,'$.fiscal_period'),
+      'unit_measurement',json_extract(s.source_metadata_json,'$.unit_measurement'),
+      'unit_qualifier',json_extract(s.source_metadata_json,'$.unit_qualifier'))
+    ELSE s.source_metadata_json END AS source_metadata_json FROM company_metric_sources s
     JOIN company_metric_values v ON v.record_key=s.record_key WHERE ${where}
     ORDER BY s.record_key,s.source_url,s.source_hash`).bind(...bindings).all();
   const byKey = new Map();

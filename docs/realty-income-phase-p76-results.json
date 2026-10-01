@@ -1,0 +1,32 @@
+{
+  "phase": "P7.6",
+  "baselineCommit": "f616bf0d3dd573073682943a4d0bc1acce17bc19",
+  "baselineTests": 603,
+  "executionPath": "Node 관리자 importer → D1 REST batch",
+  "datasetKey": "REALTY_INCOME_FFO_AFFO_2016_2025_V1",
+  "productionRolloutApproved": false,
+  "verdict": "B",
+  "migration0019": { "localImplemented": true, "fresh": true, "existing": true, "disposableRemote": true, "production": false },
+  "coordination": { "globalLease": true, "registrySeparate": true, "concurrentWinner": 1, "expiryTakeover": true, "renew": true, "release": true, "staleFencing": true, "endFenceRollback": true, "restBatchRollback": true },
+  "classification": { "deployedWorkerClassificationWriter": false, "deployedWorkerMetadataWriter": true, "casSectorIndustryCik": true, "remoteChangedMetadataAttempts": 2, "remoteTickers": 10, "overridePreservedInRegression": true, "queuePause": false, "schedulerChanged": false },
+  "remote": {
+    "environment": "rehearsal",
+    "run1": { "definitions": 14, "values": 950, "provenance": 1344 },
+    "run2": { "definitions": 14, "values": 950, "provenance": 1344, "mode": "verify-only", "rowsWritten": 0 },
+    "failedFullRerunSame": true,
+    "conflictRejected": true,
+    "combinedDigest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5",
+    "requests": 1077,
+    "statements": 6952,
+    "rowsRead": 182058,
+    "rowsWritten": 11138,
+    "d1DurationMs": 2785.5886,
+    "workerCpuMs": null
+  },
+  "finalCliVerify": { "completed": true, "requests": 149, "statements": 148, "rowsWritten": 0, "classificationStaleOrMissing": 0 },
+  "query": { "remoteSeries": 9, "localMeasuredRequests": 90, "sqlReadsPerRequest": 2, "sqlWrites": 0, "projectionResultEquality": true, "publicRoute": false, "localRuntime": "workerd 및 읽기 전용 Node SQLite bridge", "productionEquivalentCpuVerified": false },
+  "backup": { "strategy": "git bundle → Cloudflare 미연결 비공개 저장소", "uploaded": false, "mainPush": false, "featurePush": false },
+  "validation": { "testsPass": 628, "testsFail": 0, "syntax": true, "p75Check": true, "p76Check": true, "offlineAudits": 7, "sourceRedownload": false, "secretIncluded": false },
+  "production": { "migration": false, "write": false, "workerDeploy": false, "pagesDeploy": false, "backfill": false, "restore": false, "cronChange": false, "secretChange": false, "push": false },
+  "blockers": [ "specialized API의 production-equivalent Free CPU 예산 미검증", "production artifact 승격 및 rollout 미승인", "원격 백업 업로드 미실행" ]
+}

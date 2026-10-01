@@ -5,7 +5,8 @@ import { classificationStatement, classifyCompany } from '../worker/src/company-
 
 // 로컬 검증 전용이다. 기존 D1/파일 DB/환경설정을 받지 않으며 항상 독립 메모리 SQLite를 생성한다.
 export async function createHistoricalDatabase() {
-  const database = createMetricTestDatabase();
+  // P6의 고정 0001~0018 baseline은 유지한다. 후속 coordination schema는 별도 P7.6 테스트에서 검증한다.
+  const database = createMetricTestDatabase(true, 18);
   const { sqlite, DB } = database;
   try {
     const company = { ticker: 'O', name: 'Realty Income Corporation — DISPOSABLE TEST ONLY',
@@ -20,7 +21,7 @@ export async function createHistoricalDatabase() {
       : column === 'metadata_version' ? 1 : [null, 0, -12.5, 987654][index % 4]);
     sqlite.prepare(`INSERT INTO financial_metrics(ticker,period_type,fiscal_period_end,source,${columns.join(',')})
       VALUES (?,?,?,?,${values.map(() => '?').join(',')})`).run(company.ticker, 'annual', '2025-12-31', 'DISPOSABLE_SENTINEL', ...values);
-    const migrations = readdirSync(new URL('../worker/migrations/', import.meta.url)).filter(name => name.endsWith('.sql')).sort();
+    const migrations = readdirSync(new URL('../worker/migrations/', import.meta.url)).filter(name => name.endsWith('.sql') && Number(name.slice(0, 4)) <= 18).sort();
     return { ...database, disposable: true, path: ':memory:', profile: classifyCompany(company),
       migrationNames: migrations, migrationHash: hash(migrations.map(name => [name,
         readFileSync(new URL(`../worker/migrations/${name}`, import.meta.url), 'utf8')])), protectedBefore: protectedDigest(sqlite) };

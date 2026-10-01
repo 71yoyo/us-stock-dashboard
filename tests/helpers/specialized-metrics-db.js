@@ -3,10 +3,11 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 
 // D1이 아닌 실제 메모리 SQLite에서 제약조건과 트랜잭션을 실행한다.
-export function createMetricTestDatabase(includeNewMigration = true) {
+export function createMetricTestDatabase(includeNewMigration = true, maxMigration = Infinity) {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
   for (const name of readdirSync(new URL('../../worker/migrations/', import.meta.url)).sort()) {
+    if (Number(name.slice(0, 4)) > maxMigration) break;
     if (!includeNewMigration && name.startsWith('0018_')) break;
     sqlite.exec(readFileSync(new URL(`../../worker/migrations/${name}`, import.meta.url), 'utf8'));
   }
