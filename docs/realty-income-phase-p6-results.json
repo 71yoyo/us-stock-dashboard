@@ -1,0 +1,1398 @@
+{
+  "scope": "disposable local SQLite only; no production writes/routes",
+  "db": {
+    "mode": "independent in-memory SQLite A/B plus isolated failure/provenance DBs",
+    "pathA": ":memory:",
+    "pathB": ":memory:",
+    "persistentFiles": 0,
+    "migrations": [
+      "0001_initial.sql",
+      "0002_watchlist_sync.sql",
+      "0003_market_data_sync.sql",
+      "0004_earnings_schedule.sql",
+      "0005_remove_market_holidays.sql",
+      "0006_williams_signals.sql",
+      "0007_dividend_event_source.sql",
+      "0008_massive_sources.sql",
+      "0009_massive_primary_candles.sql",
+      "0010_alpha_vantage_dividends.sql",
+      "0011_alpha_vantage_throttle.sql",
+      "0012_alpha_only_dividends.sql",
+      "0013_clear_legacy_sec_dividend_jobs.sql",
+      "0014_businessquant_dividends.sql",
+      "0015_retire_alpha_dividends.sql",
+      "0016_sec_financial_metadata.sql",
+      "0017_company_classification.sql",
+      "0018_company_specialized_metrics.sql"
+    ],
+    "migrationHash": "99960eb6a600222b3cc22f7c9d792d18cb1608e42566e3956f8bac5f0318773a",
+    "isolated": true,
+    "profile": {
+      "autoType": "REIT",
+      "confidence": "high",
+      "reason": "명시적으로 등록된 Industry 규칙과 일치합니다.",
+      "ruleVersion": 1,
+      "reviewStatus": "classified"
+    }
+  },
+  "input": {
+    "digest": "ebf8668a8491479d1ff0885e8840d10e7587c1662c7828f19abd8ca88c94a978",
+    "summary": {
+      "visited": 40,
+      "source_available": 40,
+      "statuses": {
+        "VERIFIED_PARSED": 9,
+        "PARSED": 31,
+        "NEEDS_REVIEW": 0,
+        "UNKNOWN_FORMAT": 0,
+        "WRONG_ISSUER": 0,
+        "SOURCE_UNAVAILABLE": 0,
+        "PARSER_ERROR": 0
+      },
+      "formats": [
+        {
+          "format": "REALTY_INCOME_PDF_SEPARATE_NO_DILUTED_TOTAL",
+          "documents": 1,
+          "parsed": 1,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_SEPARATE_DILUTED_TOTAL",
+          "documents": 5,
+          "parsed": 5,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_SHARES",
+          "documents": 3,
+          "parsed": 3,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_NORMALIZED_MIXED_SHARES",
+          "documents": 1,
+          "parsed": 1,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_JOINT_NO_DILUTED_TOTAL",
+          "documents": 4,
+          "parsed": 4,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_JOINT_FFO_SEPARATE_AFFO",
+          "documents": 2,
+          "parsed": 2,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_NORMALIZED_JOINT_FFO_SEPARATE_AFFO",
+          "documents": 3,
+          "parsed": 3,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_PDF_STRUCTURAL_LEGACY",
+          "documents": 17,
+          "parsed": 17,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        },
+        {
+          "format": "REALTY_INCOME_INTEGRATED_PDF_V1",
+          "documents": 4,
+          "parsed": 4,
+          "needs_review": 0,
+          "unknown": 0,
+          "failed": 0
+        }
+      ],
+      "years": [
+        {
+          "year": 2016,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "PARSED",
+            "VERIFIED_PARSED"
+          ]
+        },
+        {
+          "year": 2017,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "VERIFIED_PARSED",
+            "PARSED",
+            "PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2018,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2019,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2020,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2021,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2022,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2023,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2024,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "VERIFIED_PARSED",
+            "PARSED",
+            "PARSED"
+          ]
+        },
+        {
+          "year": 2025,
+          "documents": 4,
+          "parsed": 4,
+          "statuses": [
+            "PARSED",
+            "PARSED",
+            "PARSED",
+            "PARSED"
+          ]
+        }
+      ],
+      "quarterly": {
+        "scope": "quarterly",
+        "primary_periods_only": true,
+        "opportunities": 40,
+        "metrics": {
+          "FFO": {
+            "expected_opportunities": 40,
+            "confirmed_reported_opportunities": null,
+            "confirmed_not_reported": 0,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 40,
+              "total/diluted": 33,
+              "per_share/basic": 40,
+              "per_share/diluted": 40
+            },
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "AFFO": {
+            "expected_opportunities": 40,
+            "confirmed_reported_opportunities": null,
+            "confirmed_not_reported": 0,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 40,
+              "total/diluted": 33,
+              "per_share/basic": 40,
+              "per_share/diluted": 40
+            },
+            "total/not_applicable": 40,
+            "total/diluted": 33,
+            "per_share/basic": 40,
+            "per_share/diluted": 40
+          },
+          "NORMALIZED_FFO": {
+            "expected_opportunities": 40,
+            "confirmed_reported_opportunities": 19,
+            "confirmed_not_reported": 21,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 19,
+              "total/diluted": 19,
+              "per_share/basic": 19,
+              "per_share/diluted": 19
+            },
+            "total/not_applicable": 19,
+            "total/diluted": 19,
+            "per_share/basic": 19,
+            "per_share/diluted": 19
+          }
+        }
+      },
+      "annual": {
+        "scope": "annual",
+        "primary_periods_only": true,
+        "opportunities": 10,
+        "metrics": {
+          "FFO": {
+            "expected_opportunities": 10,
+            "confirmed_reported_opportunities": null,
+            "confirmed_not_reported": 0,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 10,
+              "total/diluted": 9,
+              "per_share/basic": 10,
+              "per_share/diluted": 10
+            },
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "AFFO": {
+            "expected_opportunities": 10,
+            "confirmed_reported_opportunities": null,
+            "confirmed_not_reported": 0,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 10,
+              "total/diluted": 9,
+              "per_share/basic": 10,
+              "per_share/diluted": 10
+            },
+            "total/not_applicable": 10,
+            "total/diluted": 9,
+            "per_share/basic": 10,
+            "per_share/diluted": 10
+          },
+          "NORMALIZED_FFO": {
+            "expected_opportunities": 10,
+            "confirmed_reported_opportunities": 5,
+            "confirmed_not_reported": 5,
+            "unknown_disclosure": 0,
+            "reported_basis_opportunities": {
+              "total/not_applicable": 5,
+              "total/diluted": 5,
+              "per_share/basic": 5,
+              "per_share/diluted": 5
+            },
+            "total/not_applicable": 5,
+            "total/diluted": 5,
+            "per_share/basic": 5,
+            "per_share/diluted": 5
+          }
+        }
+      },
+      "dedup": {
+        "observations": 1344,
+        "unique_keys": 950,
+        "unique_values": 950,
+        "distinct_value_variants": 950,
+        "provenance": 1344,
+        "conflicts": [],
+        "validated_unique_keys": 162
+      },
+      "comparison": {
+        "comparable": 394,
+        "exact_match": 394,
+        "difference": 0,
+        "restated_candidates": []
+      }
+    }
+  },
+  "run1": {
+    "processed": 40,
+    "accepted": 40,
+    "counts": {
+      "definitions": 14,
+      "values": 950,
+      "provenance": 1344
+    },
+    "digests": {
+      "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+      "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+      "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+    },
+    "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5"
+  },
+  "run2": {
+    "processed": 40,
+    "accepted": 40,
+    "counts": {
+      "definitions": 14,
+      "values": 950,
+      "provenance": 1344
+    },
+    "digests": {
+      "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+      "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+      "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+    },
+    "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5"
+  },
+  "parserAgreement": {
+    "observations": 1344,
+    "uniqueValues": 950,
+    "definitions": 14,
+    "provenance": 1344,
+    "validationStatuses": {
+      "parsed": 788,
+      "validated": 162
+    },
+    "semanticRoundTrip": true
+  },
+  "statistics": {
+    "counts": {
+      "definitions": 14,
+      "values": 950,
+      "provenance": 1344
+    },
+    "digests": {
+      "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+      "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+      "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+    },
+    "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5",
+    "validationStatuses": [
+      {
+        "validation_status": "parsed",
+        "count": 788
+      },
+      {
+        "validation_status": "validated",
+        "count": 162
+      }
+    ],
+    "metrics": [
+      {
+        "metric_code": "AFFO",
+        "count": 407
+      },
+      {
+        "metric_code": "FFO",
+        "count": 319
+      },
+      {
+        "metric_code": "NORMALIZED_FFO",
+        "count": 224
+      }
+    ],
+    "scopes": [
+      {
+        "period_scope": "annual",
+        "count": 136
+      },
+      {
+        "period_scope": "quarterly",
+        "count": 536
+      },
+      {
+        "period_scope": "ytd",
+        "count": 278
+      }
+    ],
+    "metricScopes": [
+      {
+        "metric_code": "AFFO",
+        "period_scope": "annual",
+        "count": 58
+      },
+      {
+        "metric_code": "AFFO",
+        "period_scope": "quarterly",
+        "count": 230
+      },
+      {
+        "metric_code": "AFFO",
+        "period_scope": "ytd",
+        "count": 119
+      },
+      {
+        "metric_code": "FFO",
+        "period_scope": "annual",
+        "count": 46
+      },
+      {
+        "metric_code": "FFO",
+        "period_scope": "quarterly",
+        "count": 182
+      },
+      {
+        "metric_code": "FFO",
+        "period_scope": "ytd",
+        "count": 91
+      },
+      {
+        "metric_code": "NORMALIZED_FFO",
+        "period_scope": "annual",
+        "count": 32
+      },
+      {
+        "metric_code": "NORMALIZED_FFO",
+        "period_scope": "quarterly",
+        "count": 124
+      },
+      {
+        "metric_code": "NORMALIZED_FFO",
+        "period_scope": "ytd",
+        "count": 68
+      }
+    ],
+    "units": [
+      {
+        "value_basis": "per_share",
+        "share_basis": "basic",
+        "canonical_unit": "USD/share",
+        "count": 246
+      },
+      {
+        "value_basis": "per_share",
+        "share_basis": "diluted",
+        "canonical_unit": "USD/share",
+        "count": 250
+      },
+      {
+        "value_basis": "total",
+        "share_basis": "diluted",
+        "canonical_unit": "USD",
+        "count": 208
+      },
+      {
+        "value_basis": "total",
+        "share_basis": "not_applicable",
+        "canonical_unit": "USD",
+        "count": 246
+      }
+    ]
+  },
+  "duplicates": {
+    "value": 0,
+    "provenance": 0,
+    "definition": 0
+  },
+  "queries": {
+    "quarterly": {
+      "FFO": {
+        "rows": 40,
+        "first": "2016-03-31",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2017-07-01",
+            "periodEnd": "2017-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2017-10-01",
+            "periodEnd": "2017-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "attribution"
+          }
+        ]
+      },
+      "AFFO": {
+        "rows": 40,
+        "first": "2016-03-31",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2017-07-01",
+            "periodEnd": "2017-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2017-10-01",
+            "periodEnd": "2017-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "attribution"
+          },
+          {
+            "fiscalYear": 2021,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2021-04-01",
+            "periodEnd": "2021-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2021,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2021-10-01",
+            "periodEnd": "2021-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2023,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2023-10-01",
+            "periodEnd": "2023-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q1",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-03-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2024-07-01",
+            "periodEnd": "2024-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2024-10-01",
+            "periodEnd": "2024-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      },
+      "NORMALIZED_FFO": {
+        "rows": 19,
+        "first": "2021-06-30",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2021,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2021-10-01",
+            "periodEnd": "2021-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-VEREIT-MERGER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2023,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2023-10-01",
+            "periodEnd": "2023-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q1",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-03-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2024-07-01",
+            "periodEnd": "2024-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q4",
+            "periodStart": "2024-10-01",
+            "periodEnd": "2024-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      }
+    },
+    "annual": {
+      "FFO": {
+        "rows": 10,
+        "first": "2016-12-31",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "FY",
+            "periodStart": "2017-01-01",
+            "periodEnd": "2017-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      },
+      "AFFO": {
+        "rows": 10,
+        "first": "2016-12-31",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "FY",
+            "periodStart": "2017-01-01",
+            "periodEnd": "2017-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2021,
+            "fiscalPeriod": "FY",
+            "periodStart": "2021-01-01",
+            "periodEnd": "2021-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2023,
+            "fiscalPeriod": "FY",
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "FY",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      },
+      "NORMALIZED_FFO": {
+        "rows": 5,
+        "first": "2021-12-31",
+        "last": "2025-12-31",
+        "boundaries": [
+          {
+            "fiscalYear": 2023,
+            "fiscalPeriod": "FY",
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "FY",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-12-31",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-VEREIT-SPIRIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      }
+    },
+    "ytd": {
+      "FFO": {
+        "rows": 20,
+        "first": "2016-06-30",
+        "last": "2025-09-30",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2017-01-01",
+            "periodEnd": "2017-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2018,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2018-01-01",
+            "periodEnd": "2018-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "attribution"
+          }
+        ]
+      },
+      "AFFO": {
+        "rows": 20,
+        "first": "2016-06-30",
+        "last": "2025-09-30",
+        "boundaries": [
+          {
+            "fiscalYear": 2017,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2017-01-01",
+            "periodEnd": "2017-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-REAL-ESTATE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2018,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2018-01-01",
+            "periodEnd": "2018-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_stockholders"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "attribution"
+          },
+          {
+            "fiscalYear": 2021,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2021-01-01",
+            "periodEnd": "2021-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-FFO-DEPRECIABLE-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2022,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2022-01-01",
+            "periodEnd": "2022-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-VEREIT-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2025,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2025-01-01",
+            "periodEnd": "2025-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "AFFO-NFFO-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      },
+      "NORMALIZED_FFO": {
+        "rows": 10,
+        "first": "2021-06-30",
+        "last": "2025-09-30",
+        "boundaries": [
+          {
+            "fiscalYear": 2022,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2022-01-01",
+            "periodEnd": "2022-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-VEREIT-MERGER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2024,
+            "fiscalPeriod": "Q3",
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-09-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-INTEGRATION-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          },
+          {
+            "fiscalYear": 2025,
+            "fiscalPeriod": "Q2",
+            "periodStart": "2025-01-01",
+            "periodEnd": "2025-06-30",
+            "previousDefinitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "definitions": [
+              {
+                "owner": "CIK0000726728",
+                "version": "NFFO-MERGER-TRANSACTION-OTHER-NET-V1",
+                "attribution": "common_and_dilutive_noncontrolling_interests"
+              }
+            ],
+            "ambiguousPeriod": false,
+            "kind": "definition"
+          }
+        ]
+      }
+    }
+  },
+  "failures": {
+    "conflictRejected": true,
+    "existingValueUnchanged": true,
+    "definitionConflictRejected": true,
+    "rollback": {
+      "actualSqlTrigger": true,
+      "afterEarlierSourceInsert": true,
+      "batchStatements": 99,
+      "documentAtomic": true,
+      "previousDocumentsPreserved": true,
+      "successfulRetryAfterRemovingTrigger": true
+    }
+  },
+  "additionalProvenance": {
+    "compared": 12,
+    "exact": 12,
+    "difference": 0,
+    "conflict": 0,
+    "before": {
+      "definitions": 3,
+      "values": 12,
+      "provenance": 12
+    },
+    "after": {
+      "definitions": 3,
+      "values": 12,
+      "provenance": 24
+    },
+    "repeatedSame": true,
+    "automaticDefinitionMerge": false,
+    "reviewedEquivalenceOnly": true,
+    "separateDisposableDatabase": true
+  },
+  "rebuild": {
+    "processed": 40,
+    "accepted": 40,
+    "counts": {
+      "definitions": 14,
+      "values": 950,
+      "provenance": 1344
+    },
+    "digests": {
+      "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+      "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+      "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+    },
+    "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5",
+    "equal": true
+  },
+  "protectedDigestA": "8f138c56e866adafd095dee54ade18dbc50af5b48188998515a7beea5fe8a4d9",
+  "protectedDigestB": "8f138c56e866adafd095dee54ade18dbc50af5b48188998515a7beea5fe8a4d9",
+  "protectedUnchanged": true,
+  "parserUnchanged": true,
+  "production": {
+    "migration": false,
+    "write": false,
+    "workerDeploy": false,
+    "pagesDeploy": false,
+    "ui": false,
+    "backfill": false,
+    "commit": false,
+    "push": false
+  },
+  "databaseClosedAfterAudit": true,
+  "sourceCache": "C:\\Users\\user\\AppData\\Local\\Temp\\stock-phase-p5b-kQmAqb",
+  "sourceHashesVerified": 40
+}
