@@ -23,6 +23,7 @@
     "p75:prepare": "node --use-system-ca scripts/p75-prepare.mjs",
     "p75:remote": "node --use-system-ca scripts/p75-remote.mjs",
     "p76:check": "node scripts/p76-check.mjs",
+    "p77:check": "node scripts/p77-check.mjs",
     "p76:query-preview": "node scripts/p76-query-preview.mjs",
     "specialized:admin-import": "node --use-system-ca scripts/specialized-production-import.mjs",
     "specialized:classification-backfill": "node --use-system-ca scripts/specialized-classification-backfill.mjs"
