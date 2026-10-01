@@ -17,7 +17,11 @@
     "specialized:full-historical-audit": "node scripts/realty-income-p5b-audit.mjs",
     "specialized:definition-review-audit": "node scripts/realty-income-p5cb1-audit.mjs",
     "specialized:modern-audit": "node scripts/realty-income-p5cb2-audit.mjs",
-    "specialized:storage-audit": "node scripts/realty-income-p6-audit.mjs"
+    "specialized:storage-audit": "node scripts/realty-income-p6-audit.mjs",
+    "p75:check": "node scripts/p75-check.mjs",
+    "p75:artifact": "node scripts/p75-artifact.mjs",
+    "p75:prepare": "node --use-system-ca scripts/p75-prepare.mjs",
+    "p75:remote": "node --use-system-ca scripts/p75-remote.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.69.0"

@@ -1,0 +1,747 @@
+{
+  "phase": "P7.5",
+  "verdict": "B",
+  "productionRolloutApproved": false,
+  "baseline": {
+    "head": "c6fbf35afe208eb74eca92afcdc9d523fa69ef11",
+    "clean": true,
+    "tests": 596
+  },
+  "finalTests": {
+    "pass": 603,
+    "fail": 0,
+    "syntax": true,
+    "diffCheck": true,
+    "secretIncluded": false
+  },
+  "disposable": {
+    "name": "us-stock-dashboard-p75-rehearsal-20261001",
+    "idMasked": "de3f265c-…-6eb5",
+    "createdAt": "2026-10-01T07:39:48.670Z",
+    "retained": true,
+    "productionSeparated": true
+  },
+  "migrations": {
+    "stage16": true,
+    "stage17": true,
+    "stage18": true,
+    "productionStill16": true,
+    "constraintsChecked": true
+  },
+  "classification": {
+    "count": 10,
+    "general": 8,
+    "REIT": [
+      "O"
+    ],
+    "BANK": [
+      "JPM"
+    ],
+    "run2": true,
+    "overridePreserved": true
+  },
+  "limits": {
+    "execution": "private wrangler dev --remote",
+    "originalPreflightSelects": 51,
+    "originalBatchStatements": 99,
+    "originalRpcWithInstrumentation": 59,
+    "originalSqlAttemptedWithInstrumentation": 157,
+    "sixtySelectProbeSucceeded": true,
+    "freeLimitEnforcementVerified": false,
+    "cpuMeasured": false,
+    "bulkPreflightSelects": 2
+  },
+  "artifact": {
+    "datasetVersion": "realty-income-2016-2025-p75-v1",
+    "parserCommit": "c6fbf35afe208eb74eca92afcdc9d523fa69ef11",
+    "generatedAt": "2026-10-01T08:09:48.233Z",
+    "sourceHashesVerified": 40,
+    "deterministicBuilds": 2,
+    "semanticArtifactDigest": "11ea4fcd71f7babc950abc91bfc0dd63b5ac8978a6f5494a8bd7449894f1eeb1",
+    "artifactFileDigest": "e0d78118c042203b6513b40f5264c4a314cd8d82c25663a26a58a832779ceb03",
+    "artifactFile": "artifact-e0d78118c042203b6513b40f5264c4a314cd8d82c25663a26a58a832779ceb03.json",
+    "expected": {
+      "processed": 40,
+      "accepted": 40,
+      "counts": {
+        "definitions": 14,
+        "values": 950,
+        "provenance": 1344
+      },
+      "digests": {
+        "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+        "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+        "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+      },
+      "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5"
+    },
+    "sources": [
+      {
+        "id": "2016-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q1/Realty-Income-Q1-16-Supplemental-Information.pdf",
+        "source_hash": "55469622981fa3b76d11b0c0b2b64e7806c34a8b8ee223d82583f5f7c1e2798d",
+        "cik": "0000726728",
+        "period": "2016-q1",
+        "format": null
+      },
+      {
+        "id": "2016-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q2/Realty-Income-Q2-16-Supplemental-Information.pdf",
+        "source_hash": "5382cb1c92ee25b19bac2ac3a1ecf41b579833d744449363340e15df048854f1",
+        "cik": "0000726728",
+        "period": "2016-q2",
+        "format": null
+      },
+      {
+        "id": "2016-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q3/Realty-Income-Q32016-Supplemental-Information.pdf",
+        "source_hash": "063b13a42d2a04e66938d9f125a4b70092b5ce2f9c5b77ea35860437b671e927",
+        "cik": "0000726728",
+        "period": "2016-q3",
+        "format": null
+      },
+      {
+        "id": "2016-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2016/q4/Realty-Income-Q4-16-Supplemental-Information.pdf",
+        "source_hash": "f989d35506f2f0bf1b6a17d24865ca5d87ae770aa7273458373ae313e3900d10",
+        "cik": "0000726728",
+        "period": "2016-q4",
+        "format": null
+      },
+      {
+        "id": "2017-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q1/Realty-Income-Q1-17-Supplemental-Information.pdf",
+        "source_hash": "9ce4f079b00bcfec93973f52379997b39c574c8562026862aa6515cd2be66824",
+        "cik": "0000726728",
+        "period": "2017-q1",
+        "format": null
+      },
+      {
+        "id": "2017-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q2/Realty-Income-Q2-17-Supplemental-Information.pdf",
+        "source_hash": "760253a5528e0a9ab9cae466131aa69f0b2da6b7fdcd5e0c0734b08051c2008d",
+        "cik": "0000726728",
+        "period": "2017-q2",
+        "format": null
+      },
+      {
+        "id": "2017-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q3/Realty-Income-Q3-2017-Supplemental-Information.pdf",
+        "source_hash": "78ff55288371e4fa02207798a3839985cef0f8aea2e7eb8f35462bc20515fd10",
+        "cik": "0000726728",
+        "period": "2017-q3",
+        "format": null
+      },
+      {
+        "id": "2017-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2017/q4/Realty-Income-Q4-2017-Supplemental-Information.pdf",
+        "source_hash": "9271642af031129aaaad1aca0687a3826f3740319024e0877af61a5c13c864ea",
+        "cik": "0000726728",
+        "period": "2017-q4",
+        "format": null
+      },
+      {
+        "id": "2018-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q1/Realty-Income-Q1-2018-Supplemental-Information.pdf",
+        "source_hash": "fa6936d9d64f0a2aa08ed287f2202f75b2b5b8d0d722ad1573f3f8fddaa164df",
+        "cik": "0000726728",
+        "period": "2018-q1",
+        "format": null
+      },
+      {
+        "id": "2018-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q2/Realty-Income-Q2-2018-Supplemental-Information.pdf",
+        "source_hash": "4a3da96e69c9d8af0709561d560c243aa5d96e901287348f9e42ad055b47089a",
+        "cik": "0000726728",
+        "period": "2018-q2",
+        "format": null
+      },
+      {
+        "id": "2018-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q3/Realty-Income-Q3-2018-Supplemental-Information.pdf",
+        "source_hash": "ac491097b42cc7545bab373213b32ae3766bc7aaa40208faceed9185e9f9a853",
+        "cik": "0000726728",
+        "period": "2018-q3",
+        "format": null
+      },
+      {
+        "id": "2018-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2018/q4/Realty-Income-Q4-2018-Supplemental-Information.pdf",
+        "source_hash": "e214f67fd87423ea4efcc82a2d97c784c35937a167f161ae12016f70a3e9cce2",
+        "cik": "0000726728",
+        "period": "2018-q4",
+        "format": null
+      },
+      {
+        "id": "2019-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q1/Realty-Income-Q1-2019-Supplemental-Information_0.pdf",
+        "source_hash": "1854d98f10be8a5f93dc1f1f1c295ddcb105c49b528fc032f9c75088a55fb3b3",
+        "cik": "0000726728",
+        "period": "2019-q1",
+        "format": null
+      },
+      {
+        "id": "2019-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q2/Realty-Income-Q2-2019-Supplemental-Information.pdf",
+        "source_hash": "9dd38670e6a33f5b00c50a3c05ae936010a8eac16fb53e667ea08d099517be99",
+        "cik": "0000726728",
+        "period": "2019-q2",
+        "format": null
+      },
+      {
+        "id": "2019-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q3/Realty-Income-Q3-2019-Supplemental-Information.pdf",
+        "source_hash": "6230d56ebb347957a63f8ba544f9403c0b14ddeedb7572cd9fe9926917760981",
+        "cik": "0000726728",
+        "period": "2019-q3",
+        "format": null
+      },
+      {
+        "id": "2019-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2019/q4/Realty-Income-Q4-2019-Supplemental-Information.pdf",
+        "source_hash": "5efad6af715c96c0750ec3a24f0369cc10f1a9c0843689f64a45b6026212f7da",
+        "cik": "0000726728",
+        "period": "2019-q4",
+        "format": null
+      },
+      {
+        "id": "2020-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q1-2020-Supplemental-Information-.pdf",
+        "source_hash": "fcb438de9e12dfc11a63d5f6d5b2c971d46342b5233a18ed060cdbb86f753eb6",
+        "cik": "0000726728",
+        "period": "2020-q1",
+        "format": null
+      },
+      {
+        "id": "2020-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q2-2020-Supplemental-Information.pdf",
+        "source_hash": "07ef77962a05159c2cf78af3e9344ad6e4b8034efac5f7585078517416c00d79",
+        "cik": "0000726728",
+        "period": "2020-q2",
+        "format": null
+      },
+      {
+        "id": "2020-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartly-tab-2020/Realty-Income-Q3-2020-Supplemental-Information.pdf",
+        "source_hash": "c6997a2b155d46c6a81c5a173cf2932efad493fa474f3406be6b9406734d9873",
+        "cik": "0000726728",
+        "period": "2020-q3",
+        "format": null
+      },
+      {
+        "id": "2020-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2020/Realty-Income-Q4-2020-Supplemental-Information-2.22.21.pdf",
+        "source_hash": "7c4c9738f401d11cfff227012cb89ca26afb1e8c23c619f9e408485ce685c127",
+        "cik": "0000726728",
+        "period": "2020-q4",
+        "format": null
+      },
+      {
+        "id": "2021-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q1-2021-Supplemental-Information-new.pdf",
+        "source_hash": "23db5c2ff9f79fb148ae283140f845a42972d14f2ad51bf4cf413b8c647707ef",
+        "cik": "0000726728",
+        "period": "2021-q1",
+        "format": null
+      },
+      {
+        "id": "2021-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q2-2021-Supplemental-Information-8.2.2021-new.pdf",
+        "source_hash": "06dc21dacc3f3df5e9d595333502f8619bfdea730931f249e6b00b6bb2a95cd1",
+        "cik": "0000726728",
+        "period": "2021-q2",
+        "format": null
+      },
+      {
+        "id": "2021-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2021/Realty-Income-Q3-2021-Supplemental-Information-11.1.21-new.pdf",
+        "source_hash": "d396c280c95f64579dcf9ac6ca3916edc8626a76df5439e77733dfaf3192dfd2",
+        "cik": "0000726728",
+        "period": "2021-q3",
+        "format": null
+      },
+      {
+        "id": "2021-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/quartely-and-annual-result/year-2021/Realty-Income-Q4-2021-Supplemental-Information.pdf",
+        "source_hash": "51b1139d20bad8a53dbd065629652b818425ace6fa9c60df4a1cf258baa7f696",
+        "cik": "0000726728",
+        "period": "2021-q4",
+        "format": null
+      },
+      {
+        "id": "2022-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/2022/Realty-Income-Q1-2022-Supplemental-Information-5.4.22-links.pdf",
+        "source_hash": "594ce150c695a369a896be2fd25f4022330bda2ab7baa30fc5234713bdfc9f29",
+        "cik": "0000726728",
+        "period": "2022-q1",
+        "format": null
+      },
+      {
+        "id": "2022-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/Realty%20Income%20Q2%202022%20Supplemental%20Information%208.3.22.pdf",
+        "source_hash": "019cc8ac51bd4d83d3cebefa6df4488c36e23896550d44085f16f541600601e8",
+        "cik": "0000726728",
+        "period": "2022-q2",
+        "format": null
+      },
+      {
+        "id": "2022-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/Realty-Income-Q3-2022-Supplemental-Information-Final.pdf",
+        "source_hash": "4e551b580d2217f1458914aad565d99d7c2ccc4627c8a59d2607c57b7d90894e",
+        "cik": "0000726728",
+        "period": "2022-q3",
+        "format": null
+      },
+      {
+        "id": "2022-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/investors/realty-income-q4-2022-supplemental-information-2-21-23.pdf",
+        "source_hash": "3d8dee71ecf340545763f3173ea6ab2ab74ee43cf41ff874c9c561870823fad8",
+        "cik": "0000726728",
+        "period": "2022-q4",
+        "format": null
+      },
+      {
+        "id": "2023-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2023-05/realty-income-q1-2023-supplemental-information.pdf",
+        "source_hash": "4be46a4e492faf44d790ea0e863c551eab3ae7d0ef50b5e5c2ec13216b87e884",
+        "cik": "0000726728",
+        "period": "2023-q1",
+        "format": null
+      },
+      {
+        "id": "2023-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2023-07/Realty%20Income%20Q2%202023%20Supplemental%20Information%20Final%20Compressed.pdf",
+        "source_hash": "b03aba23a8a0a887d38d2614556b4d31abd3b127d37a3ebe0f224e6bc6fb9bb0",
+        "cik": "0000726728",
+        "period": "2023-q2",
+        "format": null
+      },
+      {
+        "id": "2023-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2023-11/realty-income-q3-2023-supplemental-information.pdf",
+        "source_hash": "75137a255c8db2ee2b6acc63c8386e772531c1beb28edd4d64efbd08e72c0dd2",
+        "cik": "0000726728",
+        "period": "2023-q3",
+        "format": null
+      },
+      {
+        "id": "2023-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/realty-income/quartly-and-annual/realty-income-q4-2023-supplemental-information.pdf",
+        "source_hash": "c66653ef9ad07904e80a2b36d3c18d453f894a388fb432e3cbbe3c3ed7b71fa0",
+        "cik": "0000726728",
+        "period": "2023-q4",
+        "format": null
+      },
+      {
+        "id": "2024-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2024-05/Realty_Income_Q1_2024_Supplemental_Information_FINAL.pdf",
+        "source_hash": "7e444de79246610797dabbd26b3fb843f701a32d2f7b8461e1aea83d4fcace86",
+        "cik": "0000726728",
+        "period": "2024-q1",
+        "format": null
+      },
+      {
+        "id": "2024-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2024-08/realty-income-q2-2024-supplemental-information.pdf",
+        "source_hash": "ef66aa6179989a4b0f2ab22478601210f440274efa1756fd82ea7db19e0969db",
+        "cik": "0000726728",
+        "period": "2024-q2",
+        "format": null
+      },
+      {
+        "id": "2024-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2024-11/realty-income-q3-2024-supplemental-information.pdf",
+        "source_hash": "c27b8b1de2aa0bc0e86d1ca043b05e3cf1fcc9bbeb4223e32347e4d6cfda450a",
+        "cik": "0000726728",
+        "period": "2024-q3",
+        "format": null
+      },
+      {
+        "id": "2024-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2025-02/realty-income-q4-2024-supplemental-information.pdf",
+        "source_hash": "a0b3bf067c7b19ebde01ceaac3ecb172ed6a4c7084eeabe276ad1d4599c62a3f",
+        "cik": "0000726728",
+        "period": "2024-q4",
+        "format": null
+      },
+      {
+        "id": "2025-q1",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2025-05/Realty_Income_Earnings_Release_and_Supplemental_Information_Q1_2025.pdf",
+        "source_hash": "b2835a976057a763b31ea4b06c220d470e92d316366667b40a01937df987d205",
+        "cik": "0000726728",
+        "period": "2025-q1",
+        "format": null
+      },
+      {
+        "id": "2025-q2",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2025-08/realty-income-earnings-release-and-supplemental-information-q2-2025.pdf",
+        "source_hash": "e05a8dbb939afdcb6fd6db8f1c9044dac32eb6e5b14699f9c54f89e284b82779",
+        "cik": "0000726728",
+        "period": "2025-q2",
+        "format": null
+      },
+      {
+        "id": "2025-q3",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2025-11/realty-income-earnings-release-and-supplemental-information-q3-2025.pdf",
+        "source_hash": "130f6d5683546037dab5f9bb979f196f5aebd77b9d66dabbab8b4566251c0c12",
+        "cik": "0000726728",
+        "period": "2025-q3",
+        "format": null
+      },
+      {
+        "id": "2025-q4",
+        "url": "https://www.realtyincome.com/sites/realty-income/files/2026-02/q4-2025-supplemental-report.pdf",
+        "source_hash": "d662d229fa046c830d8e6fb1f87da72638d1560148fed387ebc4abcd06913635",
+        "cik": "0000726728",
+        "period": "2025-q4",
+        "format": null
+      }
+    ]
+  },
+  "remote": {
+    "concurrent": {
+      "owners": 2,
+      "granted": 1,
+      "denied": 1
+    },
+    "fencing": {
+      "staleBlocked": true,
+      "wholeBatchRollback": true,
+      "fenceIncreased": true
+    },
+    "batch99": {
+      "ok": true,
+      "result": {
+        "records": 48,
+        "definitions": 3,
+        "before": {
+          "definitions": 0,
+          "values": 0,
+          "provenance": 0
+        },
+        "after": {
+          "definitions": 3,
+          "values": 48,
+          "provenance": 48
+        },
+        "delta": {
+          "definitions": 3,
+          "values": 48,
+          "provenance": 48
+        }
+      },
+      "metrics": {
+        "sql": 110,
+        "rpc": 10,
+        "rows_read": 347,
+        "rows_written": 296,
+        "d1_duration_ms": 8.842900000000004,
+        "retry": 0,
+        "document_batch_statements": 99,
+        "batch_statements": 101,
+        "batch_wall_ms": 812,
+        "wall_ms": 2198,
+        "cpu_ms": null
+      }
+    },
+    "rollback": {
+      "priorDocumentPreserved": true,
+      "failedDocumentChanges": 0
+    },
+    "conflict": {
+      "rejected": true,
+      "writes": 0
+    },
+    "run1": {
+      "counts": {
+        "definitions": 14,
+        "values": 950,
+        "provenance": 1344
+      },
+      "digests": {
+        "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+        "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+        "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+      },
+      "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5"
+    },
+    "run2": {
+      "counts": {
+        "definitions": 14,
+        "values": 950,
+        "provenance": 1344
+      },
+      "digests": {
+        "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+        "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+        "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+      },
+      "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5"
+    },
+    "validation": {
+      "validated": 162,
+      "parsed": 788
+    },
+    "query": {
+      "quarterly": {
+        "FFO": {
+          "count": 40,
+          "boundaries": 2,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "AFFO": {
+          "count": 40,
+          "boundaries": 8,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "NORMALIZED_FFO": {
+          "count": 19,
+          "boundaries": 5,
+          "sourcePolicy": "primary_period_disclosure"
+        }
+      },
+      "annual": {
+        "FFO": {
+          "count": 10,
+          "boundaries": 1,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "AFFO": {
+          "count": 10,
+          "boundaries": 4,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "NORMALIZED_FFO": {
+          "count": 5,
+          "boundaries": 2,
+          "sourcePolicy": "primary_period_disclosure"
+        }
+      },
+      "ytd": {
+        "FFO": {
+          "count": 20,
+          "boundaries": 2,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "AFFO": {
+          "count": 20,
+          "boundaries": 6,
+          "sourcePolicy": "primary_period_disclosure"
+        },
+        "NORMALIZED_FFO": {
+          "count": 10,
+          "boundaries": 3,
+          "sourcePolicy": "primary_period_disclosure"
+        }
+      }
+    },
+    "semanticEqualsSqlite": true,
+    "requests": 352,
+    "usage": {
+      "sql": 13624,
+      "rpc": 2015,
+      "rows_read": 626118,
+      "rows_written": 11647,
+      "d1_duration_ms": 1933.9542000000008,
+      "wall_ms": 388456
+    }
+  },
+  "resume": {
+    "profileRace": {
+      "staleBackfillBlocked": true,
+      "updatedProfilePreserved": true,
+      "restored": true
+    },
+    "concurrentImport": {
+      "writeOwner": 1,
+      "deniedBeforeStorePreflight": true
+    },
+    "failureAtDocument4": {
+      "prior3Preserved": true,
+      "atomicRollback": true
+    },
+    "retry": {
+      "syntheticResponseLoss": true,
+      "attempts": 2,
+      "duplicateRows": 0
+    },
+    "final": {
+      "counts": {
+        "definitions": 14,
+        "values": 950,
+        "provenance": 1344
+      },
+      "digests": {
+        "definitions": "81a53c12a7cf10a5be21b363a68b25d444b51e0f7c26d65347fca244d45e4ce9",
+        "values": "9317618347c475beb181048d2ceab40d69a8e4c47601a2092a524bf81e48d378",
+        "provenance": "cf2d670a173d10b5f9ee948918c484472e794e28b700fc9d1fd5bfc723479974"
+      },
+      "digest": "4cfa78a3a02c42cf9b7a8c021772ca596c3789a14b375b7eb504da8711a73ed5",
+      "meta": [
+        {
+          "served_by": "v3-prod",
+          "served_by_region": "APAC",
+          "served_by_colo": "ICN",
+          "served_by_primary": true,
+          "timings": {
+            "sql_duration_ms": 0.3521
+          },
+          "duration": 0.3521,
+          "changes": 0,
+          "last_row_id": 1344,
+          "changed_db": false,
+          "size_after": 14635008,
+          "rows_read": 14,
+          "rows_written": 0,
+          "total_attempts": 1
+        },
+        {
+          "served_by": "v3-prod",
+          "served_by_region": "APAC",
+          "served_by_colo": "ICN",
+          "served_by_primary": true,
+          "timings": {
+            "sql_duration_ms": 13.3508
+          },
+          "duration": 13.3508,
+          "changes": 0,
+          "last_row_id": 1344,
+          "changed_db": false,
+          "size_after": 14635008,
+          "rows_read": 950,
+          "rows_written": 0,
+          "total_attempts": 1
+        },
+        {
+          "served_by": "v3-prod",
+          "served_by_region": "APAC",
+          "served_by_colo": "ICN",
+          "served_by_primary": true,
+          "timings": {
+            "sql_duration_ms": 153.6407
+          },
+          "duration": 153.6407,
+          "changes": 0,
+          "last_row_id": 1344,
+          "changed_db": false,
+          "size_after": 14635008,
+          "rows_read": 1344,
+          "rows_written": 0,
+          "total_attempts": 1
+        }
+      ]
+    },
+    "protectedUnchanged": true,
+    "requests": 132,
+    "usage": {
+      "sql": 3877,
+      "rpc": 812,
+      "rows_read": 100440,
+      "rows_written": 7134,
+      "d1_duration_ms": 598.5791000000002,
+      "wall_ms": 157920
+    },
+    "importUsage": {
+      "sql": 3307,
+      "rpc": 480,
+      "rows_read": 89034,
+      "rows_written": 6686,
+      "d1_duration_ms": 335.12019999999995,
+      "retry": 0,
+      "document_batch_statements": 2787,
+      "batch_statements": 2867,
+      "batch_wall_ms": 22248,
+      "wall_ms": 90587
+    },
+    "verificationUsage": {
+      "sql": 160,
+      "rpc": 160,
+      "rows_read": 7410,
+      "rows_written": 0,
+      "d1_duration_ms": 209.6933,
+      "retry": 0,
+      "wall_ms": 37196
+    }
+  },
+  "integrity": {
+    "duplicates": 0,
+    "orphans": 0,
+    "conflicts": 0,
+    "readVerificationDocuments": 40,
+    "readVerificationRowsWritten": 0
+  },
+  "run1ImportUsage": {
+    "sql": 3227,
+    "rpc": 400,
+    "rows_read": 88362,
+    "rows_written": 6990,
+    "d1_duration_ms": 356.5246,
+    "retry": 0,
+    "document_batch_statements": 2787,
+    "batch_statements": 2867,
+    "batch_wall_ms": 20566,
+    "wall_ms": 75489
+  },
+  "run2ImportUsage": {
+    "sql": 3227,
+    "rpc": 400,
+    "rows_read": 195790,
+    "rows_written": 1424,
+    "d1_duration_ms": 323.2407999999999,
+    "retry": 0,
+    "document_batch_statements": 2787,
+    "batch_statements": 2867,
+    "batch_wall_ms": 17399,
+    "wall_ms": 73482
+  },
+  "autoDeploy": {
+    "pages": {
+      "verified": "Cloudflare API",
+      "repository": "71yoyo/us-stock-dashboard",
+      "branch": "main",
+      "productionDeploymentsEnabled": true,
+      "pathIncludes": [
+        "*"
+      ],
+      "destinationDir": "."
+    },
+    "worker": {
+      "verified": "Cloudflare dashboard read-only via computer-use",
+      "repository": "71yoyo/us-stock-dashboard",
+      "branch": "main",
+      "buildCommand": "npm install",
+      "deployCommand": "npx wrangler deploy --config worker/wrangler.jsonc",
+      "nonProductionBranchBuilds": true,
+      "pathIncludes": [
+        "*"
+      ]
+    },
+    "other": {
+      "githubActions": "syntax/tests only",
+      "accountInventory": "1 Pages project, 1 Worker script"
+    }
+  },
+  "production": {
+    "migration": false,
+    "write": false,
+    "workerDeploy": false,
+    "pagesDeploy": false,
+    "backfill": false,
+    "restore": false,
+    "cronChange": false,
+    "secretChange": false,
+    "commit": false,
+    "push": false,
+    "readOnlyVerification": {
+      "companies": 10,
+      "financialMetrics": 500,
+      "provenance": 5223,
+      "migrations": 16
+    }
+  },
+  "blockers": [
+    "private preview에서 실제 Free 50회 제한 적용 여부 미확인",
+    "remote CPU 계측 및 10ms 예산 검증 미완료",
+    "운영 lease schema 및 profile writer barrier의 별도 검토/승인 필요"
+  ]
+}

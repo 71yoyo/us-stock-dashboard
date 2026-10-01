@@ -9,20 +9,38 @@ const sourceColumns = ['source_type', 'source_url', 'accession_number', 'exhibit
   'filed_at', 'published_at', 'table_title', 'section', 'page_number', 'source_hash', 'retrieved_at'];
 const placeholders = columns => columns.map(() => '?').join(',');
 
+// D1 Free의 invocation 여유를 확보하기 위해 불변성 검사 대상만 묶어 조회한다.
+// 정의 tuple은 33개(99 bind), record key는 100개 이하로 나누며 충돌 검사는 기존 모든 의미 열을 유지한다.
+async function readExistingMetrics(DB, result) {
+  const definitions = new Map(), values = new Map();
+  for (let offset = 0; offset < result.definitions.length; offset += 33) {
+    const chunk = result.definitions.slice(offset, offset + 33);
+    const { results } = await DB.prepare(`SELECT * FROM company_metric_definitions WHERE ${chunk
+      .map(() => '(metric_code=? AND definition_owner=? AND definition_version=?)').join(' OR ')}`)
+      .bind(...chunk.flatMap(row => [row.metric_code, row.definition_owner, row.definition_version])).all();
+    for (const row of results) definitions.set([row.metric_code, row.definition_owner, row.definition_version].join('|'), row);
+  }
+  for (let offset = 0; offset < result.records.length; offset += 100) {
+    const keys = result.records.slice(offset, offset + 100).map(metricRecordKey);
+    const { results } = await DB.prepare(`SELECT * FROM company_metric_values WHERE record_key IN (${placeholders(keys)})`).bind(...keys).all();
+    for (const row of results) values.set(row.record_key, row);
+  }
+  return { definitions, values };
+}
+
 // 호출자가 제공하는 D1 호환 DB만 사용한다. Worker 라우트·예약 작업에는 연결하지 않는다.
 export async function saveSpecializedMetrics(DB, result) {
   if (result.status !== 'parsed' || !result.records?.length) throw new Error('검토/실패 결과는 저장할 수 없습니다.');
   const statements = [];
   const keys = new Set();
   const definitions = new Map();
+  const existingRows = await readExistingMetrics(DB, result);
   for (const definition of result.definitions) {
     if (definitionColumns.some(key => typeof definition[key] !== 'string' || !definition[key])) throw new Error('지표 정의 누락');
     const key = [definition.metric_code, definition.definition_owner, definition.definition_version].join('|');
     if (definitions.has(key)) throw new Error('중복 지표 정의');
     definitions.set(key, definition);
-    const existing = await DB.prepare(`SELECT * FROM company_metric_definitions
-      WHERE metric_code=? AND definition_owner=? AND definition_version=?`)
-      .bind(definition.metric_code, definition.definition_owner, definition.definition_version).first();
+    const existing = existingRows.definitions.get(key);
     if (existing && definitionColumns.some(column => existing[column] !== definition[column])) throw new Error('동일 버전의 정의 변경 금지');
     statements.push(DB.prepare(`INSERT INTO company_metric_definitions (${definitionColumns.join(',')})
       VALUES (${placeholders(definitionColumns)}) ON CONFLICT DO NOTHING`).bind(...definitionColumns.map(column => definition[column])));
@@ -34,7 +52,7 @@ export async function saveSpecializedMetrics(DB, result) {
     const key = metricRecordKey(record);
     if (keys.has(key)) throw new Error('중복 값');
     keys.add(key);
-    const existing = await DB.prepare('SELECT * FROM company_metric_values WHERE record_key=?').bind(key).first();
+    const existing = existingRows.values.get(key);
     if (existing && valueColumns.some(column => existing[column] !== record[column])) throw new Error('같은 record의 값 충돌: 검토 필요');
     // 값은 불변이며 재실행은 idempotent다. 검증 상태는 parsed→validated 승격만 허용한다.
     statements.push(DB.prepare(`INSERT INTO company_metric_values (record_key,${valueColumns.join(',')},validation_status,validation_json)
