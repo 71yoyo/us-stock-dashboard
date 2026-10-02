@@ -53,19 +53,23 @@ async function fingerprint(value) {
  * 필드 이름을 겹쳐 overwrite하지 않고 새 이력 테이블에 원본과 파생 입력을 append-only로 남긴다.
  * JSON bulk bind를 사용해 추가 SQL 수를 제한하며 모든 chunk를 하나의 D1 batch로 원자 실행한다.
  */
-export async function saveStandardRawMetrics(DB, ticker, records, { before = [], after = [] } = {}) {
+export async function saveStandardRawMetrics(DB, ticker, records, { before = [], after = [], preserveExisting = false } = {}) {
   if (typeof ticker !== 'string' || !/^[A-Z][A-Z0-9.-]{0,14}$/.test(ticker)) throw new Error('SEC raw 종목코드가 유효하지 않습니다.');
   if (!Array.isArray(records)) throw new Error('SEC raw 저장 자료는 행 배열이어야 합니다.');
   const identities = new Set();
-  const normalized = [];
   for (const record of records) {
     validateRecord(record);
     const identity = JSON.stringify([record.metricName,record.periodType,record.periodStart,record.periodEnd]);
     if (identities.has(identity)) throw new Error('SEC raw 중복 기간 identity가 있습니다.');
     identities.add(identity);
-    const sourceFingerprint = record.provenance ? await fingerprint(record.provenance) : null;
-    normalized.push({ ...record, sourceFingerprint });
   }
+  // compact 전용 모드에서는 서로 독립적인 출처 hash를 함께 처리한다. 입력/identity 검증은 쓰기 전에 모두 끝낸다.
+  // full-history의 기존 실행/overwrite contract는 그대로 두고, 증분에서만 기존 값 보존을 명시한다.
+  const normalized = [];
+  const normalize = async record => ({ ...record,
+    sourceFingerprint: record.provenance ? await fingerprint(record.provenance) : null });
+  if (preserveExisting) normalized.push(...await Promise.all(records.map(normalize)));
+  else for (const record of records) normalized.push(await normalize(record));
   // runtime은 같은 transaction 안에서 fencing과 완료 기록을 결합한다. 기존 직접 저장 contract는 유지한다.
   const statements = [...before];
   // 256행 단위로 출처 JSON 크기를 제한한다. 동기화 한 회는 최대 10년/40분기의 기간 창만 추출한다.
@@ -80,7 +84,7 @@ export async function saveStandardRawMetrics(DB, ticker, records, { before = [],
         json_extract(value,'$.availability'),json_extract(value,'$.reason'),json_extract(value,'$.fiscalYear'),
         json_extract(value,'$.fiscalPeriod'),json_extract(value,'$.sourceFingerprint')
       FROM json_each(?) WHERE 1
-      ON CONFLICT(ticker,metric_name,period_type,period_start,period_end) DO UPDATE SET
+      ON CONFLICT(ticker,metric_name,period_type,period_start,period_end) ${preserveExisting ? 'DO NOTHING' : `DO UPDATE SET
         metric_value=excluded.metric_value,availability=excluded.availability,reason=excluded.reason,
         fiscal_year=excluded.fiscal_year,fiscal_period=excluded.fiscal_period,
         source_fingerprint=excluded.source_fingerprint,updated_at=CURRENT_TIMESTAMP
@@ -88,7 +92,7 @@ export async function saveStandardRawMetrics(DB, ticker, records, { before = [],
         OR sec_standard_raw_metrics.availability IS NOT excluded.availability
         OR sec_standard_raw_metrics.reason IS NOT excluded.reason
         OR sec_standard_raw_metrics.fiscal_year IS NOT excluded.fiscal_year
-        OR sec_standard_raw_metrics.fiscal_period IS NOT excluded.fiscal_period`).bind(ticker, rows));
+        OR sec_standard_raw_metrics.fiscal_period IS NOT excluded.fiscal_period`}`).bind(ticker, rows));
     statements.push(DB.prepare(`INSERT INTO sec_standard_raw_provenance
       (ticker,metric_name,period_type,period_start,period_end,source_fingerprint,metric_value,
        sec_tag,form,accession_number,filed_date,source_start,source_end,unit,calculation_type,
