@@ -1,0 +1,47 @@
+{
+  "evidence": "R2의 실제 O CompanyFacts 1회 응답에서 보존한 최소 tag/unit/value/기간 진단값. 전체 원문을 다시 다운로드하지 않았음. 재구성 fixture이며 원문 snapshot이라고 주장하지 않음.",
+  "ticker": "O",
+  "annual": {
+    "start": "2025-01-01", "end": "2025-12-31", "form": "10-K", "fp": "FY", "fy": 2025,
+    "filed": "2026-02-25", "accn": "0000726728-26-000011",
+    "values": {
+      "CashAndCashEquivalentsAtCarryingValue": 434842000,
+      "Assets": 72795612000,
+      "StockholdersEquity": 39438695000,
+      "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest": 40123968000,
+      "CommonStockSharesOutstanding": 933975000,
+      "WeightedAverageNumberOfSharesOutstandingBasic": 907169000,
+      "WeightedAverageNumberOfDilutedSharesOutstanding": 908334000,
+      "InterestExpenseOperating": 1134879000,
+      "ProfitLoss": 1069783000,
+      "NetIncomeLoss": 1058590000,
+      "IncomeTaxExpenseBenefit": 85346000,
+      "DepreciationDepletionAndAmortization": 2524200000
+    }
+  },
+  "ytd": {
+    "start": "2026-01-01", "end": "2026-06-30", "form": "10-Q", "fp": "Q2", "fy": 2026,
+    "filed": "2026-08-06", "accn": "0000726728-26-000048",
+    "values": {
+      "CashAndCashEquivalentsAtCarryingValue": 552648000,
+      "Assets": 76441475000,
+      "StockholdersEquity": 39549557000,
+      "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest": 41934077000,
+      "CommonStockSharesOutstanding": 946202000,
+      "WeightedAverageNumberOfSharesOutstandingBasic": 932133000,
+      "WeightedAverageNumberOfDilutedSharesOutstanding": 934435000,
+      "InterestExpenseOperating": 604023000,
+      "ProfitLoss": 691448000,
+      "IncomeTaxExpenseBenefit": 52003000,
+      "DepreciationDepletionAndAmortization": 1274952000
+    }
+  },
+  "expectedDerived": { "ebit": 2290008000, "ebitda": 4814208000 },
+  "bqCrossCheck": {
+    "EBIT (Annual)": 2290008000, "EBITDA (Annual)": 4814208000,
+    "Common Equity (Annual)": 40123968000,
+    "Shares Outstanding (Entity) (Annual)": 933975000,
+    "Shares Outstanding (Annual)": 907169000,
+    "Shares Outstanding (Diluted) (Annual)": 908334000
+  }
+}
