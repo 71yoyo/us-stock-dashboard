@@ -18,7 +18,7 @@
   <!-- 아이콘 FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="style.css?v=financial-metrics-2">
+  <link rel="stylesheet" href="style.css?v=reit-financial-p9b">
   <link rel="stylesheet" href="fundamental-progress.css">
 </head>
 
@@ -236,6 +236,7 @@
             </div>
           </div>
           <div class="company-detail-panel hidden" data-detail-panel="financials">
+            <div data-general-financial>
             <!-- Phase 2B의 네 지표만 활성화한다. 미구현 지표는 가짜 값 대신 비활성 상태로 둔다. -->
             <nav class="financial-metric-selector" aria-label="재무 지표 선택">
               <button class="active" type="button" data-financial-metric="growth" aria-pressed="true">성장·수익성</button>
@@ -281,6 +282,46 @@
               </div>
               <p class="financial-source-note" id="detailFinancialSource">SEC EDGAR 저장 이력</p>
             </section>
+            </div>
+            <!-- REIT 전용 shell은 기존 GENERAL 계산·selector와 분리한다. -->
+            <div data-reit-financial hidden>
+              <nav class="financial-metric-selector" aria-label="REIT 재무 지표 선택">
+                <button type="button" class="active" data-reit-metric="core" aria-pressed="true">REIT 핵심</button>
+                <button type="button" data-reit-metric="ffo" aria-pressed="false">FFO</button>
+                <button type="button" data-reit-metric="nffo" aria-pressed="false">Normalized FFO</button>
+                <button type="button" data-reit-metric="affo" aria-pressed="false">AFFO</button>
+                <button type="button" data-reit-metric="ffoShare" aria-pressed="false">FFO/주</button>
+                <button type="button" data-reit-metric="nffoShare" aria-pressed="false">NFFO/주</button>
+                <button type="button" data-reit-metric="affoShare" aria-pressed="false">AFFO/주</button>
+              </nav>
+              <section class="financial-growth-panel" aria-labelledby="reitFinancialTitle">
+                <div class="financial-panel-header">
+                  <div><h3 id="reitFinancialTitle">REIT 핵심</h3><span data-reit-latest>기간 미확보</span></div>
+                  <div class="financial-toggle" role="group" aria-label="REIT 재무 기간">
+                    <button type="button" class="active" data-reit-period="annual" aria-pressed="true">연간</button>
+                    <button type="button" data-reit-period="quarterly" aria-pressed="false">분기</button>
+                  </div>
+                </div>
+                <dl class="financial-summary" data-reit-summary></dl>
+                <div class="financial-range-row" data-reit-ranges hidden>
+                  <span>분기 범위</span><div class="financial-toggle" role="group" aria-label="REIT 분기 범위">
+                    <button type="button" data-reit-range="8" aria-pressed="false">8Q</button>
+                    <button type="button" class="active" data-reit-range="12" aria-pressed="true">12Q</button>
+                    <button type="button" data-reit-range="20" aria-pressed="false">20Q</button>
+                    <button type="button" data-reit-range="all" aria-pressed="false">전체</button>
+                  </div>
+                </div>
+                <div class="financial-chart-wrap">
+                  <div class="financial-chart-host" id="detailReitFinancialMetrics" role="img" aria-label="REIT 재무 차트"></div>
+                  <div class="financial-chart-state" aria-live="polite">
+                    <p data-reit-status>저장된 REIT 데이터를 불러오는 중입니다.</p>
+                    <button type="button" class="btn btn-secondary" data-reit-retry hidden>다시 불러오기</button>
+                  </div>
+                </div>
+                <p class="financial-source-note" data-reit-source></p>
+                <p class="financial-source-note">FFO/AFFO는 회사 공시 정의에 따라 기간별 정의가 달라질 수 있습니다.</p>
+              </section>
+            </div>
           </div>
           <div class="company-detail-panel hidden" data-detail-panel="dividend">
             <div class="detail-section-intro"><i class="fa-solid fa-coins"></i><span id="detailDividendSource">저장된 배당
@@ -553,8 +594,9 @@
   <!-- 새 위젯 설정을 즉시 받도록 배포 버전을 명시한다. -->
   <script src="tradingview-widget.js?v=dark-chart-2"></script>
   <script src="williams-signal.js?v=williams-state-1"></script>
-  <script src="financial-chart.js?v=financial-metrics-2"></script>
-  <script src="app.js?v=financial-growth-1"></script>
+  <script src="financial-chart.js?v=reit-financial-p9b"></script>
+  <script src="reit-financial-chart.js?v=reit-financial-p9b"></script>
+  <script src="app.js?v=reit-financial-p9b"></script>
   <script src="fundamental-progress.js?v=market-candle-refresh-1"></script>
 </body>
 

@@ -303,7 +303,7 @@
     if (root && !controller) controller = createController(root);
     return controller;
   }
-  globalThis.FinancialChart = Object.freeze({ financialMetricConfigs, formatMetricValue, hasMetricData, numberOrNull, netMargin, percentageChange, formatAmount,
+  globalThis.FinancialChart = Object.freeze({ loadLibrary, financialMetricConfigs, formatMetricValue, hasMetricData, numberOrNull, netMargin, percentageChange, formatAmount,
     formatPercent, prepareFinancialData, selectRange, tooltipHtml, createChartOption, createController,
     render: company => getController()?.setCompany(company),
     prepareTicker: ticker => getController()?.prepareTicker(ticker),

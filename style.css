@@ -631,6 +631,14 @@ body.modal-open {
 [data-detail-panel="financials"] .financial-tooltip > div { display: flex; justify-content: space-between; gap: 16px; padding: 2px 0; }
 [data-detail-panel="financials"] .financial-tooltip span { color: #94a3b8; }
 [data-detail-panel="financials"] .financial-tooltip b { font-weight: 500; }
+/* 긴 공시 정의 버전은 tooltip 안에서만 줄바꿈해 모바일 폭을 넘지 않는다. */
+[data-reit-financial] { min-width: 0; }
+[data-reit-financial][hidden], [data-general-financial][hidden] { display: none !important; }
+[data-reit-financial] .financial-summary { flex-wrap: wrap; }
+[data-reit-financial] [data-reit-latest] { font-size: 0.73rem; color: var(--text-secondary); }
+[data-reit-financial] .reit-tooltip { max-width: min(520px, 100%); }
+[data-reit-financial] .reit-tooltip b { overflow-wrap: anywhere; text-align: right; min-width: 0; }
+[data-reit-financial] .reit-tooltip span { flex-shrink: 0; }
 @media (max-width: 600px) {
   [data-detail-panel="financials"] .financial-summary { justify-content: space-between; gap: 8px; }
   [data-detail-panel="financials"] .financial-toggle button { padding: 6px 9px; }

@@ -320,12 +320,17 @@ test('회사 API는 analysisProfile만 additive로 제공하고 기존 필드·�
   } finally { sqlite.close(); }
 });
 
-test('UI·SEC 재무 계산 파일은 안정 checkpoint와 바이트 단위로 동일하다', async () => {
+test('P9B 승인 UI 분리 외 GENERAL 코드와 SEC 재무 계산은 checkpoint와 동일하다', async () => {
   const { execFileSync } = await import('node:child_process');
-  for (const filename of ['app.js', 'index.html', 'style.css', 'financial-chart.js', 'worker/src/sec-financial-metadata.js']) {
-    const baseline = execFileSync('git', ['show', `ae4d8e1d81665a433071d7e49f938570da1878f9:${filename}`]);
-    // Windows checkout의 CRLF 변환만 허용한다. 코드 내용 변경은 허용하지 않는다.
-    assert.equal(readFileSync(new URL(`../${filename}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n'),
-      baseline.toString('utf8').replace(/\r\n/g, '\n'));
-  }
+  const baseline = filename => execFileSync('git', ['show', `9c524367c404338e097dd5a5e2f7975f44f9fd70:${filename}`], { encoding: 'utf8' }).replace(/\r\n/g, '\n');
+  const current = filename => readFileSync(new URL(`../${filename}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  // P1 당시의 UI 전체 동결은 P9B의 명시적인 UI 변경 승인으로 끝났다. 계산과 GENERAL shell 보호는 유지한다.
+  assert.equal(current('worker/src/sec-financial-metadata.js'), baseline('worker/src/sec-financial-metadata.js'));
+  assert.equal(current('financial-chart.js').replace('Object.freeze({ loadLibrary, financialMetricConfigs', 'Object.freeze({ financialMetricConfigs'), baseline('financial-chart.js'));
+  assert.equal(current('app.js').replaceAll('globalThis.FinancialPanel', 'globalThis.FinancialChart'), baseline('app.js'));
+  const generalShell = text => text.slice(text.indexOf('<nav class="financial-metric-selector"'), text.indexOf('</section>', text.indexOf('<nav class="financial-metric-selector"')));
+  assert.equal(generalShell(current('index.html')), generalShell(baseline('index.html')));
+  const reitCssStart = current('style.css').indexOf('/* 긴 공시 정의 버전');
+  const reitCssEnd = current('style.css').indexOf('@media (max-width: 600px)', reitCssStart);
+  assert.equal(current('style.css').slice(0, reitCssStart) + current('style.css').slice(reitCssEnd), baseline('style.css'));
 });

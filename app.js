@@ -622,7 +622,7 @@ async function loadStockChart(ticker) {
   const stock = state.watchlist.find(item => item.ticker === ticker);
   if (!stock) return;
   // 상세 원본을 기다리는 동안 이전 회사의 재무 차트가 남지 않도록 종목 변경만 먼저 알린다.
-  globalThis.FinancialChart?.prepareTicker(ticker);
+  globalThis.FinancialPanel?.prepareTicker(ticker);
 
   const initialPrice = getStoredPricePresentation(stock);
   document.getElementById('chartTicker').textContent = stock.ticker;
@@ -998,7 +998,7 @@ function renderCompanyDetailData(company) {
   if (!financialContainer || !dividendContainer) return;
 
   // 재무 표시만 전용 모듈에 맡긴다. 아래 배당 렌더링과 포맷터는 기존 정책을 유지한다.
-  globalThis.FinancialChart?.render(company);
+  globalThis.FinancialPanel?.render(company);
 
   const savedDividend = company.dividendMetrics;
   const dividend = savedDividend?.source === 'BUSINESS_QUANT' ? savedDividend : null;
@@ -1637,8 +1637,8 @@ function setupCompanyDetail() {
       document.querySelectorAll('.company-detail-panel').forEach(panel => {
         panel.classList.toggle('hidden', panel.getAttribute('data-detail-panel') !== selectedTab);
       });
-      if (selectedTab === 'financials') requestAnimationFrame(() => globalThis.FinancialChart?.show());
-      else globalThis.FinancialChart?.dispose();
+      if (selectedTab === 'financials') requestAnimationFrame(() => globalThis.FinancialPanel?.show());
+      else globalThis.FinancialPanel?.dispose();
       if (selectedTab === 'chart') {
         requestAnimationFrame(() => renderActiveTradingViewChart());
       } else {
@@ -1656,13 +1656,13 @@ function openCompanyDetailModal() {
   destroyMainChart();
   requestAnimationFrame(() => {
     renderActiveTradingViewChart();
-    if (document.querySelector('[data-detail-panel="financials"]:not(.hidden)')) globalThis.FinancialChart?.show();
+    if (document.querySelector('[data-detail-panel="financials"]:not(.hidden)')) globalThis.FinancialPanel?.show();
   });
   // 상세창은 저장값을 읽기만 한다. 열 때마다 외부 API를 다시 호출하면 Massive 분당 한도가 빨리 소진된다.
 }
 
 function closeCompanyDetailModal() {
-  globalThis.FinancialChart?.dispose();
+  globalThis.FinancialPanel?.dispose();
   document.getElementById('companyDetailModal').classList.add('hidden');
   document.body.classList.remove('modal-open');
   // 닫힌 모달의 iframe을 해제하고, 현재 화면이 2번일 때만 메인 차트를 복원한다.
