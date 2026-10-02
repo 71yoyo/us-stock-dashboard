@@ -4,8 +4,8 @@ import { classificationStatement } from './company-classification.js';
 import { MassiveCandlePendingError, MassiveCandleUnavailableError, syncCandlesFromMassive } from './massive-sync.js';
 import { SEC_FINANCIAL_METADATA_VERSION, secDifferenceMetadata, buildSecPeriodIndex,
   resolveSecPeriodMetadata, buildFinancialProvenance, financialProvenanceStatements } from './sec-financial-metadata.js';
-import { extractStandardRawMetrics } from './sec-standard-raw.js';
-import { assertStandardRawSchema, saveStandardRawMetrics } from './sec-standard-raw-store.js';
+import { assertRawRuntimeSchema, latestRawAccession, runStandardRawRuntime,
+  standardRawEnabled } from './sec-standard-raw-runtime.js';
 
 const FMP_BASE_URL = 'https://financialmodelingprep.com/stable';
 const SEC_FACTS_BASE_URL = 'https://data.sec.gov/api/xbrl/companyfacts';
@@ -273,12 +273,20 @@ function valueAt(values, end) {
   return values.get(end)?.val ?? null;
 }
 
+/** 완료된 legacy 재무를 다시 쓰지 않고 raw 초기 처리/재시도만 수행하는 내부 경로다. */
+export async function syncStandardRawFromSec(environment, ticker, accession = null) {
+  if (!standardRawEnabled(environment)) return { status: 'disabled' };
+  // accession을 이미 알면 성공 registry에서 CompanyFacts 다운로드 전에 종료할 수 있다.
+  const facts = accession ? null : await fetchSecCompanyFacts(environment, ticker);
+  return runStandardRawRuntime(environment, ticker, accession || latestRawAccession(facts),
+    () => facts || fetchSecCompanyFacts(environment, ticker));
+}
+
 export async function syncFinancialsFromSec(environment, ticker) {
   const facts = await fetchSecCompanyFacts(environment, ticker);
   // R3는 별도 승인 전 기본 비활성이다. 같은 응답만 재사용하며 추가 SEC/시세 API는 호출하지 않는다.
-  const rawEnabled = environment.SEC_STANDARD_RAW_FIELDS_ENABLED === 'true';
-  if (rawEnabled) await assertStandardRawSchema(environment.DB);
-  const standardRaw = rawEnabled ? extractStandardRawMetrics(facts) : null;
+  const rawEnabled = standardRawEnabled(environment);
+  if (rawEnabled) await assertRawRuntimeSchema(environment.DB);
   const currentYear = new Date().getUTCFullYear();
   const minAnnualYear = currentYear - 10;
   const minQuarterYear = currentYear - 11;
@@ -375,7 +383,9 @@ export async function syncFinancialsFromSec(environment, ticker) {
   const annualCount = await writePeriod('annual', ['10-K', '10-K/A'], minAnnualYear, 10);
   const quarterlyCount = await writePeriod('quarterly', ['10-Q', '10-Q/A', '10-K', '10-K/A'], minQuarterYear, 40);
   if (!annualCount && !quarterlyCount) throw new Error('SEC EDGAR 재무 원문에서 저장할 기간을 찾지 못했습니다.');
-  if (rawEnabled) await saveStandardRawMetrics(environment.DB, ticker, standardRaw);
+  // raw SQL 실패는 raw registry에만 남긴다. 이미 정상 저장한 legacy 결과/반환 contract는 유지한다.
+  if (rawEnabled) await runStandardRawRuntime(environment, ticker,
+    environment.rawAccession || latestRawAccession(facts), () => facts);
   return { source: 'SEC EDGAR', annualCount, quarterlyCount,
     metadataVersion: SEC_FINANCIAL_METADATA_VERSION, metadataCoverage };
 }

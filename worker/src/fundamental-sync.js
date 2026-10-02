@@ -1,5 +1,7 @@
 import { ensureFundamentalStore } from './fundamental-store.js';
-import { syncProfile, syncFinancialsFromSec } from './fmp-sync.js';
+import { syncProfile, syncFinancialsFromSec, syncStandardRawFromSec } from './fmp-sync.js';
+import { assertRawRuntimeSchema, recordRawDiscoveryFailure, SEC_RAW_DATA_VERSION,
+  standardRawEnabled } from './sec-standard-raw-runtime.js';
 import { SEC_FINANCIAL_METADATA_VERSION } from './sec-financial-metadata.js';
 // 배당 수집은 별도 Business Quant 예약 작업이 담당한다.
 const kinds = ['profile', 'financials'];
@@ -241,8 +243,11 @@ async function financialTask(environment, ticker, previous) {
   const saved = await environment.DB.prepare('SELECT accession FROM sec_filing_checks WHERE ticker = ?').bind(ticker).first();
   // 기존 공시 번호가 같아도 출처 저장 버전이 없으면 한 번 재처리한다. 날짜만 보고 FY/Q를 채우지 않는다.
   if (saved?.accession === filing.accession && previous.annualCount
-    && previous.metadataVersion === SEC_FINANCIAL_METADATA_VERSION) return previous;
-  const details = await syncFinancialsFromSec(environment, ticker);
+    && previous.metadataVersion === SEC_FINANCIAL_METADATA_VERSION) {
+    await syncStandardRawFromSec(environment, ticker, filing.accession);
+    return previous;
+  }
+  const details = await syncFinancialsFromSec({ ...environment, rawAccession: filing.accession }, ticker);
   // 공시 목록이 원문보다 먼저 갱신될 수 있다. 해당 accession이 없으면 다음날 다시 읽는다.
   const facts = environment.secFacts.get(ticker);
   const indexed = Object.values(facts?.['us-gaap'] || {}).some(fact =>
@@ -318,6 +323,7 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
   }
   const scope = { ...environment, secFacts: new Map() };
   await seedJobs(scope);
+  if (standardRawEnabled(scope)) await assertRawRuntimeSchema(scope.DB);
   const now = new Date().toISOString();
   const due = await scope.DB.prepare(`SELECT j.*, w.display_order FROM fundamental_jobs j
     JOIN user_watchlist w ON w.ticker=j.ticker AND w.user_id='primary'
@@ -326,7 +332,16 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
       AND j.kind IN ('profile', 'financials') AND (? IS NULL OR j.ticker=?)
     ORDER BY CASE WHEN j.checked_at IS NULL THEN 0 ELSE 1 END, j.checked_at, w.display_order`)
     .bind(now, now, requestedTicker, requestedTicker).all();
-  const tickers = [...new Set(due.results.map(job => job.ticker))].slice(0, 2);
+  // legacy의 다음 실행일이 아직 오지 않아도 미완료 raw는 독립적으로 처리한다.
+  // 종목 목록 단위 조회 한 번이며 raw 행마다 조회하는 N+1은 만들지 않는다.
+  const rawDue = standardRawEnabled(scope) ? await scope.DB.prepare(`SELECT w.ticker FROM user_watchlist w
+    LEFT JOIN sec_raw_runtime r ON r.ticker=w.ticker
+    WHERE w.user_id='primary' AND (? IS NULL OR w.ticker=?)
+      AND (r.lease_until IS NULL OR r.lease_until<=?)
+      AND (r.ticker IS NULL OR r.raw_data_version!=? OR r.raw_status!='ready')
+      AND (r.next_run_at IS NULL OR r.next_run_at<=?) ORDER BY w.display_order`)
+    .bind(requestedTicker, requestedTicker, now, SEC_RAW_DATA_VERSION, now).all() : { results: [] };
+  const tickers = [...new Set([...due.results, ...rawDue.results].map(job => job.ticker))].slice(0, 2);
   const results = [];
   const started = Date.now();
   for (const ticker of tickers) {
@@ -340,6 +355,15 @@ export async function runFundamentalBatch(environment, requestedTicker = null) {
         const job = due.results.find(item => item.ticker === ticker && item.kind === kind);
         if (!job || Date.now() - started > 20000) continue;
         results.push(await executeJob(scope, job));
+      }
+      if (!due.results.some(job => job.ticker === ticker && job.kind === 'financials')
+        && rawDue.results.some(job => job.ticker === ticker) && Date.now() - started <= 20000) {
+        try {
+          const filing = await latestFiling(scope, ticker);
+          await syncStandardRawFromSec(scope, ticker, filing.accession);
+        } catch {
+          await recordRawDiscoveryFailure(scope, ticker);
+        }
       }
     } finally {
       scope.secFacts.delete(ticker);

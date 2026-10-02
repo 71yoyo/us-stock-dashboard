@@ -170,7 +170,8 @@ export function deriveStandardMetric(metricName, period, inputs) {
 }
 
 /** 네트워크/DB 의존성 없는 순수 추출기다. 동일 sync의 이미 다운로드된 facts 객체만 받는다. */
-export function extractStandardRawMetrics(facts, { minimumYear = new Date().getUTCFullYear() - 10 } = {}) {
+export function extractStandardRawMetrics(facts, { minimumYear = new Date().getUTCFullYear() - 10,
+  financialPeriods = [] } = {}) {
   const sets = Object.fromEntries(Object.entries(STANDARD_RAW_METRICS)
     .map(([name, definition]) => [name, collect(facts, definition)]));
   // raw가 없는 회사도 기존 표준 재무의 기간을 이용해 명시적 NULL을 남긴다. 달력 FY/Q 역산은 하지 않는다.
@@ -181,8 +182,16 @@ export function extractStandardRawMetrics(facts, { minimumYear = new Date().getU
   const records = [];
   const eligible = entries => entries.filter(entry => Number(entry.end.slice(0, 4)) >= minimumYear);
   const pointNames = Object.keys(STANDARD_RAW_METRICS).filter(name => STANDARD_RAW_METRICS[name].kind === 'point_in_time');
-  const pointDates = [...new Set(pointNames.flatMap(name => eligible(sets[name]).filter(entry => !entry.start)
-    .map(entry => entry.end)))].sort().slice(-60);
+  // 재무 기간 말과 DEI cover-page 실제 날짜는 서로 다른 보존 창이다.
+  // DB의 기존 10FY/40Q를 명시적으로 받으면 원문이 없는 날짜도 NULL로 남겨 보존/누락을 구분한다.
+  const protectedDates = ['annual','quarterly'].flatMap(type => financialPeriods
+    .filter(period => period.period_type === type && validDate(period.fiscal_period_end))
+    .map(period => period.fiscal_period_end).sort().slice(-(type === 'annual' ? 10 : 40)));
+  const financialDates = [...new Set(pointNames.flatMap(name => eligible(sets[name])
+    .filter(entry => !entry.start && entry.taxonomy !== 'dei').map(entry => entry.end)))].sort().slice(-60);
+  const deiDates = eligible(sets.shares_outstanding).filter(entry => !entry.start && entry.taxonomy === 'dei')
+    .map(entry => entry.end).sort();
+  const pointDates = [...new Set([...financialDates, ...protectedDates, ...[...new Set(deiDates)].slice(-60)])].sort();
   for (const end of pointDates) for (const name of pointNames) records.push(directRecord(name,
     { type: 'instant', start: '', end }, latest(sets[name].filter(entry => !entry.start && entry.end === end)), periodIndex));
   const periodNames = Object.keys(STANDARD_RAW_METRICS).filter(name => !pointNames.includes(name));

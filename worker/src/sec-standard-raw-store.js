@@ -53,7 +53,7 @@ async function fingerprint(value) {
  * 필드 이름을 겹쳐 overwrite하지 않고 새 이력 테이블에 원본과 파생 입력을 append-only로 남긴다.
  * JSON bulk bind를 사용해 추가 SQL 수를 제한하며 모든 chunk를 하나의 D1 batch로 원자 실행한다.
  */
-export async function saveStandardRawMetrics(DB, ticker, records) {
+export async function saveStandardRawMetrics(DB, ticker, records, { before = [], after = [] } = {}) {
   if (typeof ticker !== 'string' || !/^[A-Z][A-Z0-9.-]{0,14}$/.test(ticker)) throw new Error('SEC raw 종목코드가 유효하지 않습니다.');
   if (!Array.isArray(records)) throw new Error('SEC raw 저장 자료는 행 배열이어야 합니다.');
   const identities = new Set();
@@ -66,7 +66,8 @@ export async function saveStandardRawMetrics(DB, ticker, records) {
     const sourceFingerprint = record.provenance ? await fingerprint(record.provenance) : null;
     normalized.push({ ...record, sourceFingerprint });
   }
-  const statements = [];
+  // runtime은 같은 transaction 안에서 fencing과 완료 기록을 결합한다. 기존 직접 저장 contract는 유지한다.
+  const statements = [...before];
   // 256행 단위로 출처 JSON 크기를 제한한다. 동기화 한 회는 최대 10년/40분기의 기간 창만 추출한다.
   for (let offset = 0; offset < normalized.length; offset += 256) {
     const rows = JSON.stringify(normalized.slice(offset, offset + 256));
@@ -103,6 +104,7 @@ export async function saveStandardRawMetrics(DB, ticker, records) {
       FROM json_each(?) WHERE json_extract(value,'$.availability')='available'
       ON CONFLICT(ticker,metric_name,period_type,period_start,period_end,source_fingerprint) DO NOTHING`).bind(ticker, rows));
   }
+  statements.push(...after);
   if (statements.length) await DB.batch(statements);
   return { records: normalized.length, available: normalized.filter(row => row.availability === 'available').length,
     missing: normalized.filter(row => row.availability === 'missing').length,
