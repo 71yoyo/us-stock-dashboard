@@ -59,7 +59,12 @@ export function specializedDefinitionBoundaries(data) {
   return boundaries;
 }
 
-export async function querySpecializedMetrics(DB, input) {
+export async function querySpecializedMetrics(DB, input, options = {}) {
+  requireQuery(options && typeof options === 'object' && !Array.isArray(options)
+    && Object.keys(options).every(key => key === 'sourceSummaryOnly')
+    && (options.sourceSummaryOnly === undefined || typeof options.sourceSummaryOnly === 'boolean'),
+  '출처 조회 옵션이 올바르지 않습니다.');
+  const sourceSummaryOnly = options.sourceSummaryOnly === true;
   const query = validateSpecializedQuery(input);
   const clauses = ['v.ticker=?', 'v.metric_code=?', 'v.period_scope=?', 'v.value_basis=?', 'v.share_basis=?'];
   const bindings = [query.ticker, query.metricCode, query.periodScope, query.valueBasis, query.shareBasis];
@@ -74,12 +79,22 @@ export async function querySpecializedMetrics(DB, input) {
     WHERE own.record_key=v.record_key AND json_extract(own.source_metadata_json,'$.fiscal_year')=v.fiscal_year
     AND (v.period_scope='annual' OR json_extract(own.source_metadata_json,'$.fiscal_period')=v.fiscal_period))`);
   const where = clauses.join(' AND ');
-  const { results: values } = await DB.prepare(`SELECT v.* FROM company_metric_values v WHERE ${where}
+  // 사용하지 않는 validation_json 등을 전송하지 않는다. 반환 값/정의/검증 상태는 기존과 동일하다.
+  const { results: values } = await DB.prepare(`SELECT v.record_key,v.fiscal_year,v.fiscal_period,
+    v.period_start,v.period_end,v.canonical_value,v.canonical_unit,v.definition_owner,v.definition_version,
+    v.attribution_basis,v.validation_status,v.raw_value,v.raw_unit,v.raw_unit_multiplier
+    FROM company_metric_values v WHERE ${where}
     ORDER BY v.period_end,v.period_start,v.fiscal_year,v.fiscal_period,v.definition_owner,v.definition_version,v.record_key`)
     .bind(...bindings).all();
   // 원문 excerpt 등 큰 JSON은 DB에 그대로 보존한다. 조회 응답에 필요한 6개 metadata만 SQL에서 추출해
   // Worker의 불필요한 JSON 전송/파싱 CPU를 줄인다. 객체가 아닌 손상 metadata는 기존 오류 검사를 유지한다.
-  const { results: sources } = await DB.prepare(`SELECT s.record_key,s.source_type,s.source_url,s.source_hash,
+  // HTTP는 출처 건수/종류만 필요하다. SQL에서 집계해 불필요한 원문 요약 JSON 파싱도 생략한다.
+  // 기존 기본 서비스/감사 조회는 상세 출처 계약을 그대로 유지하며 손상 metadata도 두 경로 모두 거부한다.
+  const sourceSql = sourceSummaryOnly ? `SELECT s.record_key,s.source_type,COUNT(*) AS source_count,
+    SUM(CASE WHEN json_valid(s.source_metadata_json)=0 THEN 1
+      WHEN json_type(s.source_metadata_json)!='object' THEN 1 ELSE 0 END) AS invalid_metadata
+    FROM company_metric_sources s JOIN company_metric_values v ON v.record_key=s.record_key WHERE ${where}
+    GROUP BY s.record_key,s.source_type ORDER BY s.record_key,s.source_type` : `SELECT s.record_key,s.source_type,s.source_url,s.source_hash,
     s.document_name,s.section,s.page_number,
     CASE WHEN json_type(s.source_metadata_json)='object' THEN json_object(
       'physical_page',json_extract(s.source_metadata_json,'$.physical_page'),
@@ -90,9 +105,17 @@ export async function querySpecializedMetrics(DB, input) {
       'unit_qualifier',json_extract(s.source_metadata_json,'$.unit_qualifier'))
     ELSE s.source_metadata_json END AS source_metadata_json FROM company_metric_sources s
     JOIN company_metric_values v ON v.record_key=s.record_key WHERE ${where}
-    ORDER BY s.record_key,s.source_url,s.source_hash`).bind(...bindings).all();
+    ORDER BY s.record_key,s.source_url,s.source_hash`;
+  const { results: sources } = await DB.prepare(sourceSql).bind(...bindings).all();
   const byKey = new Map();
   for (const source of sources) {
+    if (sourceSummaryOnly) {
+      requireQuery(source.invalid_metadata === 0, '저장된 출처 metadata가 손상됐습니다. 저장 무결성을 확인해 주세요.');
+      if (!byKey.has(source.record_key)) byKey.set(source.record_key, { count: 0, types: [] });
+      const summary = byKey.get(source.record_key);
+      summary.count += source.source_count; summary.types.push(source.source_type);
+      continue;
+    }
     let metadata;
     try { metadata = JSON.parse(source.source_metadata_json); }
     catch { throw new Error('저장된 출처 metadata가 손상됐습니다. 저장 무결성을 확인해 주세요.'); }
@@ -109,7 +132,8 @@ export async function querySpecializedMetrics(DB, input) {
     periodStart: row.period_start, periodEnd: row.period_end, value: row.canonical_value, unit: row.canonical_unit,
     definitionOwner: row.definition_owner, definitionVersion: row.definition_version, attributionBasis: row.attribution_basis,
     validationStatus: row.validation_status, rawValue: row.raw_value, rawUnit: row.raw_unit, rawMultiplier: row.raw_unit_multiplier,
-    provenance: byKey.get(row.record_key) || [] }));
+    ...(sourceSummaryOnly ? { sourceSummary: byKey.get(row.record_key) || { count: 0, types: [] } }
+      : { provenance: byKey.get(row.record_key) || [] }) }));
   return { ticker: query.ticker, metric: query.metricCode, scope: query.periodScope, basis: query.valueBasis,
     shareBasis: query.shareBasis, sourcePolicy: query.includeComparisons ? 'all_disclosures' : 'primary_period_disclosure',
     dateFilter: 'periodEnd inclusive', data, definitionBoundaries: specializedDefinitionBoundaries(data),

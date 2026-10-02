@@ -6,6 +6,7 @@ import { businessQuantDividendView } from './businessquant-view.js';
 import { runDividendPipeline } from './businessquant-sync.js';
 import { completedUsSessionDate, isUsSessionCompleteToday } from './us-market-session.js';
 import { readAnalysisProfile } from './company-classification.js';
+import { parseSpecializedHttpQuery, readSpecializedHttpSeries } from './specialized-metric-http.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -582,6 +583,31 @@ export default {
         return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
       }
       return jsonResponse(environment, 200, { companies: await listCompanies(environment) });
+    }
+
+    const specializedMatch = url.pathname.match(/^\/api\/companies\/([^/]+)\/specialized-metrics$/);
+    if (specializedMatch) {
+      if (request.method !== 'GET') {
+        return jsonResponse(environment, 405, { error: '지원하지 않는 요청 방식입니다.' });
+      }
+      let query;
+      try {
+        // 기존 티커 정규화 규칙을 공유하되 잘못된 URL 인코딩도 client error로 처리한다.
+        const ticker = normalizeTicker(decodeURIComponent(specializedMatch[1]));
+        if (!isTickerValid(ticker)) throw new Error('티커 형식이 올바르지 않습니다.');
+        query = parseSpecializedHttpQuery(ticker, url.searchParams);
+      } catch (error) {
+        return jsonResponse(environment, 400, { error: error instanceof URIError
+          ? '티커 URL 인코딩이 올바르지 않습니다.' : error.message });
+      }
+      try {
+        const series = await readSpecializedHttpSeries(environment, query);
+        return series ? jsonResponse(environment, 200, series)
+          : jsonResponse(environment, 404, { error: '저장된 회사 정보가 없습니다. 다음 동기화 후 다시 시도해 주세요.' });
+      } catch {
+        // DB 내부 오류/출처 원문은 외부에 노출하지 않는다. 이 경로에는 복구 쓰기·재시도가 없다.
+        return jsonResponse(environment, 502, { error: '저장된 specialized 지표를 읽지 못했습니다. 저장 무결성과 연결 상태를 확인해 주세요.' });
+      }
     }
 
     const companyMatch = url.pathname.match(/^\/api\/companies\/([^/]+)$/);
