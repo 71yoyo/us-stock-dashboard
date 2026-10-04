@@ -7,6 +7,7 @@ import { runDividendPipeline } from './businessquant-sync.js';
 import { completedUsSessionDate, isUsSessionCompleteToday } from './us-market-session.js';
 import { readAnalysisProfile } from './company-classification.js';
 import { parseSpecializedHttpQuery, readSpecializedHttpSeries } from './specialized-metric-http.js';
+import { handleSecRawQueue } from './sec-raw-queue.js';
 
 const tickerPattern = /^[A-Z][A-Z0-9.\-]{0,9}$/;
 
@@ -627,6 +628,11 @@ export default {
     }
 
     return jsonResponse(environment, 404, { error: '존재하지 않는 API 경로입니다.' });
+  },
+
+  // R7은 handler만 준비한다. 운영 Queue binding/Cron/flag는 이번 Phase에서 변경하지 않는다.
+  async queue(batch, environment) {
+    return handleSecRawQueue(batch, environment);
   },
 
   async scheduled(controller, environment, executionContext) {

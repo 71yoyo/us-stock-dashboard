@@ -52,20 +52,36 @@ export function extractCompactRawRecords(facts, accession, financialPeriods = []
 const safeError = 'SEC compact raw 처리 실패. 기존 값은 유지되며 raw-only 재시도를 기다립니다.';
 
 /**
- * R6I 후보 경로다. HTTP/큐/스케줄러에는 연결하지 않고 기본 false flag를 유지한다.
- * 초기 historical backfill은 맡지 않는다. schema preflight는 호출자가 수행한다.
+ * R6I compact 경로를 유지한다. R7은 shared executor를 Queue에서 재사용하되 기본 false flag를 유지한다.
+ * 이 wrapper는 초기 historical backfill을 맡지 않는다. schema preflight는 호출자가 수행한다.
  */
-export async function runCompactRawRuntime(environment, ticker, accession, loadCompact) {
+export async function runCompactRawRuntime(environment, ticker, accession, loadCompact, options = {}) {
+  return runRawRecordRuntime(environment, ticker, accession, async () => {
+    const { facts, financialPeriods } = await loadCompact();
+    return extractCompactRawRecords(facts, accession, financialPeriods);
+  }, options);
+}
+
+/** Node와 compact consumer가 lease/fence/원자 저장을 공유한다. Node loader는 Worker에 import하지 않는다. */
+export async function runRawRecordRuntime(environment, ticker, accession, loadRecords, options = {}) {
   if (!standardRawEnabled(environment)) return { status: 'disabled' };
   if (!/^[A-Z][A-Z0-9.-]{0,14}$/.test(ticker || '') || !/^\d{10}-\d{2}-\d{6}$/.test(accession || '')
-    || typeof loadCompact !== 'function') throw new Error('SEC compact 실행 인자가 유효하지 않습니다.');
+    || typeof loadRecords !== 'function') throw new Error('SEC compact 실행 인자가 유효하지 않습니다.');
+  const identity = options.sourceIdentity;
+  if (identity && (!/^[a-f0-9]{64}$/.test(identity) || !['historical','compact'].includes(options.channel))) {
+    throw new Error('SEC raw source identity가 유효하지 않습니다.');
+  }
   const DB = environment.DB, now = new Date().toISOString();
   let token = null, fence = null;
   try {
     await DB.prepare('INSERT OR IGNORE INTO sec_raw_runtime(ticker) VALUES (?)').bind(ticker).run();
     const state = await DB.prepare('SELECT * FROM sec_raw_runtime WHERE ticker=?').bind(ticker).first();
     // 동일 완료 공시 shortcut에만 전체 count/source-gap 검증이 필요하다. 새 공시에는 이 미사용 조회를 반복하지 않는다.
-    if (state.raw_status === 'ready' && state.raw_last_accession === accession
+    const checkpoint = identity ? await DB.prepare(`SELECT * FROM sec_raw_payload_checkpoint
+      WHERE ticker=? AND channel=?`).bind(ticker,options.channel).first() : null;
+    const samePayload = !identity || checkpoint?.source_identity === identity
+      && checkpoint.accession === accession && checkpoint.schema_version === 1;
+    if (samePayload && state.raw_status === 'ready' && state.raw_last_accession === accession
       && state.raw_schema_version === SEC_RAW_SCHEMA_VERSION && state.raw_data_version === SEC_RAW_DATA_VERSION) {
       const integrity = await DB.prepare(`SELECT COUNT(*) AS actual_count,
         SUM(CASE WHEN m.availability='available' AND p.source_fingerprint IS NULL THEN 1 ELSE 0 END) AS source_gaps
@@ -81,16 +97,16 @@ export async function runCompactRawRuntime(environment, ticker, accession, loadC
     const claim = await DB.prepare(`UPDATE sec_raw_runtime SET raw_status='running',lease_token=?,lease_until=?,
       fence=fence+1,attempt_count=attempt_count+1,attempt_accession=?,attempt_data_version=?
       WHERE ticker=? AND (lease_until IS NULL OR lease_until<=?)
-      AND (next_run_at IS NULL OR next_run_at<=? OR attempt_accession IS NOT ? OR attempt_data_version!=?)
+      AND (next_run_at IS NULL OR next_run_at<=? OR attempt_accession IS NOT ? OR attempt_data_version!=? ${options.retryNow === true ? 'OR 1=1' : ''})
       RETURNING fence`).bind(token,new Date(Date.now()+120000).toISOString(),accession,
         SEC_RAW_DATA_VERSION,ticker,now,now,accession,SEC_RAW_DATA_VERSION).first();
     if (!claim) return { status: 'deferred' };
     fence = claim.fence;
-    const { facts, financialPeriods } = await loadCompact();
-    const records = extractCompactRawRecords(facts,accession,financialPeriods);
+    const records = await loadRecords();
     if (!records.length) throw new Error('SEC compact 저장 가능한 기간이 없습니다.');
     const reviews = await lookupIncrementalReviews(DB,ticker,records);
-    const pending = reviews.length > 0;
+    const pending = reviews.length > 0 || options.strictReview === true
+      && records.some(row => row.availability === 'needs_review');
     const stored = await saveStandardRawMetrics(DB,ticker,records,{ preserveExisting:true,
       before:[DB.prepare('INSERT INTO sec_raw_runtime_guard(ticker,lease_token,fence) VALUES (?,?,?)').bind(ticker,token,fence)],
       after:[DB.prepare(`UPDATE sec_raw_runtime SET raw_schema_version=?,raw_data_version=?,raw_status=?,
@@ -103,6 +119,11 @@ export async function runCompactRawRuntime(environment, ticker, accession, loadC
         .bind(SEC_RAW_SCHEMA_VERSION,SEC_RAW_DATA_VERSION,pending?'pending':'ready',pending?1:0,accession,
           pending?1:0,new Date().toISOString(),pending?'SEC compact 비교기간 변경 후보 검토 필요':null,
           ticker,ticker,ticker,token,fence),
+        ...(identity && !pending ? [DB.prepare(`INSERT INTO sec_raw_payload_checkpoint
+          (ticker,channel,accession,schema_version,source_identity) VALUES (?,?,?,1,?)
+          ON CONFLICT(ticker,channel) DO UPDATE SET accession=excluded.accession,
+          schema_version=excluded.schema_version,source_identity=excluded.source_identity,completed_at=CURRENT_TIMESTAMP`)
+          .bind(ticker,options.channel,accession,identity)] : []),
         DB.prepare('DELETE FROM sec_raw_runtime_guard WHERE ticker=?').bind(ticker)] });
     return { status:pending?'pending_review':'ready',...stored,reviewCount:reviews.length,
       valueCorrections:reviews.filter(row=>row.old_availability==='available').length };

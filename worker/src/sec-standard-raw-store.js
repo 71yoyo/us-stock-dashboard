@@ -43,6 +43,18 @@ function validateRecord(record) {
   }
 }
 
+/** Queue는 registry claim 전에 동일한 저장 validation을 사용해 잘못된 행을 무쓰기 거부한다. */
+export function validateStandardRawRecords(records) {
+  if (!Array.isArray(records) || !records.length) throw new Error('SEC raw 저장 자료는 비어 있지 않은 행 배열이어야 합니다.');
+  const identities = new Set();
+  for (const record of records) {
+    validateRecord(record);
+    const identity = JSON.stringify([record.metricName,record.periodType,record.periodStart,record.periodEnd]);
+    if (identities.has(identity)) throw new Error('SEC raw 중복 기간 identity가 있습니다.');
+    identities.add(identity);
+  }
+}
+
 async function fingerprint(value) {
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(value)));
   return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
