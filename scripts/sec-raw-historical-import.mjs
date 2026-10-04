@@ -6,17 +6,18 @@ import { runRawRecordRuntime } from '../worker/src/sec-standard-raw-incremental.
 import { validateStandardRawRecords } from '../worker/src/sec-standard-raw-store.js';
 import { rawSourceIdentity } from '../worker/src/sec-raw-message.js';
 import { createAdminDatabase } from './specialized-d1-admin.mjs';
+import { isProductionTarget, verifyHistoricalPromotion, requirePromotionEvidence, currentCheckpoint,
+  isVerifiedPromotionTarget } from './sec-raw-promotion.mjs';
 
 const uuid = value => /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value || '');
 const tickerValid = value => /^[A-Z][A-Z0-9.-]{0,14}$/.test(value || '');
 export const standardRawHistoricalImportEnabled = env => env.SEC_STANDARD_RAW_HISTORICAL_IMPORT_ENABLED === 'true';
 
-/** target을 기본 운영 DB로 추정하지 않는다. production 연결은 R7에서 절대 허용하지 않는다. */
-export async function assertHistoricalTarget(DB,target) {
-  const production = JSON.parse(readFileSync(new URL('../worker/wrangler.jsonc',import.meta.url),'utf8'));
+/** 기존 deny guard를 유지하고 검증된 promotion 경로에서만 명시적 예외를 허용한다. */
+export async function assertHistoricalTarget(DB,target,{ productionApproval=false,verificationReceipt=null }={}) {
   if (!uuid(target?.databaseId) || typeof target.name !== 'string'
     || target.databaseId !== target.allowedDatabaseId
-    || production.d1_databases.some(row => row.database_id === target.databaseId || row.database_name === target.name)) {
+    || isProductionTarget(target) && !(productionApproval && isVerifiedPromotionTarget(verificationReceipt,target))) {
     throw new Error('SEC raw importer 대상 확인 실패. 명시적으로 승인한 비운영 DB를 지정해 주세요.');
   }
   const identity = await DB.identity();
@@ -28,14 +29,39 @@ export async function assertHistoricalTarget(DB,target) {
 
 /** Node 전용 10FY/40Q importer다. Worker scheduler/consumer에는 이 파일을 import하지 않는다. */
 export async function importHistoricalSecRaw({ tickers,loadCompanyFacts,DB,target,apply=false,
-  enabled=false,resume=false,retryFailedOnly=false,onProgress=()=>{} }) {
+  enabled=false,resume=false,retryFailedOnly=false,onProgress=()=>{},verifyOnly=false,
+  productionApproval=false,envelope=null,evidence=null,checkpoint=currentCheckpoint() }) {
   if (!Array.isArray(tickers) || !tickers.length || new Set(tickers).size !== tickers.length
     || tickers.some(ticker => !tickerValid(ticker)) || typeof loadCompanyFacts !== 'function') {
     throw new Error('SEC raw importer 종목 목록/원문 loader를 확인해 주세요.');
   }
+  let verification;
+  const promotion = productionApproval || isProductionTarget(target) || Boolean(envelope);
+  // 운영 target에는 테스트용 checkpoint 주입을 허용하지 않고 실제 checkout HEAD를 다시 사용한다.
+  if (isProductionTarget(target)) checkpoint = currentCheckpoint();
+  if (apply && isProductionTarget(target)) {
+    const { execFileSync } = await import('node:child_process');
+    if (execFileSync('git',['status','--short'],{encoding:'utf8'}).trim()) throw new Error('Production apply에는 clean checkpoint가 필요합니다.');
+  }
+  if (verifyOnly && apply) throw new Error('verify-only와 apply를 함께 사용할 수 없습니다.');
+  if (promotion) {
+    if (apply && (!productionApproval || !enabled)) throw new Error('Production write는 기본 금지입니다. 명시적 승인과 활성화가 필요합니다.');
+    if (!DB || !envelope) throw new Error('Production 대상 검증에는 승인 envelope와 read-only DB가 필요합니다.');
+    verification = await verifyHistoricalPromotion({DB,target,tickers,loadCompanyFacts,envelope,checkpoint});
+    if (apply) requirePromotionEvidence(evidence,verification.receipt);
+    if (verifyOnly || !apply) {
+      const mode = verifyOnly ? 'verify-only' : 'dry-run';
+      return {mode,counts:verification.counts,estimatedWrites:verification.estimatedWrites,
+        receipt:{...verification.receipt,mode},results:verification.observations.map(({ticker,accession})=>({ticker,accession,status:mode}))};
+    }
+    // 모든 입력을 먼저 검증한 고정 bytes/anchors로 저장한다. 검사 후 loader 교체/TOCTOU를 막는다.
+    loadCompanyFacts = async ticker => verification.prepared.get(ticker);
+  } else if (verifyOnly) {
+    throw new Error('verify-only에는 scope envelope를 지정해 주세요.');
+  }
   if (apply) {
     if (!enabled || !DB) throw new Error('명시적인 historical import 활성화와 DB가 있어야 write할 수 있습니다.');
-    await assertHistoricalTarget(DB,target);
+    await assertHistoricalTarget(DB,target,{productionApproval,verificationReceipt:verification?.receipt});
   }
   const results = [];
   for (const ticker of tickers) {
@@ -67,7 +93,8 @@ export async function importHistoricalSecRaw({ tickers,loadCompanyFacts,DB,targe
         needsReview:records.filter(row=>row.availability==='needs_review').length,
         provenance:records.filter(row=>row.provenance).length };
       const result = apply ? await runRawRecordRuntime({DB,SEC_STANDARD_RAW_FIELDS_ENABLED:'true'},ticker,accession,
-        async()=>records,{sourceIdentity,channel:'historical',strictReview:true,retryNow:retryFailedOnly}) : {status:'dry-run'};
+        async()=>records,{sourceIdentity,channel:'historical',strictReview:true,processingCheckpoint:true,
+          retryNow:retryFailedOnly}) : {status:'dry-run'};
       const progress = {ticker,accession,...counts,...result};
       results.push(progress);await onProgress(progress);
     } catch {
@@ -85,8 +112,10 @@ export function parseHistoricalArguments(args) {
   const options = {apply:false,enabled:false,resume:false,retryFailedOnly:false};
   const values = {'--ticker':'ticker','--tickers':'tickerList','--cache-dir':'cacheDir',
     '--account-id':'accountId','--database-id':'databaseId','--database-name':'name',
-    '--allow-database-id':'allowedDatabaseId','--credential-file':'credentialFile'};
-  const flags = {'--apply':'apply','--enable-historical-import':'enabled','--resume':'resume','--retry-failed-only':'retryFailedOnly'};
+    '--allow-database-id':'allowedDatabaseId','--credential-file':'credentialFile',
+    '--approval-file':'approvalFile','--evidence-file':'evidenceFile'};
+  const flags = {'--apply':'apply','--enable-historical-import':'enabled','--resume':'resume','--retry-failed-only':'retryFailedOnly',
+    '--verify-only':'verifyOnly','--production-approval':'productionApproval'};
   for (let i=0;i<args.length;i++) {
     if (flags[args[i]]) options[flags[args[i]]] = true;
     else if (args[i] === '--dry-run') options.apply = false;
@@ -104,23 +133,32 @@ if (process.argv[1] === resolve('scripts/sec-raw-historical-import.mjs')) {
     const options = parseHistoricalArguments(process.argv.slice(2));
     options.enabled = options.enabled || standardRawHistoricalImportEnabled(process.env);
     let DB;
-    if (options.apply) {
-      if (!process.execArgv.includes('--use-system-ca') || !options.enabled || !options.credentialFile
+    if (options.apply || options.verifyOnly || options.approvalFile) {
+      if (!process.execArgv.includes('--use-system-ca') || options.apply && !options.enabled || !options.credentialFile
         || !uuid(options.databaseId) || options.databaseId !== options.allowedDatabaseId || !options.name) {
         throw new Error('명시적 write/target/system CA/로컬 credential 파일 설정이 필요합니다.');
       }
-      const production = JSON.parse(readFileSync(new URL('../worker/wrangler.jsonc',import.meta.url),'utf8'));
-      if (production.d1_databases.some(row=>row.database_id===options.databaseId || row.database_name===options.name)) throw new Error('R7 Production target 금지');
+      if (isProductionTarget(options) && (!options.approvalFile || options.apply && !options.productionApproval)) throw new Error('Production 승인 artifact 미확보');
       const { execFileSync } = await import('node:child_process');
       execFileSync('git',['check-ignore','--quiet',options.credentialFile]);
       if (execFileSync('git',['ls-files',options.credentialFile],{encoding:'utf8'}).trim()) throw new Error('credential 파일이 추적 대상입니다.');
       const vars = readFileSync(options.credentialFile,'utf8');
       const token = vars.match(/^CLOUDFLARE_API_TOKEN=(.+)$/m)?.[1]?.trim();
-      DB = createAdminDatabase({accountId:options.accountId,dbId:options.databaseId,token,allowWrite:true});
+      // 실제 승인/evidence는 Git ignored 파일로만 받는다. 이번 구현 단계에서는 생성하지 않는다.
+      for (const file of [options.approvalFile,options.evidenceFile].filter(Boolean)) {
+        execFileSync('git',['check-ignore','--quiet',file]);
+        if (execFileSync('git',['ls-files',file],{encoding:'utf8'}).trim()) throw new Error('승인 artifact가 추적 대상입니다.');
+      }
+      options.envelope = options.approvalFile ? JSON.parse(readFileSync(options.approvalFile,'utf8')) : null;
+      options.evidence = options.evidenceFile ? JSON.parse(readFileSync(options.evidenceFile,'utf8')) : null;
+      if (options.envelope && options.accountId !== options.envelope.queue.accountId) throw new Error('승인 account 불일치');
+      if (options.apply && options.envelope && execFileSync('git',['status','--short'],{encoding:'utf8'}).trim()) throw new Error('승인 apply에는 clean checkpoint가 필요합니다.');
+      DB = createAdminDatabase({accountId:options.accountId,dbId:options.databaseId,token,allowWrite:options.apply});
     }
     const result = await importHistoricalSecRaw({...options,DB,target:options,
-      loadCompanyFacts:async ticker=>({companyFacts:JSON.parse(readFileSync(join(options.cacheDir,`${ticker}.json`),'utf8'))})});
+      loadCompanyFacts:async ticker=>{const sourceBytes=readFileSync(join(options.cacheDir,`${ticker}.json`));
+        return {companyFacts:JSON.parse(sourceBytes),sourceBytes};}});
     console.log(JSON.stringify(result,null,2));
     if (result.results.some(row=>row.status==='error')) process.exitCode=1;
-  } catch { console.error('SEC raw historical importer 중단. 옵션/비운영 대상/인증/입력 cache를 확인해 주세요.');process.exitCode=1; }
+  } catch { console.error('SEC raw historical importer 중단. 옵션/승인 대상/로컬 인증/입력 cache를 확인해 주세요.');process.exitCode=1; }
 }

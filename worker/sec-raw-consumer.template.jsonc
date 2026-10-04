@@ -1,0 +1,10 @@
+{
+  "name": "sec-raw-consumer-example",
+  "main": "src/sec-raw-consumer-entry.js",
+  "compatibility_date": "2026-10-05",
+  "workers_dev": false,
+  "vars": { "SEC_STANDARD_RAW_QUEUE_ENABLED": "false" },
+  "d1_databases": [{ "binding": "DB", "database_name": "REPLACE_WITH_APPROVED_DB_NAME", "database_id": "REPLACE_WITH_APPROVED_DB_ID" }],
+  "queues": { "consumers": [{ "queue": "REPLACE_WITH_APPROVED_QUEUE_NAME", "max_batch_size": 1, "max_batch_timeout": 1,
+    "max_concurrency": 1, "max_retries": 5, "retry_delay": 900, "dead_letter_queue": "REPLACE_WITH_APPROVED_DLQ_NAME" }] }
+}

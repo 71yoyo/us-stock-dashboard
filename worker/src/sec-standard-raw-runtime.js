@@ -1,14 +1,12 @@
 import { extractStandardRawMetrics } from './sec-standard-raw.js';
 import { assertStandardRawSchema, saveStandardRawMetrics } from './sec-standard-raw-store.js';
 
-export const SEC_RAW_SCHEMA_VERSION = 1;
-export const SEC_RAW_DATA_VERSION = 2;
+import { SEC_RAW_SCHEMA_VERSION, SEC_RAW_DATA_VERSION, standardRawEnabled } from './sec-raw-runtime-policy.js';
+export { SEC_RAW_SCHEMA_VERSION, SEC_RAW_DATA_VERSION, standardRawEnabled } from './sec-raw-runtime-policy.js';
 const retryMilliseconds = 15 * 60_000;
 const safeError = 'SEC raw 처리 실패. 기존 재무는 유지되며 raw-only 재시도를 기다립니다.';
 
-/** 문자열 true일 때만 유효하다. 운영 설정을 변경하거나 자동 활성화하지 않는다. */
-export const standardRawEnabled = environment => environment.SEC_STANDARD_RAW_FIELDS_ENABLED === 'true';
-
+// 문자열 true gate는 sec-raw-runtime-policy에서 공유한다. 기존 full-history 활성화 의미는 바꾸지 않는다.
 export async function assertRawRuntimeSchema(DB) {
   await assertStandardRawSchema(DB);
   const { results } = await DB.prepare(`SELECT name FROM sqlite_master WHERE type='table'

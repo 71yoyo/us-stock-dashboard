@@ -1,0 +1,19 @@
+{
+  "approvalVersion": 1,
+  "datasetVersion": "EXAMPLE_ONLY_NOT_APPROVED",
+  "checkpoint": "REPLACE_WITH_COMMITTED_CHECKPOINT",
+  "issuedAt": "2020-01-01T00:00:00Z",
+  "expiresAt": "2020-01-02T00:00:00Z",
+  "target": { "databaseId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "name": "synthetic-example-only" },
+  "tickers": ["NVDA", "AAPL", "MSFT", "JPM", "O", "ABBV", "ABT", "AMZN", "GOOGL", "TSLA"],
+  "sourceHashes": {},
+  "ciks": {},
+  "periodAnchorHashes": {},
+  "historicalSourceIdentities": {},
+  "historicalAccessions": {},
+  "expected": { "raw": 9062, "provenance": 4615, "missing": 4422, "needsReview": 25 },
+  "retentionExpected": { "recovered": 285, "total": 285 },
+  "minimumMigration": 22,
+  "writeBudget": 50000,
+  "queue": { "accountId": "REPLACE_WITH_APPROVED_ACCOUNT", "queueId": "REPLACE_WITH_APPROVED_QUEUE_ID", "name": "synthetic-example-only" }
+}
