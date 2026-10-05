@@ -4,6 +4,8 @@ import { handleSecRawQueue } from './sec-raw-queue.js';
 export default {
   async queue(batch, environment) {
     return handleSecRawQueue(batch, { DB:environment.DB,
-      SEC_STANDARD_RAW_QUEUE_ENABLED:environment.SEC_STANDARD_RAW_QUEUE_ENABLED }, { queueOnly:true });
+      SEC_STANDARD_RAW_QUEUE_ENABLED:environment.SEC_STANDARD_RAW_QUEUE_ENABLED,
+      // queue enable과 독립된 명시적 opt-in이다. unset/false는 wrapper와 추가 console output 모두 0이다.
+      SEC_STANDARD_RAW_TELEMETRY_ENABLED:environment.SEC_STANDARD_RAW_TELEMETRY_ENABLED }, { queueOnly:true });
   }
 };
