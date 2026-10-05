@@ -51,6 +51,38 @@ export function extractCompactRawRecords(facts, accession, financialPeriods = []
 
 const safeError = 'SEC compact raw 처리 실패. 기존 값은 유지되며 raw-only 재시도를 기다립니다.';
 
+/** planner와 executor가 같은 완료/integrity 판정과 review 정책을 공유한다. */
+export async function inspectRawRecordCompletion(DB,ticker,accession,options,state) {
+  const identity=options.sourceIdentity;
+  const checkpoint=identity ? await DB.prepare(`SELECT * FROM sec_raw_payload_checkpoint
+    WHERE ticker=? AND channel=?`).bind(ticker,options.channel).first() : null;
+  const samePayload=!identity || checkpoint?.source_identity===identity
+    && checkpoint.accession===accession && checkpoint.schema_version===1;
+  const processedReview=options.channel==='historical' && options.processingCheckpoint===true
+    && checkpoint?.source_identity===identity && checkpoint.accession===accession && state?.raw_status==='pending';
+  if (state && samePayload && (state.raw_status==='ready' && state.raw_last_accession===accession || processedReview)
+    && state.raw_schema_version===SEC_RAW_SCHEMA_VERSION && state.raw_data_version===SEC_RAW_DATA_VERSION) {
+    const integrity=await DB.prepare(`SELECT COUNT(*) AS actual_count,
+      SUM(CASE WHEN m.availability='available' AND p.source_fingerprint IS NULL THEN 1 ELSE 0 END) AS source_gaps
+      FROM sec_standard_raw_metrics m LEFT JOIN sec_standard_raw_provenance p
+      ON p.ticker=m.ticker AND p.metric_name=m.metric_name AND p.period_type=m.period_type
+      AND p.period_start=m.period_start AND p.period_end=m.period_end AND p.source_fingerprint=m.source_fingerprint
+      WHERE m.ticker=?`).bind(ticker).first();
+    if (state.record_count>0 && integrity.actual_count>=state.record_count && integrity.source_gaps===0) {
+      return {checkpoint,result:{status:'unchanged',records:state.record_count,...(processedReview?{reviewPending:true}:{})}};
+    }
+  }
+  return {checkpoint,result:null};
+}
+
+export const rawReviewPending = (records,reviews,options) => reviews.length>0
+  || options.strictReview===true && records.some(row=>row.availability==='needs_review');
+export const rawCheckpointAllowed = (options,pending) => Boolean(options.sourceIdentity
+  && (!pending || options.channel==='historical' && options.processingCheckpoint===true));
+// SELECT 계획과 실제 UPDATE claim에서 같은 SQL 조건을 사용한다. 시간/lease 차이는 실행 시 다시 확인한다.
+export const rawClaimCondition = options => `(lease_until IS NULL OR lease_until<=?)
+  AND (next_run_at IS NULL OR next_run_at<=? OR attempt_accession IS NOT ? OR attempt_data_version!=? ${options.retryNow===true?'OR 1=1':''})`;
+
 /**
  * R6I compact 경로를 유지한다. R7은 shared executor를 Queue에서 재사용하되 기본 false flag를 유지한다.
  * 이 wrapper는 초기 historical backfill을 맡지 않는다. schema preflight는 호출자가 수행한다.
@@ -80,40 +112,23 @@ export async function runRawRecordRuntime(environment, ticker, accession, loadRe
       state = await DB.prepare('SELECT * FROM sec_raw_runtime WHERE ticker=?').bind(ticker).first();
     }
     // 동일 완료 공시 shortcut에만 전체 count/source-gap 검증이 필요하다. 새 공시에는 이 미사용 조회를 반복하지 않는다.
-    const checkpoint = identity ? await DB.prepare(`SELECT * FROM sec_raw_payload_checkpoint
-      WHERE ticker=? AND channel=?`).bind(ticker,options.channel).first() : null;
-    const samePayload = !identity || checkpoint?.source_identity === identity
-      && checkpoint.accession === accession && checkpoint.schema_version === 1;
-    // historical source 처리 완료와 metric 검토 완료를 분리한다. compact 정정 checkpoint 정책은 유지한다.
-    const processedReview = options.channel === 'historical' && options.processingCheckpoint === true
-      && checkpoint?.source_identity === identity && checkpoint.accession === accession && state.raw_status === 'pending';
-    if (samePayload && (state.raw_status === 'ready' && state.raw_last_accession === accession || processedReview)
-      && state.raw_schema_version === SEC_RAW_SCHEMA_VERSION && state.raw_data_version === SEC_RAW_DATA_VERSION) {
-      const integrity = await DB.prepare(`SELECT COUNT(*) AS actual_count,
-        SUM(CASE WHEN m.availability='available' AND p.source_fingerprint IS NULL THEN 1 ELSE 0 END) AS source_gaps
-        FROM sec_standard_raw_metrics m LEFT JOIN sec_standard_raw_provenance p
-        ON p.ticker=m.ticker AND p.metric_name=m.metric_name AND p.period_type=m.period_type
-        AND p.period_start=m.period_start AND p.period_end=m.period_end AND p.source_fingerprint=m.source_fingerprint
-        WHERE m.ticker=?`).bind(ticker).first();
-      if (state.record_count > 0 && integrity.actual_count >= state.record_count && integrity.source_gaps === 0) {
-        return { status: 'unchanged', records: state.record_count, ...(processedReview ? { reviewPending:true } : {}) };
-      }
-    }
+    const completion=await inspectRawRecordCompletion(DB,ticker,accession,options,state);
+    if (completion.result) return completion.result;
     token = crypto.randomUUID();
     const claim = await DB.prepare(`UPDATE sec_raw_runtime SET raw_status='running',lease_token=?,lease_until=?,
       fence=fence+1,attempt_count=attempt_count+1,attempt_accession=?,attempt_data_version=?
-      WHERE ticker=? AND (lease_until IS NULL OR lease_until<=?)
-      AND (next_run_at IS NULL OR next_run_at<=? OR attempt_accession IS NOT ? OR attempt_data_version!=? ${options.retryNow === true ? 'OR 1=1' : ''})
+      WHERE ticker=? AND ${rawClaimCondition(options)}
       RETURNING fence`).bind(token,new Date(Date.now()+120000).toISOString(),accession,
         SEC_RAW_DATA_VERSION,ticker,now,now,accession,SEC_RAW_DATA_VERSION).first();
     if (!claim) return { status: 'deferred' };
     fence = claim.fence;
     const records = await loadRecords();
     if (!records.length) throw new Error('SEC compact 저장 가능한 기간이 없습니다.');
-    const reviews = await lookupIncrementalReviews(DB,ticker,records);
-    const pending = reviews.length > 0 || options.strictReview === true
-      && records.some(row => row.availability === 'needs_review');
-    const stored = await saveStandardRawMetrics(DB,ticker,records,{ preserveExisting:true,
+    // historical만 검증된 planner callback을 사용한다. compact의 조회/CPU 경로에는 새 계획 조회를 추가하지 않는다.
+    const mutation=options.prepareMutation ? await options.prepareMutation(records) : null;
+    const reviews = mutation ? mutation.reviews : await lookupIncrementalReviews(DB,ticker,records);
+    const pending = mutation ? mutation.pending : rawReviewPending(records,reviews,options);
+    const stored = await saveStandardRawMetrics(DB,ticker,records,{ preserveExisting:true,mutationPlan:mutation?.storePlan,
       before:[DB.prepare('INSERT INTO sec_raw_runtime_guard(ticker,lease_token,fence) VALUES (?,?,?)').bind(ticker,token,fence)],
       after:[DB.prepare(`UPDATE sec_raw_runtime SET raw_schema_version=?,raw_data_version=?,raw_status=?,
         raw_last_accession=CASE WHEN ? THEN raw_last_accession ELSE ? END,
@@ -125,7 +140,7 @@ export async function runRawRecordRuntime(environment, ticker, accession, loadRe
         .bind(SEC_RAW_SCHEMA_VERSION,SEC_RAW_DATA_VERSION,pending?'pending':'ready',pending?1:0,accession,
           pending?1:0,new Date().toISOString(),pending?'SEC compact 비교기간 변경 후보 검토 필요':null,
           ticker,ticker,ticker,token,fence),
-        ...(identity && (!pending || options.channel === 'historical' && options.processingCheckpoint === true)
+        ...(rawCheckpointAllowed(options,pending)
           ? [DB.prepare(`INSERT INTO sec_raw_payload_checkpoint
           (ticker,channel,accession,schema_version,source_identity) VALUES (?,?,?,1,?)
           ON CONFLICT(ticker,channel) DO UPDATE SET accession=excluded.accession,

@@ -60,12 +60,52 @@ async function fingerprint(value) {
   return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// 공개 계획에는 원문/값/SQL bind를 싣지 않는다. executor만 이 프로세스에서 검증한 사본을 소비한다.
+const storePlans = new WeakMap();
+const freezeTree = value => {
+  if (value && typeof value === 'object') {
+    Object.values(value).forEach(freezeTree); Object.freeze(value);
+  }
+  return value;
+};
+const normalizeRecord = async record => ({ ...record,
+  sourceFingerprint: record.provenance ? await fingerprint(record.provenance) : null });
+
+/** historical planner와 실제 DO NOTHING/append SQL이 같은 identity/fingerprint를 사용한다. */
+export async function prepareStandardRawStorePlan(DB, ticker, records) {
+  if (!/^[A-Z][A-Z0-9.-]{0,14}$/.test(ticker || '')) throw new Error('SEC raw 계획 종목이 유효하지 않습니다.');
+  validateStandardRawRecords(records);
+  const normalized = freezeTree(await Promise.all(structuredClone(records).map(normalizeRecord)));
+  const existing = DB ? (await DB.prepare(`SELECT json_extract(j.value,'$.metricName') AS metric_name,
+    json_extract(j.value,'$.periodType') AS period_type,json_extract(j.value,'$.periodStart') AS period_start,
+    json_extract(j.value,'$.periodEnd') AS period_end,m.ticker AS existing_ticker,
+    p.source_fingerprint AS existing_source FROM json_each(?) j
+    LEFT JOIN sec_standard_raw_metrics m ON m.ticker=? AND m.metric_name=json_extract(j.value,'$.metricName')
+    AND m.period_type=json_extract(j.value,'$.periodType') AND m.period_start=json_extract(j.value,'$.periodStart')
+    AND m.period_end=json_extract(j.value,'$.periodEnd')
+    LEFT JOIN sec_standard_raw_provenance p ON p.ticker=m.ticker AND p.metric_name=m.metric_name
+    AND p.period_type=m.period_type AND p.period_start=m.period_start AND p.period_end=m.period_end
+    AND p.source_fingerprint=json_extract(j.value,'$.sourceFingerprint')`)
+    .bind(JSON.stringify(normalized),ticker).all()).results : [];
+  const byKey = new Map(existing.map(row => [JSON.stringify([row.metric_name,row.period_type,row.period_start,row.period_end]),row]));
+  let inserts=0,append=0,sourceNoOp=0;
+  for (const row of normalized) {
+    const old=byKey.get(JSON.stringify([row.metricName,row.periodType,row.periodStart,row.periodEnd]));
+    if (!old?.existing_ticker) inserts++;
+    if (row.provenance) { if (old?.existing_source) sourceNoOp++; else append++; }
+  }
+  const plan=freezeTree({raw:{insert:inserts,upsert:0,noOp:records.length-inserts},
+    provenance:{append,noOp:sourceNoOp},stateVerified:Boolean(DB)});
+  storePlans.set(plan,{ticker,records,normalized});
+  return plan;
+}
+
 /**
  * 기존 provenance FK는 financial_metrics의 annual/quarterly에 묶여 있다.
  * 필드 이름을 겹쳐 overwrite하지 않고 새 이력 테이블에 원본과 파생 입력을 append-only로 남긴다.
  * JSON bulk bind를 사용해 추가 SQL 수를 제한하며 모든 chunk를 하나의 D1 batch로 원자 실행한다.
  */
-export async function saveStandardRawMetrics(DB, ticker, records, { before = [], after = [], preserveExisting = false } = {}) {
+export async function saveStandardRawMetrics(DB, ticker, records, { before = [], after = [], preserveExisting = false, mutationPlan = null } = {}) {
   if (typeof ticker !== 'string' || !/^[A-Z][A-Z0-9.-]{0,14}$/.test(ticker)) throw new Error('SEC raw 종목코드가 유효하지 않습니다.');
   if (!Array.isArray(records)) throw new Error('SEC raw 저장 자료는 행 배열이어야 합니다.');
   const identities = new Set();
@@ -77,11 +117,15 @@ export async function saveStandardRawMetrics(DB, ticker, records, { before = [],
   }
   // compact 전용 모드에서는 서로 독립적인 출처 hash를 함께 처리한다. 입력/identity 검증은 쓰기 전에 모두 끝낸다.
   // full-history의 기존 실행/overwrite contract는 그대로 두고, 증분에서만 기존 값 보존을 명시한다.
-  const normalized = [];
-  const normalize = async record => ({ ...record,
-    sourceFingerprint: record.provenance ? await fingerprint(record.provenance) : null });
-  if (preserveExisting) normalized.push(...await Promise.all(records.map(normalize)));
-  else for (const record of records) normalized.push(await normalize(record));
+  const prepared = mutationPlan ? storePlans.get(mutationPlan) : null;
+  if (mutationPlan && (!prepared || !preserveExisting || prepared.ticker !== ticker || prepared.records !== records)) {
+    throw new Error('SEC raw 실행에는 검증된 동일 저장 계획이 필요합니다.');
+  }
+  const normalized = prepared ? prepared.normalized : [];
+  if (!prepared) {
+    if (preserveExisting) normalized.push(...await Promise.all(records.map(normalizeRecord)));
+    else for (const record of records) normalized.push(await normalizeRecord(record));
+  }
   // runtime은 같은 transaction 안에서 fencing과 완료 기록을 결합한다. 기존 직접 저장 contract는 유지한다.
   const statements = [...before];
   // 256행 단위로 출처 JSON 크기를 제한한다. 동기화 한 회는 최대 10년/40분기의 기간 창만 추출한다.

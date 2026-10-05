@@ -2,12 +2,12 @@ import { readFileSync } from 'node:fs';
 import { resolve,join } from 'node:path';
 import { extractStandardRawMetrics } from '../worker/src/sec-standard-raw.js';
 import { latestRawAccession,assertRawRuntimeSchema,recordRawDiscoveryFailure } from '../worker/src/sec-standard-raw-runtime.js';
-import { runRawRecordRuntime } from '../worker/src/sec-standard-raw-incremental.js';
 import { validateStandardRawRecords } from '../worker/src/sec-standard-raw-store.js';
+import { prepareHistoricalMutationPlan,executeHistoricalMutationPlan,summarizeHistoricalMutationPlans } from './sec-raw-historical-plan.mjs';
 import { rawSourceIdentity } from '../worker/src/sec-raw-message.js';
 import { createAdminDatabase } from './specialized-d1-admin.mjs';
 import { isProductionTarget, verifyHistoricalPromotion, requirePromotionEvidence, currentCheckpoint,
-  isVerifiedPromotionTarget } from './sec-raw-promotion.mjs';
+  isVerifiedPromotionTarget,readOnlyDatabase } from './sec-raw-promotion.mjs';
 
 const uuid = value => /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(value || '');
 const tickerValid = value => /^[A-Z][A-Z0-9.-]{0,14}$/.test(value || '');
@@ -49,8 +49,8 @@ export async function importHistoricalSecRaw({ tickers,loadCompanyFacts,DB,targe
     if (!DB || !envelope) throw new Error('Production 대상 검증에는 승인 envelope와 read-only DB가 필요합니다.');
     verification = await verifyHistoricalPromotion({DB,target,tickers,loadCompanyFacts,envelope,checkpoint});
     if (apply) requirePromotionEvidence(evidence,verification.receipt);
-    if (verifyOnly || !apply) {
-      const mode = verifyOnly ? 'verify-only' : 'dry-run';
+    if (verifyOnly) {
+      const mode = 'verify-only';
       return {mode,counts:verification.counts,estimatedWrites:verification.estimatedWrites,
         receipt:{...verification.receipt,mode},results:verification.observations.map(({ticker,accession})=>({ticker,accession,status:mode}))};
     }
@@ -63,40 +63,36 @@ export async function importHistoricalSecRaw({ tickers,loadCompanyFacts,DB,targe
     if (!enabled || !DB) throw new Error('명시적인 historical import 활성화와 DB가 있어야 write할 수 있습니다.');
     await assertHistoricalTarget(DB,target,{productionApproval,verificationReceipt:verification?.receipt});
   }
-  const results = [];
+  const results = [],perTickerPlans = [];
+  // 기존 offline dry-run은 DB 불필요 contract를 유지한다. 승인 envelope가 있는 공식 계획만 DB 상태를 읽는다.
+  const read=DB && (apply || promotion) ? readOnlyDatabase(DB) : null;
+  // 모든 계획을 먼저 검증한다. dry-run에는 mutation adapter 자체를 전달하지 않는다.
   for (const ticker of tickers) {
     try {
-      if (apply && retryFailedOnly) {
-        const state = await DB.prepare('SELECT raw_status FROM sec_raw_runtime WHERE ticker=?').bind(ticker).first();
+      if (read && retryFailedOnly) {
+        const state = await read.prepare('SELECT raw_status FROM sec_raw_runtime WHERE ticker=?').bind(ticker).first();
         if (state?.raw_status !== 'error') { results.push({ticker,status:'skipped-not-failed'});continue; }
       }
       const input = await loadCompanyFacts(ticker);
       const companyFacts = input.companyFacts;
       // CLI에서도 기존 legacy 기간을 보호한다. 원문/API 재호출로 기간을 추측하지 않는다.
-      const financialPeriods = input.financialPeriods ?? (apply
-        ? (await DB.prepare(`SELECT period_type,fiscal_period_end FROM financial_metrics
+      const financialPeriods = input.financialPeriods ?? (read
+        ? (await read.prepare(`SELECT period_type,fiscal_period_end FROM financial_metrics
           WHERE ticker=? AND source='SEC EDGAR' ORDER BY period_type,fiscal_period_end`).bind(ticker).all()).results : []);
       const facts = companyFacts?.facts;
       const accession = latestRawAccession(facts);
       if (!/^\d{10}-\d{2}-\d{6}$/.test(accession || '') || !/^\d{1,10}$/.test(String(companyFacts?.cik || ''))) {
         throw new Error('입력 공시/회사 identity가 유효하지 않습니다.');
       }
-      if (apply) {
-        const company = await DB.prepare('SELECT cik FROM companies WHERE ticker=?').bind(ticker).first();
+      if (read) {
+        const company = await read.prepare('SELECT cik FROM companies WHERE ticker=?').bind(ticker).first();
         if (company?.cik && Number(company.cik) !== Number(companyFacts.cik)) throw new Error('회사 CIK와 원문이 일치하지 않습니다.');
       }
       const records = extractStandardRawMetrics(facts,{financialPeriods});
       validateStandardRawRecords(records);
       const sourceIdentity = await rawSourceIdentity({version:1,ticker,accession,cik:String(companyFacts.cik),facts,financialPeriods});
-      const counts = { raw:records.length,available:records.filter(row=>row.availability==='available').length,
-        missing:records.filter(row=>row.availability==='missing').length,
-        needsReview:records.filter(row=>row.availability==='needs_review').length,
-        provenance:records.filter(row=>row.provenance).length };
-      const result = apply ? await runRawRecordRuntime({DB,SEC_STANDARD_RAW_FIELDS_ENABLED:'true'},ticker,accession,
-        async()=>records,{sourceIdentity,channel:'historical',strictReview:true,processingCheckpoint:true,
-          retryNow:retryFailedOnly}) : {status:'dry-run'};
-      const progress = {ticker,accession,...counts,...result};
-      results.push(progress);await onProgress(progress);
+      const plan=await prepareHistoricalMutationPlan({DB:apply?DB:read,ticker,accession,sourceIdentity,records,retryNow:retryFailedOnly});
+      perTickerPlans.push(plan);
     } catch {
       // 입력 원문/서버 URL/인증 자료가 예외에 들어갈 수 있어 고정 안내만 반환한다.
       const failure = {ticker,status:'error',code:'HISTORICAL_IMPORT_FAILED'};
@@ -104,8 +100,25 @@ export async function importHistoricalSecRaw({ tickers,loadCompanyFacts,DB,targe
       results.push(failure);await onProgress(failure);
     }
   }
-  // resume는 파일 cursor가 아니라 D1의 원자 completed identity를 기준으로 한다.
-  return { mode:apply?'apply':'dry-run',resume,retryFailedOnly,results };
+  // 실제 executor에는 write DB만 바꾸고 검증된 입력 계획을 다시 준비한다. 원문 loader는 재호출하지 않는다.
+  // 공개 계획을 권한으로 취급하지 않으며 위의 기존 apply 승인 검사를 통과한 경우에만 여기 진입한다.
+  if (!results.some(row=>row.status==='error')) {
+    for(const plan of perTickerPlans) {
+      let result={status:'dry-run'};
+      if(apply) {
+        try { result=await executeHistoricalMutationPlan(DB,plan); }
+        catch { result={status:'error',code:'HISTORICAL_IMPORT_FAILED'};await recordRawDiscoveryFailure({DB},plan.ticker); }
+      }
+      const progress={ticker:plan.ticker,accession:plan.accession,...plan.counts,...result};
+      results.push(progress);await onProgress(progress);
+    }
+  }
+  // 실패한 scope에는 일부 정상 계획을 성공 계획처럼 공개하지 않는다.
+  const validPlans=results.some(row=>row.status==='error') && !apply ? [] : perTickerPlans;
+  const summary=validPlans.length ? summarizeHistoricalMutationPlans(validPlans) : null;
+  return { mode:apply?'apply':'dry-run',resume,retryFailedOnly,results,summary,perTickerPlans:validPlans,
+    ...(verification?{counts:verification.counts,estimatedWrites:verification.estimatedWrites,
+      ...(apply || results.some(row=>row.status==='error')?{}:{receipt:{...verification.receipt,mode:'dry-run'}})}:{}) };
 }
 
 export function parseHistoricalArguments(args) {
