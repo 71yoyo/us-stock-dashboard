@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {readFileSync,readdirSync} from 'node:fs';
+import { productionRunnerFiles } from './sec-raw-production-check.mjs';
 
 // 승인된 parent 이후 R10C-2 관련 파일만 허용하고 기존 Worker/consumer/migration 변경은 차단한다.
 export const identityCompatibilityFiles=[
@@ -13,7 +14,7 @@ const baseline='428bdbd3d2b205a88d2f6bcb670ec63f57ceeadd';
 const git=(...args)=>execFileSync('git',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();
 const list=text=>text.split(/\r?\n/).filter(Boolean);
 const changed=[...new Set([...list(git('diff','--name-only',baseline)),...list(git('ls-files','--others','--exclude-standard'))])];
-assert.ok(changed.every(file=>identityCompatibilityFiles.includes(file)),'R10C-2 범위 밖 변경');
+assert.ok(changed.every(file=>identityCompatibilityFiles.includes(file) || productionRunnerFiles.includes(file)),'R10C-2/R10C-3A 범위 밖 변경');
 for(const file of identityCompatibilityFiles.filter(file=>/\.(?:mjs|js)$/.test(file)))execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
 const protectedFiles=['scripts/sec-raw-compact-producer.mjs','scripts/sec-raw-historical-import.mjs','scripts/sec-raw-historical-plan.mjs',
   'worker/src/sec-raw-message.js','worker/src/sec-raw-queue.js','worker/src/sec-raw-consumer-entry.js',

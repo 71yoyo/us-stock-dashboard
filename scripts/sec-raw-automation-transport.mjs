@@ -14,7 +14,8 @@ export function createAutomationQueueTransport({fetchImpl=globalThis.fetch,crede
     try {
       const response=await fetchImpl(`https://api.cloudflare.com/client/v4/accounts/${policy.target.accountId}/queues/${policy.target.queueId}/messages`,{
         method:'POST',headers:{Authorization:`Bearer ${credential}`,'Content-Type':'application/json'},
-        body:JSON.stringify({messages:[{body:message,content_type:'json'}]}),signal:controller.signal,redirect:'error'});
+        // /messages는 단건 계약이다. batch wrapper는 ticker별 INTENT와 응답 의미를 흐리므로 사용하지 않는다.
+        body:JSON.stringify({body:message,content_type:'json'}),signal:controller.signal,redirect:'error'});
       if (response.status>=400 && response.status<500) {
         await response.body?.cancel().catch(()=>{});
         return {kind:'rejected',category:[401,403].includes(response.status)?'QUEUE_AUTH':response.status===404?'QUEUE_TARGET':'QUEUE_REJECTED',http:response.status};

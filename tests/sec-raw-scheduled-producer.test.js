@@ -215,7 +215,8 @@ for (const [label,response,kind,category] of [
   const f=makeProducerFixture(),runId='transport-test',receipt=await establishReadiness({policy:f.policy,reader:f.reader,runId,now:f.now});
   let calls=0;const transport=createAutomationQueueTransport({credential:'synthetic-only',now:f.now,fetchImpl:async(url,request)=>{
     calls++;assert.ok(url.includes(fixtureTarget.queueId));assert.equal(request.method,'POST');
-    assert.equal(JSON.parse(request.body).messages.length,1);return response();
+    const body=JSON.parse(request.body);assert.deepEqual(Object.keys(body).sort(),['body','content_type']);
+    assert.equal(body.content_type,'json');assert.equal(body.body.ticker,'O');return response();
   }});
   const result=await transport.send(await f.message(),{policy:f.policy,receipt,runId,enqueue:true});
   assert.equal(result.kind,kind);assert.equal(result.category,category);assert.equal(calls,1);

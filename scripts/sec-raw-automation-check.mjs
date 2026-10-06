@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync,readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
+import { productionRunnerFiles } from './sec-raw-production-check.mjs';
 export const automationFiles=[
   'scripts/sec-raw-automation-policy.mjs','scripts/sec-raw-source-fetch.mjs','scripts/sec-raw-producer-journal.mjs',
   'scripts/sec-raw-github-journal.mjs','scripts/sec-raw-automation-readiness.mjs','scripts/sec-raw-source-discovery.mjs',
@@ -12,7 +13,7 @@ export const automationFiles=[
   'tests/helpers/sec-raw-identity-fixtures.js','tests/sec-raw-producer-identity.test.js'
 ];
 const baseline='9fbf7a5deeb67fda8e94aab9d3f28d8fcc7582c6';
-const allowed=new Set([...automationFiles,'package.json','docs/reit-metrics-r10b-report.md','docs/reit-metrics-r10c2-report.md']);
+const allowed=new Set([...automationFiles,...productionRunnerFiles,'package.json','docs/reit-metrics-r10b-report.md','docs/reit-metrics-r10c2-report.md']);
 const changed=execFileSync('git',['diff','--name-only',baseline],{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
 assert.ok(changed.every(file=>allowed.has(file)),'R10B 범위 밖 변경');
 const untracked=execFileSync('git',['ls-files','--others','--exclude-standard'],{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
