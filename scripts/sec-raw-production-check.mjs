@@ -10,7 +10,9 @@ export const productionRunnerFiles=[
   'tests/helpers/sec-raw-production-fixtures.js','tests/sec-raw-production-runner.test.js','tests/sec-raw-single-transport.test.js',
   'scripts/sec-raw-automation-transport.mjs','tests/sec-raw-scheduled-producer.test.js','scripts/sec-raw-automation-check.mjs',
   // 동일 provisioning 계약의 수정 보고서만 추가 허용하고, 보호 대상의 비교 범위는 유지한다.
-  'scripts/sec-raw-identity-check.mjs','package.json','docs/reit-metrics-r10c3a-report.md','docs/reit-metrics-r10c3b-fix-report.md'];
+  'scripts/sec-raw-identity-check.mjs','package.json','docs/reit-metrics-r10c3a-report.md','docs/reit-metrics-r10c3b-fix-report.md',
+  // R11B-1F는 공개 artifact 빌드 파일만 추가 허용한다. 기존 runtime/migration 보호 목록은 변경하지 않는다.
+  'scripts/build-pages.mjs','tests/pages-build.test.js','.gitignore','docs/reit-metrics-r11b1f-report.md'];
 export function checkProductionRunner() {
   const baseline='b869a6845bcca866c58a88d2e32e14e4710eefb8';
   const git=(...args)=>execFileSync('git',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();

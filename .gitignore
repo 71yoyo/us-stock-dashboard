@@ -1,6 +1,11 @@
 # 의존성 및 운영 중 생성되는 파일은 GitHub에 올리지 않습니다.
 node_modules/
 
+# Pages 공개 산출물과 교체용 임시 디렉터리는 빌드 때 재생성합니다.
+.pages-dist/
+.pages-dist-build-*/
+.pages-dist-backup-*/
+
 # API 키와 서버별 환경값은 반드시 로컬에만 둡니다.
 .env
 .env.*
