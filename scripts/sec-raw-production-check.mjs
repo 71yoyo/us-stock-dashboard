@@ -9,7 +9,8 @@ export const productionRunnerFiles=[
   'scripts/sec-raw-state-provisioning.mjs','scripts/sec-raw-production-check.mjs','scripts/sec-raw-production-audit.mjs',
   'tests/helpers/sec-raw-production-fixtures.js','tests/sec-raw-production-runner.test.js','tests/sec-raw-single-transport.test.js',
   'scripts/sec-raw-automation-transport.mjs','tests/sec-raw-scheduled-producer.test.js','scripts/sec-raw-automation-check.mjs',
-  'scripts/sec-raw-identity-check.mjs','package.json','docs/reit-metrics-r10c3a-report.md'];
+  // 동일 provisioning 계약의 수정 보고서만 추가 허용하고, 보호 대상의 비교 범위는 유지한다.
+  'scripts/sec-raw-identity-check.mjs','package.json','docs/reit-metrics-r10c3a-report.md','docs/reit-metrics-r10c3b-fix-report.md'];
 export function checkProductionRunner() {
   const baseline='b869a6845bcca866c58a88d2e32e14e4710eefb8';
   const git=(...args)=>execFileSync('git',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();

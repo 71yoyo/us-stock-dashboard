@@ -6,6 +6,25 @@ import { safeError } from './sec-raw-automation-policy.mjs';
 const empty=()=>({version:1,targetHash:null,lock:null,entries:{},days:{},delays:{}});
 // 실제 개인 이메일을 Git commit metadata로 자동 유입하지 않도록 provisioning에서는 합성 bot identity를 사용한다.
 const author={name:'SEC Producer State Bootstrap',email:'producer-state@invalid.example'};
+/** 초기 ref의 409 본문만 제한적으로 읽는다. 공통 HTTP/CAS의 conflict 처리는 변경하지 않는다. */
+async function readInitialRefConflict(response) {
+  if (!/^application\/json(?:;|$)/i.test(response.headers.get('content-type')??'')) throw safeError('JOURNAL_IO');
+  const reader=response.body?.getReader();if (!reader) throw safeError('JOURNAL_IO');
+  const chunks=[];let bytes=0;
+  try {
+    while (true) {
+      const {done,value}=await reader.read();if (done) break;bytes+=value.byteLength;
+      if (bytes>8192) throw safeError('JOURNAL_IO');chunks.push(value);
+    }
+    return JSON.parse(Buffer.concat(chunks,bytes).toString('utf8'));
+  } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}
+}
+function isStructuredEmptyConflict(data) {
+  return data!==null && typeof data==='object' && !Array.isArray(data) &&
+    typeof data.message==='string' && /^Git Repository is empty\.?$/.test(data.message) &&
+    (data.status===undefined || data.status===409 || data.status==='409') &&
+    (data.errors===undefined || (Array.isArray(data.errors) && data.errors.length===0));
+}
 /** provisioning 전용이다. 실행 CLI/default fetch는 제공하지 않으며 별도 승인 gate가 명시적으로 호출해야 한다. */
 export function createStateProvisioningHelper({fetchImpl,credential,repository,stateBranch='producer-state',statePath='state/journal.json',
   verifyDisconnected}={}) {
@@ -22,11 +41,31 @@ export function createStateProvisioningHelper({fetchImpl,credential,repository,s
   }
   const write=(path,method,body)=>request(path,{method,body,allowedStatuses:[200,201,409,422],
     headers:{'X-GitHub-Api-Version':'2022-11-28'}});
+  async function initialDefaultRef(branch) {
+    let conflictData;
+    // 공통 클라이언트의 timeout/redirect/무재시도 정책을 재사용한다. 실제 HTTP status는 변환하지 않는다.
+    const initialRequest=createBoundedJsonClient({credential,category:'JOURNAL_IO',base:`https://api.github.com/repos/${repository}`,
+      fetchImpl:async(url,options)=>{
+        const response=await fetchImpl(url,options);
+        if (response.status===409) conflictData=await readInitialRefConflict(response);
+        return response;
+      }});
+    const result=await initialRequest(`/git/ref/heads/${encodeURIComponent(branch)}`,
+      {allowedStatuses:[200,404,409],headers:{'X-GitHub-Api-Version':'2022-11-28'}});
+    if (result.status!==409) return result;
+    if (!isStructuredEmptyConflict(conflictData)) throw safeError('JOURNAL_IO');
+    // 메시지만으로 쓰기를 허용하지 않는다. 매 실행의 독립 inventory와 state/path 부재가 모두 필요하다.
+    const inventory=await get('/branches?per_page=100');
+    if (inventory.status!==200 || !Array.isArray(inventory.data) || inventory.data.length!==0) throw safeError('JOURNAL_IO');
+    if ((await get(`/branches/${encodeURIComponent(stateBranch)}`)).status!==404 ||
+        (await get(`/contents/${statePath}?ref=${encodeURIComponent(stateBranch)}`)).status!==404) throw safeError('JOURNAL_IO');
+    return result;
+  }
   return Object.freeze({
     bootstrap:async()=>{
       const repo=await metadata(),branch=repo.default_branch;
-      let main=await get(`/git/ref/heads/${encodeURIComponent(branch)}`);
-      if (main.status===404) {
+      let main=await initialDefaultRef(branch);
+      if (main.status===404 || main.status===409) {
         // 기존 default branch를 덮어쓰지 않는다. 빈 repo에 한정한 최소 bootstrap 문서다.
         const result=await write('/contents/README.md','PUT',{message:'Initialize producer state repository',branch,
           content:Buffer.from('# Private producer state\n\nDisconnected state backend.\n').toString('base64'),author,committer:author});

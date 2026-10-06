@@ -189,3 +189,136 @@ for (const response of [()=>new Response('synthetic-private',{status:403}),()=>R
     await assert.rejects(db.prepare('SELECT 1').all(),error=>error.code==='D1_READ'&&!error.stack.includes('synthetic-private'));
     assert.equal(calls,2);
   });
+
+/** 초기 409와 독립 evidence를 조합하는 메모리 fake다. 실제 API/credential 파일은 사용하지 않는다. */
+function emptyConflictFixture(options={}) {
+  const f=productionFixture({emptyRepo:options.emptyRepo!==false,...options.fixture}),trace=[];
+  const root='/repos/synthetic-owner/synthetic-state';
+  let initialLookups=0;
+  const fetchImpl=async(input,request)=>{
+    const url=new URL(input),path=url.pathname.slice(root.length),method=request.method;
+    assert.equal(url.host,'api.github.com');assert.ok(url.pathname.startsWith(root));
+    assert.equal(request.headers.Authorization,`Bearer ${f.env.PRODUCER_STATE_TOKEN}`);
+    assert.equal(request.redirect,'error');assert.ok(request.signal instanceof AbortSignal);
+    trace.push({path,query:url.search,method,body:request.body?JSON.parse(request.body):undefined});
+    if (path==='/git/ref/heads/main' && !f.branches.has('main')) {
+      initialLookups++;
+      if (options.networkFailure) throw Error('synthetic-private-response-marker');
+      return options.initialResponse?options.initialResponse():Response.json({message:'Git Repository is empty.',status:'409'},{status:409});
+    }
+    if (path==='/git/ref/heads/main' && options.afterReadmeStatus && f.files.has('README.md')) {
+      return Response.json({message:'Git Repository is empty.'},{status:options.afterReadmeStatus});
+    }
+    if (path==='/branches') {
+      assert.equal(url.search,'?per_page=100');
+      if (options.inventoryFailure) throw Error('synthetic-private-response-marker');
+      return options.inventoryResponse?options.inventoryResponse():Response.json([...f.branches].map(name=>({name})));
+    }
+    if (path==='/branches/producer-state' && options.stateResponse) return options.stateResponse();
+    if (path==='/contents/state/journal.json' && method==='GET' && options.pathResponse) return options.pathResponse();
+    if (path==='/contents/state/journal.json' && method==='PUT' && options.journalConflict) {
+      return Response.json({message:'Git Repository is empty.'},{status:options.journalConflict});
+    }
+    return f.fetchImpl(input,request);
+  };
+  const helper=createStateProvisioningHelper({fetchImpl,credential:f.env.PRODUCER_STATE_TOKEN,
+    repository:f.env.PRODUCER_STATE_REPOSITORY,verifyDisconnected:f.verifier});
+  return {...f,helper,fetchImpl,trace,get initialLookups(){return initialLookups;}};
+}
+
+test('R10C-3B-FIX strict empty 409: 최소 README/SHA/state/journal 순서와 재실행 overwrite 0',async()=>{
+  const f=emptyConflictFixture();
+  assert.deepEqual(await f.helper.bootstrap(),{status:'READY',createdState:true});
+  assert.equal(f.initialLookups,1);
+  assert.deepEqual(f.trace.filter(row=>row.method!=='GET').map(({method,path})=>({method,path})),[
+    {method:'PUT',path:'/contents/README.md'},{method:'POST',path:'/git/refs'},{method:'PUT',path:'/contents/state/journal.json'}]);
+  const initial=f.trace.findIndex(row=>row.path==='/contents/README.md');
+  assert.deepEqual(f.trace.slice(0,initial).map(row=>row.path),[
+    '','/git/ref/heads/main','/branches','/branches/producer-state','/contents/state/journal.json']);
+  assert.equal(f.trace[initial-1].query,'?ref=producer-state');
+  assert.equal(f.trace[initial+1].path,'/git/ref/heads/main');
+  const created=f.trace.find(row=>row.path==='/git/refs');
+  assert.deepEqual(created.body,{ref:'refs/heads/producer-state',sha:'a'.repeat(40)});
+  const readme=f.trace[initial].body;
+  assert.equal(Buffer.from(readme.content,'base64').toString('utf8'),'# Private producer state\n\nDisconnected state backend.\n');
+  assert.deepEqual([...f.files.keys()],['README.md','state/journal.json']);
+  const first=structuredClone(f.files.get('state/journal.json')),writes=f.trace.filter(row=>row.method!=='GET').length;
+  assert.deepEqual(await f.helper.bootstrap(),{status:'READY',createdState:false});
+  assert.deepEqual(f.files.get('state/journal.json'),first);
+  assert.equal(f.trace.filter(row=>row.method!=='GET').length,writes);
+});
+
+const blockedEmptyCases=[
+  ['unavailable 409',{initialResponse:()=>Response.json({message:'Git Repository is unavailable.'},{status:409})}],
+  ['ambiguous conflict 409',{initialResponse:()=>Response.json({message:'Conflict'},{status:409})}],
+  ['message absent 409',{initialResponse:()=>Response.json({},{status:409})}],
+  ['structured status mismatch',{initialResponse:()=>Response.json({message:'Git Repository is empty.',status:503},{status:409})}],
+  ['structured errors present',{initialResponse:()=>Response.json({message:'Git Repository is empty.',errors:[{code:'unavailable'}]},{status:409})}],
+  ['array response',{initialResponse:()=>Response.json([{message:'Git Repository is empty.'}],{status:409})}],
+  ['non-string message',{initialResponse:()=>Response.json({message:['Git Repository is empty.']},{status:409})}],
+  ['null response',{initialResponse:()=>Response.json(null,{status:409})}],
+  ['malformed JSON',{initialResponse:()=>new Response('synthetic-private-response-marker',{status:409,headers:{'Content-Type':'application/json'}})}],
+  ['non-JSON response',{initialResponse:()=>new Response('Git Repository is empty.',{status:409})}],
+  ['oversized response',{initialResponse:()=>Response.json({message:'Git Repository is empty.',extra:'x'.repeat(8192)},{status:409})}],
+  ['HTTP 401',{initialResponse:()=>Response.json({message:'Git Repository is empty.'},{status:401})}],
+  ['HTTP 403',{initialResponse:()=>Response.json({message:'Git Repository is empty.'},{status:403})}],
+  ['branch inventory non-empty',{inventoryResponse:()=>Response.json([{name:'main'}])}],
+  ['branch inventory malformed',{inventoryResponse:()=>Response.json({branches:[]})}],
+  ['branch inventory 404',{inventoryResponse:()=>new Response('',{status:404})}],
+  ['branch inventory unavailable',{inventoryResponse:()=>Response.json({message:'Unavailable'},{status:409})}],
+  ['state branch exists',{stateResponse:()=>Response.json({name:'producer-state'})}],
+  ['state branch unavailable',{stateResponse:()=>Response.json({message:'Git Repository is empty.'},{status:409})}],
+  ['journal exists',{pathResponse:()=>Response.json({type:'file',path:'state/journal.json'})}],
+  ['journal unavailable',{pathResponse:()=>Response.json({message:'Unavailable'},{status:409})}],
+  ['initial network ambiguity',{networkFailure:true}],
+  ['inventory network ambiguity',{inventoryFailure:true}],
+];
+for (const [name,options] of blockedEmptyCases) test(`R10C-3B-FIX ${name}: fail-closed / writes 0 / retry 0`,async()=>{
+  const f=emptyConflictFixture(options);
+  await assert.rejects(f.helper.bootstrap(),error=>error.code==='JOURNAL_IO'&&!error.stack.includes('synthetic-private-response-marker'));
+  assert.equal(f.trace.filter(row=>row.method!=='GET').length,0);assert.equal(f.files.size,0);
+  assert.equal(f.initialLookups,1);assert.ok(f.trace.filter(row=>row.path==='/branches').length<=1);
+});
+for (const [name,fixture] of [['wrong repository',{repository:'synthetic-owner/wrong-state'}],['public repository',{privateRepo:false}],
+  ['not disconnected',{disconnected:false}]]) test(`R10C-3B-FIX ${name}: metadata guard / writes 0`,async()=>{
+    const f=emptyConflictFixture({fixture});
+    await assert.rejects(f.helper.bootstrap(),{code:'POLICY_INVALID'});
+    assert.equal(f.initialLookups,0);assert.equal(f.trace.filter(row=>row.method!=='GET').length,0);
+  });
+
+test('R10C-3B-FIX existing 200: README/ref 생성 및 추가 inventory 없이 기존 journal 보존',async()=>{
+  const f=emptyConflictFixture({emptyRepo:false});
+  await f.helper.bootstrap();const journal=structuredClone(f.files.get('state/journal.json'));f.trace.length=0;
+  assert.deepEqual(await f.helper.bootstrap(),{status:'READY',createdState:false});
+  assert.equal(f.initialLookups,0);assert.equal(f.trace.some(row=>row.path==='/branches'),false);
+  assert.equal(f.trace.filter(row=>row.method!=='GET').length,0);assert.deepEqual(f.files.get('state/journal.json'),journal);
+});
+test('R10C-3B-FIX existing 404: 독립 409 evidence 추가 호출 없이 기존 bootstrap 유지',async()=>{
+  const f=emptyConflictFixture({initialResponse:()=>new Response('',{status:404})});
+  assert.equal((await f.helper.bootstrap()).createdState,true);
+  assert.equal(f.trace.some(row=>row.path==='/branches'),false);
+  assert.deepEqual(f.trace.filter(row=>row.method!=='GET').map(row=>row.path),['/contents/README.md','/git/refs','/contents/state/journal.json']);
+});
+test('R10C-3B-FIX README 이후 ref 409: 초기 lookup 예외 재사용 금지 / 추가 쓰기 0',async()=>{
+  const f=emptyConflictFixture({afterReadmeStatus:409});
+  await assert.rejects(f.helper.bootstrap(),{code:'JOURNAL_IO'});
+  assert.deepEqual(f.trace.filter(row=>row.method!=='GET').map(row=>row.path),['/contents/README.md']);
+});
+for (const status of [409,422]) test(`R10C-3B-FIX journal CAS ${status}: empty message도 충돌 / 추가 bootstrap 금지`,async()=>{
+  const f=emptyConflictFixture({journalConflict:status});
+  await assert.rejects(f.helper.bootstrap(),{code:'JOURNAL_CAS'});
+  assert.equal(f.trace.filter(row=>row.path==='/contents/README.md').length,1);
+  assert.equal(f.trace.filter(row=>row.path==='/contents/state/journal.json'&&row.method==='PUT').length,1);
+  assert.equal(f.trace.filter(row=>row.path==='/branches').length,1);
+});
+test('R10C-3B-FIX empty 409 이후 synthetic CAS 계약과 cleanup residue 0',async()=>{
+  const f=emptyConflictFixture();await f.helper.bootstrap();
+  const journal=structuredClone(f.files.get('state/journal.json'));
+  const result=await runSyntheticStateCasContract({fetchImpl:f.fetchImpl,credential:f.env.PRODUCER_STATE_TOKEN,
+    repository:f.env.PRODUCER_STATE_REPOSITORY,verifyDisconnected:f.verifier,now:f.now});
+  assert.deepEqual(result,{status:'PASS',create:true,update:true,staleConflict:true,readAfterConflict:true,residue:0});
+  assert.deepEqual(f.files.get('state/journal.json'),journal);
+  assert.deepEqual([...f.files.keys()],['README.md','state/journal.json']);
+  await assert.rejects(f.helper.cleanupSynthetic('state/journal.json'),{code:'POLICY_INVALID'});
+  await assert.rejects(f.helper.cleanupSynthetic('../state/journal.json'),{code:'POLICY_INVALID'});
+});
