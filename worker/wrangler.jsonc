@@ -3,6 +3,19 @@
   "name": "us-stock-dashboard-api",
   "main": "src/index.js",
   "compatibility_date": "2026-09-21",
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
   "vars": {
     "SEC_FINANCIAL_ROLLOUT_MODE": "normal",
     "DIVIDEND_PIPELINE_ENABLED": "true",

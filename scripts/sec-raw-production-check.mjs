@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync,readdirSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
+import { assertAppConfigPreserved } from './app-deploy-config-check.mjs';
 
 export const productionRunnerFiles=[
   'scripts/sec-raw-production-http.mjs','scripts/sec-raw-production-d1.mjs','scripts/sec-raw-production-runner.mjs',
@@ -12,14 +13,19 @@ export const productionRunnerFiles=[
   // 동일 provisioning 계약의 수정 보고서만 추가 허용하고, 보호 대상의 비교 범위는 유지한다.
   'scripts/sec-raw-identity-check.mjs','package.json','docs/reit-metrics-r10c3a-report.md','docs/reit-metrics-r10c3b-fix-report.md',
   // R11B-1F는 공개 artifact 빌드 파일만 추가 허용한다. 기존 runtime/migration 보호 목록은 변경하지 않는다.
-  'scripts/build-pages.mjs','tests/pages-build.test.js','.gitignore','docs/reit-metrics-r11b1f-report.md'];
+  'scripts/build-pages.mjs','tests/pages-build.test.js','.gitignore','docs/reit-metrics-r11b1f-report.md',
+  // R11B-1H-FIX의 배포 설정/검증만 추가 허용한다. runtime 보호 범위는 그대로 유지한다.
+  'worker/wrangler.jsonc','scripts/app-deploy-config-check.mjs','tests/app-deploy-config.test.js',
+  'scripts/sec-raw-historical-plan-check.mjs','docs/reit-metrics-r11b1h-fix-report.md'];
 export function checkProductionRunner() {
   const baseline='b869a6845bcca866c58a88d2e32e14e4710eefb8';
   const git=(...args)=>execFileSync('git',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();
   const changed=[...new Set([...git('diff','--name-only',baseline).split(/\r?\n/),...git('ls-files','--others','--exclude-standard').split(/\r?\n/)])].filter(Boolean);
   assert.ok(changed.every(file=>productionRunnerFiles.includes(file)),'R10C-3A 범위 밖 변경');
   for (const file of productionRunnerFiles.filter(path=>/\.(?:js|mjs)$/.test(path))) execFileSync(process.execPath,['--check',file],{stdio:'pipe'});
-  const protectedFiles=['app.js','index.html','style.css','financial-chart.js','worker/wrangler.jsonc',
+  assertAppConfigPreserved(JSON.parse(readFileSync('worker/wrangler.jsonc','utf8')),
+    JSON.parse(execFileSync('git',['show',`${baseline}:worker/wrangler.jsonc`],{encoding:'utf8'})));
+  const protectedFiles=['app.js','index.html','style.css','financial-chart.js',
     'worker/src/sec-raw-consumer-entry.js','worker/src/sec-raw-queue.js','worker/src/sec-raw-message.js',
     'scripts/sec-raw-scheduled-producer.mjs','scripts/sec-raw-producer-journal.mjs','scripts/sec-raw-producer-identity.mjs',
     ...readdirSync('worker/migrations').map(file=>'worker/migrations/'+file)];
