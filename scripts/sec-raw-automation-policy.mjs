@@ -42,11 +42,19 @@ export function policyManifestHash(policy) {
   const { policyManifestHash: omitted, ...manifest } = policy;
   return hash(manifest);
 }
+/** 기존 policyVersion=1인 R10B policy도 이미 canonical V2였다. 미기재 policy를 V1으로 재해석하지 않는다. */
+export function producerIdentityAlgorithmVersion(policy) {
+  const version=Object.hasOwn(policy??{},'identityAlgorithmVersion')?policy.identityAlgorithmVersion:2;
+  if (version!==2) throw safeError('POLICY_INVALID');
+  return version;
+}
 /** Historical 승인서와 별개인 자동화 전용 allowlist다. 승인값을 자동 생성하거나 보정하지 않는다. */
 export function validateAutomationPolicy(input, {release,target,now=Date.now()} = {}) {
-  if (!exactKeys(input,fields) || !exactKeys(input.target,targetFields) || input.policyVersion !== 1 || input.schemaVersion !== 1 ||
+  const versionedFields=input && Object.hasOwn(input,'identityAlgorithmVersion')?[...fields,'identityAlgorithmVersion']:fields;
+  if (!exactKeys(input,versionedFields) || !exactKeys(input.target,targetFields) || input.policyVersion !== 1 || input.schemaVersion !== 1 ||
       !/^[a-f0-9]{40}$/.test(input.release ?? '') || !/^[a-f0-9]{64}$/.test(input.policyManifestHash ?? '') ||
       input.policyManifestHash !== policyManifestHash(input)) throw safeError('POLICY_INVALID');
+  producerIdentityAlgorithmVersion(input);
   if (input.release !== release) throw safeError('RELEASE_MISMATCH');
   const t = input.target;
   if (!/^[a-f0-9]{32}$/.test(t.accountId ?? '') || !/^[a-f0-9]{32}$/.test(t.queueId ?? '') ||

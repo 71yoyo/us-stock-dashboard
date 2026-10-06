@@ -1,13 +1,8 @@
-import { selectCompactRawFacts, buildCompactSecRawMessage } from './sec-raw-compact-producer.mjs';
-import { canonical, normalizeCik, safeError } from './sec-raw-automation-policy.mjs';
+import { buildCompactSecRawMessage } from './sec-raw-compact-producer.mjs';
+import { normalizeCik, safeError } from './sec-raw-automation-policy.mjs';
+import { orderedCompactSource } from './sec-raw-producer-identity.mjs';
+export { orderedCompactSource } from './sec-raw-producer-identity.mjs';
 
-/** fact 배열의 수신 순서가 source 변경으로 오인되지 않도록 새 producer에서만 정렬한다. 기존 consumer hash 규칙은 불변이다. */
-export function orderedCompactSource(companyFacts,accession) {
-  const facts=selectCompactRawFacts(companyFacts.facts,accession);
-  for (const tags of Object.values(facts)) for (const tag of Object.values(tags)) for (const rows of Object.values(tag.units))
-    rows.sort((a,b)=>canonical(a).localeCompare(canonical(b),'en'));
-  return {cik:companyFacts.cik,facts};
-}
 export function discoverAccessions({submissions,companyFacts,approved,allowedForms,checkpoint,historical}) {
   if (normalizeCik(submissions?.cik)!==normalizeCik(approved.cik) || normalizeCik(companyFacts?.cik)!==normalizeCik(approved.cik) ||
       !Array.isArray(submissions?.tickers) || !submissions.tickers.includes(approved.ticker)) throw safeError('SOURCE_INVALID');

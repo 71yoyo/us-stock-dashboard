@@ -6,10 +6,13 @@ export const automationFiles=[
   'scripts/sec-raw-github-journal.mjs','scripts/sec-raw-automation-readiness.mjs','scripts/sec-raw-source-discovery.mjs',
   'scripts/sec-raw-automation-transport.mjs','scripts/sec-raw-scheduled-producer.mjs','scripts/sec-raw-automation-check.mjs',
   'scripts/sec-raw-automation-audit.mjs','tests/helpers/sec-raw-automation-fixtures.js','tests/sec-raw-automation-policy.test.js',
-  'tests/sec-raw-source-fetch.test.js','tests/sec-raw-producer-journal.test.js','tests/sec-raw-scheduled-producer.test.js','tests/sec-raw-github-journal.test.js'
+  'tests/sec-raw-source-fetch.test.js','tests/sec-raw-producer-journal.test.js','tests/sec-raw-scheduled-producer.test.js','tests/sec-raw-github-journal.test.js',
+  // R10C-2는 승인된 producer-side 확장만 허용한다. consumer/Worker/migration allowlist는 확장하지 않는다.
+  'scripts/sec-raw-producer-identity.mjs','scripts/sec-raw-identity-audit.mjs','scripts/sec-raw-identity-check.mjs',
+  'tests/helpers/sec-raw-identity-fixtures.js','tests/sec-raw-producer-identity.test.js'
 ];
 const baseline='9fbf7a5deeb67fda8e94aab9d3f28d8fcc7582c6';
-const allowed=new Set([...automationFiles,'package.json','docs/reit-metrics-r10b-report.md']);
+const allowed=new Set([...automationFiles,'package.json','docs/reit-metrics-r10b-report.md','docs/reit-metrics-r10c2-report.md']);
 const changed=execFileSync('git',['diff','--name-only',baseline],{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
 assert.ok(changed.every(file=>allowed.has(file)),'R10B 범위 밖 변경');
 const untracked=execFileSync('git',['ls-files','--others','--exclude-standard'],{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);

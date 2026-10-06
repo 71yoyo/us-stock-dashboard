@@ -32,7 +32,11 @@ export function validateJournalState(state) {
       !date(d.nextCheckAt) || !['SOURCE_NOT_INDEXED','OPERATOR_REQUIRED'].includes(d.status)) throw safeError('STATE_INVALID');
   return state;
 }
-export function applicationIdentity({ticker,accession,sourceIdentity,schemaVersion=1}) { return hash({ticker,accession,sourceIdentity,schemaVersion}); }
+export const JOURNAL_APPLICATION_IDENTITY_VERSION=1;
+/** journal key는 wire의 sec-raw: prefix와 별개인 기존 SHA-256 알고리즘이다. source hash V1/V2는 입력값으로 구별한다. */
+export function producerJournalIdentityV1({ticker,accession,sourceIdentity,schemaVersion=1}) { return hash({ticker,accession,sourceIdentity,schemaVersion}); }
+// 기존 호출자와 저장 state의 key 의미를 변경하지 않는 명시적 별칭이다.
+export const applicationIdentity=producerJournalIdentityV1;
 export function createMemoryJournalBackend(initial) {
   let snapshot=initial ? structuredClone(initial) : {revision:null,state:emptyState()};
   validateJournalState(snapshot.state);
@@ -105,7 +109,8 @@ export function createProducerJournal(backend,{now=Date.now}={}) {
       e.state=state; e.transportCategory=category; e.updatedAt=new Date(now()).toISOString(); return structuredClone(e);
     });
   }
-  return Object.freeze({load,productionDurable:backend.productionDurable===true,backendKind:backend.kind??'contract-adapter',
+  return Object.freeze({load,identityAlgorithmVersion:JOURNAL_APPLICATION_IDENTITY_VERSION,
+    productionDurable:backend.productionDurable===true,backendKind:backend.kind??'contract-adapter',
     acquire:async({runId,owner,target,ttlMs=300000})=>mutate(s=>{
       if (!id(runId) || !id(owner) || !Number.isSafeInteger(ttlMs) || ttlMs<1000 || ttlMs>3600000) throw safeError('STATE_INVALID');
       const targetHash=hash(target);

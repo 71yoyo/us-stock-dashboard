@@ -1,4 +1,4 @@
-import { canonical, hash, normalizeCik, deepFreeze, safeError, assertPolicyCurrent } from './sec-raw-automation-policy.mjs';
+import { canonical, hash, normalizeCik, deepFreeze, safeError, assertPolicyCurrent, producerIdentityAlgorithmVersion } from './sec-raw-automation-policy.mjs';
 const receipts = new WeakSet();
 
 /** 일상 run에서 raw/provenance 전체 scan 대신 scope-sized LEFT JOIN 한 번만 사용한다. identity adapter는 read-only여야 한다. */
@@ -52,11 +52,13 @@ export async function establishReadiness({policy,reader,runId,now=Date.now,ttlMs
   }
   const time=now();
   const receipt=deepFreeze({runId,policyHash:policy.policyManifestHash,release:policy.release,scopeHash:hash(policy.scope),target:structuredClone(policy.target),
+    identityAlgorithmVersion:producerIdentityAlgorithmVersion(policy),
     verifiedAt:new Date(time).toISOString(),expiresAt:new Date(Math.min(time+ttlMs,Date.parse(policy.expiresAt))).toISOString(),historical});
   receipts.add(receipt); return receipt;
 }
 export function assertReadiness(receipt,policy,runId,now=Date.now()) {
   assertPolicyCurrent(policy,now);
-  if (!receipts.has(receipt) || receipt.runId!==runId || receipt.policyHash!==policy.policyManifestHash || receipt.release!==policy.release ||
+  if (!receipts.has(receipt) || receipt.identityAlgorithmVersion!==producerIdentityAlgorithmVersion(policy) ||
+      receipt.runId!==runId || receipt.policyHash!==policy.policyManifestHash || receipt.release!==policy.release ||
       receipt.scopeHash!==hash(policy.scope) || canonical(receipt.target)!==canonical(policy.target) || now<Date.parse(receipt.verifiedAt) || now>=Date.parse(receipt.expiresAt)) throw safeError('RECEIPT_INVALID');
 }

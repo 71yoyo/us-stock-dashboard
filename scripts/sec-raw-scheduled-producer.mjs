@@ -8,6 +8,7 @@ import { establishReadiness, assertReadiness } from './sec-raw-automation-readin
 import { createSecSourceFetcher } from './sec-raw-source-fetch.mjs';
 import { createProducerJournal, createMemoryJournalBackend, createLocalFixtureJournalBackend, applicationIdentity } from './sec-raw-producer-journal.mjs';
 import { discoverAccessions, buildDiscoveredMessage } from './sec-raw-source-discovery.mjs';
+import { classifyCompactCheckpoint, legacyJournalAlias, compactIdentityAlgorithms } from './sec-raw-producer-identity.mjs';
 
 const globalFailures=new Set(['POLICY_INVALID','POLICY_TIME','RELEASE_MISMATCH','TARGET_MISMATCH','READINESS_INVALID','RECEIPT_INVALID',
   'SEC_FORBIDDEN','D1_READ','QUEUE_AUTH','QUEUE_TARGET','JOURNAL_IO','JOURNAL_CAS','LOCK_STALE','LOCK_BUSY','FETCH_BUDGET']);
@@ -24,7 +25,8 @@ export async function runScheduledSecRawProducer({policy:input,release,target,re
   const load=sourceLoader??(async approved=>({submissions:await fetcher.submissions(approved),companyFacts:await fetcher.companyFacts(approved)}));
   const summary={runId,policyHash:policy.policyManifestHash,release,scopeCount:policy.scope.length,checked:0,unchanged:0,
     sourceNotIndexed:0,queued:0,reviewBlocked:0,ambiguous:0,failed:0,budgetSkipped:0,inFlight:0,detected:0,
-    operatorRequired:0,stopped:false,durationClass:'SHORT',errorCategories:[]};
+    operatorRequired:0,stopped:false,durationClass:'SHORT',errorCategories:[],identityAlgorithms:compactIdentityAlgorithms,
+    unchangedCompat:0,identityDecisions:[]};
   const errors=new Set(); let attempts=0,acquired=false;
   try {
     await journal.acquire({runId,owner,target:policy.target}); acquired=true;
@@ -60,8 +62,19 @@ export async function runScheduledSecRawProducer({policy:input,release,target,re
             summary.sourceNotIndexed++; found=true; break;
           }
           assertPolicyMessage(policy,message);
-          if (state.checkpoint?.sourceIdentity===message.sourceIdentity && state.checkpoint?.accession===message.accession && state.checkpoint?.schemaVersion===1) continue;
-          const key=applicationIdentity(message),existing=await journal.get(key);
+          const comparison=await classifyCompactCheckpoint({checkpoint:state.checkpoint,message,companyFacts:source.companyFacts,
+            financialPeriods:state.financialPeriods});
+          summary.identityDecisions.push({ticker:approved.ticker,accession:message.accession,decision:comparison.decision,reason:comparison.reason});
+          if (['UNCHANGED','UNCHANGED_COMPAT'].includes(comparison.decision)) {
+            if (comparison.decision==='UNCHANGED_COMPAT') summary.unchangedCompat++;
+            continue;
+          }
+          const key=applicationIdentity(message);let existing=await journal.get(key);
+          // 기존 V1 REVIEW/COMPLETED journal에 대응해도 새 V2 INTENT나 완료 record를 만들지 않는다.
+          if (!existing) {
+            const alias=await legacyJournalAlias(message,source.companyFacts,state.financialPeriods);
+            if (alias && alias.sourceIdentity!==message.sourceIdentity) existing=await journal.get(applicationIdentity(alias));
+          }
           if (existing) {
             // source 처리 증거가 있는 review는 재발행하지 않지만 그 뒤의 새 accession까지 영구 차단하지 않는다.
             if (existing.state==='REVIEW_BLOCKED') {summary.reviewBlocked++;found=true;continue;}

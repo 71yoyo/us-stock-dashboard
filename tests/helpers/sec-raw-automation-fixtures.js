@@ -13,7 +13,7 @@ export const oldAccession='0000726728-26-000001';
 export const nextAccession='0000726728-26-000002';
 export const laterAccession='0000726728-26-000003';
 export function makeAutomationPolicy(changes={}) {
-  const policy={policyVersion:1,release:fixtureRelease,target:{...fixtureTarget},schemaVersion:1,scope:[{ticker:'O',cik:'726728'}],
+  const policy={policyVersion:1,identityAlgorithmVersion:2,release:fixtureRelease,target:{...fixtureTarget},schemaVersion:1,scope:[{ticker:'O',cik:'726728'}],
     allowedForms:['10-K','10-Q','10-K/A','10-Q/A'],maxPayloadBytes:64000,maxPublishesPerRun:100,maxPublishesPerDay:100,
     maxFetchAttempts:300,maxProviderRequests:300,validFrom:new Date(fixtureTime-1000).toISOString(),expiresAt:new Date(fixtureTime+3600000).toISOString(),
     secFetchEnabled:false,productionEnqueueEnabled:true,...changes};
