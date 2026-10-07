@@ -10,6 +10,9 @@ jobs:
     steps:
       - name: 저장소 내려받기
         uses: actions/checkout@v4
+        with:
+          # migration·운영 설정 보호 검사가 과거 기준 커밋을 읽으므로 전체 이력을 공급합니다.
+          fetch-depth: 0
 
       - name: Node.js 설정
         uses: actions/setup-node@v4
