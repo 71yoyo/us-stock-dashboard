@@ -177,6 +177,8 @@ export async function runRawRuntimeAudit({ r4Directory = resolve('backups/r4'), 
     assert.ok(dei.every(row => row.period_type === 'instant' && row.period_start === '' && row.source_end === row.period_end
       && JSON.parse(row.source_refs_json).every(ref => ref.end === row.period_end)));
     assert.equal(run1Counts.duplicates, 0); assert.equal(run1Counts.orphans, 0); assert.equal(run1Counts.guard, 0);
+    // 공개 테스트와 분리해도 실제 10종목 evidence의 기존 registry 계약을 약화하지 않는다.
+    assert.equal(registry.length, 10);
     db.reset();
     for (const [ticker, payload] of facts) assert.equal((await syncStandardRawFromSec(env, ticker, latestRawAccession(payload))).status, 'unchanged');
     const run2Cost = summarizeCost(db.stats);

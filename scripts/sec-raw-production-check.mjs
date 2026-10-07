@@ -16,7 +16,14 @@ export const productionRunnerFiles=[
   'scripts/build-pages.mjs','tests/pages-build.test.js','.gitignore','docs/reit-metrics-r11b1f-report.md',
   // R11B-1H-FIX의 배포 설정/검증만 추가 허용한다. runtime 보호 범위는 그대로 유지한다.
   'worker/wrangler.jsonc','scripts/app-deploy-config-check.mjs','tests/app-deploy-config.test.js',
-  'scripts/sec-raw-historical-plan-check.mjs','docs/reit-metrics-r11b1h-fix-report.md'];
+  'scripts/sec-raw-historical-plan-check.mjs','docs/reit-metrics-r11b1h-fix-report.md',
+  // R11B-2-CI-FIX는 workflow 의존성 설치와 보고서만 허용한다.
+  // CI hermetic 전환은 합성 fixture/테스트만 허용하고 실제 evidence audit 경로는 분리 보존한다.
+  '.github/workflows/verify.yml','docs/reit-metrics-r11b2-ci-fix-report.md',
+  'scripts/sec-raw-identity-audit.mjs','tests/helpers/sec-raw-identity-fixtures.js',
+  'tests/helpers/sec-raw-identity-private-evidence.js','tests/sec-raw-producer-identity.test.js',
+  'tests/sec-standard-raw-runtime.test.js','scripts/sec-standard-raw-runtime-audit.mjs',
+  'docs/reit-metrics-r11b2-ci-hermetic-report.md','tests/sec-raw-telemetry.test.js'];
 export function checkProductionRunner() {
   const baseline='b869a6845bcca866c58a88d2e32e14e4710eefb8';
   const git=(...args)=>execFileSync('git',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();

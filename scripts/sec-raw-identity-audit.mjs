@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { readIdentityCacheFixtures, identityMessages, cacheProducerFixture, expectedAaplLegacy, expectedAaplCanonical } from '../tests/helpers/sec-raw-identity-fixtures.js';
+import { readPrivateIdentityEvidenceFixtures, identityMessages, cacheProducerFixture,
+  expectedAaplLegacy, expectedAaplCanonical } from '../tests/helpers/sec-raw-identity-private-evidence.js';
 import { compactSemanticsExact } from './sec-raw-producer-identity.mjs';
+import { validateCompactSecRawMessage } from '../worker/src/sec-raw-message.js';
 
 /** 승인 10종목 cache만 비교한다. Production checkpoint는 과거 metadata 증거이며 fresh 조회가 아니다. */
 export async function runIdentityCompatibilityAudit() {
@@ -10,7 +12,7 @@ export async function runIdentityCompatibilityAudit() {
   globalThis.fetch=()=>{networkCalls++;throw new Error('R10C2_NETWORK_FORBIDDEN');};
   try {
     const rows=[];
-    for (const item of readIdentityCacheFixtures()) {
+    for (const item of readPrivateIdentityEvidenceFixtures()) {
       const {legacy,canonicalMessage}=await identityMessages(item);
       const semanticEquality=await compactSemanticsExact(legacy,canonicalMessage);
       assert.equal(semanticEquality,true,'compact 의미 차이는 bridge 승인 불가');
@@ -27,11 +29,16 @@ export async function runIdentityCompatibilityAudit() {
       if(item.ticker==='AAPL'){
         assert.equal(legacy.sourceIdentity,expectedAaplLegacy);assert.equal(canonicalMessage.sourceIdentity,expectedAaplCanonical);
         assert.equal(productionDecision,'UNCHANGED_COMPAT');
+        assert.equal((await validateCompactSecRawMessage(canonicalMessage)).records.length,67);
       }
       rows.push({ticker:item.ticker,accession:item.accession,legacyIdentity:legacy.sourceIdentity,canonicalIdentity:canonicalMessage.sourceIdentity,
         semanticEquality,classification:differs?'ORDER_NORMALIZATION_ONLY':'SAME_IDENTITY',productionDecision,
         checkpointEvidenceAsOf:item.checkpoint?item.evidenceAsOf:null});
     }
+    // 일반 테스트에서 분리한 실제 evidence 집계 계약도 이 전용 감사에서 그대로 강제한다.
+    assert.equal(rows.length,10);
+    assert.equal(rows.filter(row=>row.classification==='SAME_IDENTITY').length,2);
+    assert.equal(rows.filter(row=>row.classification==='ORDER_NORMALIZATION_ONLY').length,8);
     assert.equal(networkCalls,0);
     return {phase:'R10C-2',status:'PASS',rows,sameIdentity:rows.filter(row=>row.classification==='SAME_IDENTITY').length,
       normalizedOnlyDifferences:rows.filter(row=>row.classification==='ORDER_NORMALIZATION_ONLY').length,

@@ -19,7 +19,8 @@ const delivery=body=>({body,id:'queue-provided-message',attempts:1,acks:0,retrie
  ack(){this.acks++;},retry(options){this.retries++;this.delay=options.delaySeconds;}});
 const env=(ctx,flag)=>({DB:ctx.DB,SEC_STANDARD_RAW_QUEUE_ENABLED:'true',SEC_STANDARD_RAW_TELEMETRY_ENABLED:flag});
 const setup=()=>{
- const ctx=createTelemetryTestDatabase();ctx.sqlite.exec("INSERT INTO companies(ticker,name) VALUES ('O','합성 테스트'); INSERT INTO financial_metrics(ticker,period_type,fiscal_period_end,revenue,source) VALUES ('O','annual','2025-12-31',42,'TEST')");return ctx;
+ // 서로 독립된 ON/OFF DB의 시작 상태를 고정한다. 초 경계에 따른 cached_at 차이를 숨기지 않고 제거한다.
+ const ctx=createTelemetryTestDatabase();ctx.sqlite.exec("INSERT INTO companies(ticker,name) VALUES ('O','합성 테스트'); INSERT INTO financial_metrics(ticker,period_type,fiscal_period_end,revenue,source,cached_at) VALUES ('O','annual','2025-12-31',42,'TEST','2026-01-01 00:00:00')");return ctx;
 };
 const snapshot=ctx=>JSON.stringify(['companies','financial_metrics','sec_standard_raw_metrics','sec_standard_raw_provenance','sec_raw_runtime','sec_raw_payload_checkpoint','sec_raw_runtime_guard']
  .map(table=>ctx.sqlite.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all()
@@ -202,7 +203,7 @@ test('R9D-TEL unexpected exception에도 summary 1건, 예외 재throw 의미 �
 test('R9D-TEL summary에 SQL bind/financial raw/credential/header 없음',async()=>{
  const logs=[],s=stubDatabase({results:[{financial_value:'private-financial-value'}]});
  await observeSecRawQueue({messages:[delivery({raw:'private-companyfacts'})]},
- {DB:s.DB,credential:'private-credential',Authorization:'private-authorization'},async(message,e)=>{
+ {DB:s.DB,credential:'synthetic-private-credential',Authorization:'private-authorization'},async(message,e)=>{
  await e.DB.prepare('SELECT private-secret-sql').bind('private-bind').all();return {status:'ready',action:'ack'};
  },r=>logs.push(r));
  assert.equal(logs.length,1);assert.doesNotMatch(JSON.stringify(logs),/private-companyfacts|private-secret-sql|private-bind|private-financial-value|private-credential|private-authorization/);

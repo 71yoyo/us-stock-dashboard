@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { productionFixture } from './helpers/sec-raw-production-fixtures.js';
 import { makeAutomationPolicy,fixtureRelease,fixtureTarget,fixtureTime } from './helpers/sec-raw-automation-fixtures.js';
-import { readIdentityCacheFixtures,identityMessages,cacheProducerFixture } from './helpers/sec-raw-identity-fixtures.js';
+import { readSyntheticIdentityFixtures,identityMessages,cacheProducerFixture } from './helpers/sec-raw-identity-fixtures.js';
 import { createProductionD1Adapter,assertProducerReadSql } from '../scripts/sec-raw-production-d1.mjs';
 import { createDisconnectEvidenceVerifier,producerSecretNames,producerVariableNames } from '../scripts/sec-raw-production-runner.mjs';
 import { createStateProvisioningHelper,runSyntheticStateCasContract } from '../scripts/sec-raw-state-provisioning.mjs';
@@ -80,13 +80,15 @@ test('R10C-3A preissued disconnect evidence는 exact target/release/time/연결 
     assert.equal(await createDisconnectEvidenceVerifier({evidence:{...evidence,...changes},release:fixtureRelease,now:f.now})(target),false);
   }
 });
-test('R10C-3A 10종목 unchanged + AAPL compat: Queue/state write 0',async()=>{
-  const items=readIdentityCacheFixtures();const policy=makeAutomationPolicy({secFetchEnabled:true,scope:items.map(({ticker,cik})=>({ticker,cik}))});
+test('R10C-3A synthetic 10종목 unchanged + legacy compat: Queue/state write 0',async context=>{
+  // 합성 공시의 보존 창은 CI 실행 연도와 무관해야 한다.
+  context.mock.timers.enable({apis:['Date'],now:new Date('2026-10-06T00:00:00Z')});
+  const items=readSyntheticIdentityFixtures();const policy=makeAutomationPolicy({secFetchEnabled:true,scope:items.map(({ticker,cik})=>({ticker,cik}))});
   const f=productionFixture({policy});
   for (const item of items) {
     const {legacy,canonicalMessage}=await identityMessages(item),base=await cacheProducerFixture(item,null);
     f.sources.set(item.ticker,base.sources.get(item.ticker));f.states.set(item.ticker,base.states.get(item.ticker));
-    const cp=item.ticker==='AAPL'?legacy:canonicalMessage;
+    const cp=item.ticker==='SYN2'?legacy:canonicalMessage;
     f.states.get(item.ticker).checkpoint={accession:cp.accession,sourceIdentity:cp.sourceIdentity,schemaVersion:1};
     Object.assign(f.readiness.find(row=>row.ticker===item.ticker),base.readiness[0]);
   }

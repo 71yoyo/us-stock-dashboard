@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve, dirname } from 'node:path';
 import { extractStandardRawMetrics, STANDARD_RAW_METRICS } from '../worker/src/sec-standard-raw.js';
 import { saveStandardRawMetrics } from '../worker/src/sec-standard-raw-store.js';
 import { runStandardRawRuntime, assertRawRuntimeSchema, latestRawAccession } from '../worker/src/sec-standard-raw-runtime.js';
@@ -375,12 +378,72 @@ test('R5 raw-only 큐 공시 목록 장애는 legacy job을 수정하지 않고 
   } finally { c.sqlite.close(); }
 });
 
-test('R5 실제 R4 10종목 cache: lost 285 복구/financial 500행/flow/Run2 regression',
-  { skip: !existsSync(new URL('../backups/r4/acquisition.json', import.meta.url)) }, async () => {
-    const report = await runRawRuntimeAudit();
-    assert.equal(report.hashesVerified, 10); assert.equal(report.retention.recovered, 285);
-    assert.equal(report.run1.registry, 10); assert.equal(report.run1.duplicates, 0); assert.equal(report.run1.orphans, 0);
-    assert.equal(report.run2.logicalChanges, 0); assert.equal(report.run2.registryGrowth, 0);
-    assert.equal(report.regression.financialRows, 500); assert.equal(report.regression.flowUnchanged, true);
-    assert.deepEqual(report.apiCalls, { SEC: 0, BQ: 0, FMP: 0, Massive: 0 });
-  });
+test('R5 합성 10종목 retention/financial 500행/flow/Run2 교차 검증; private audit 누락은 실패', async context => {
+  context.mock.timers.enable({ apis: ['Date'], now: new Date('2026-10-06T00:00:00Z') });
+  // 실제 R4 285건은 r5:audit에서 그대로 검증한다. CI는 독립 합성 10FY/40Q와 DEI 창을 저장까지 검증한다.
+  const c = createRawRuntimeDatabase(), payloads = new Map();
+  // lease guard를 제거하지 않고 SQLite와 Node가 동일한 합성 시각을 비교하게 한다.
+  c.sqlite.function('julianday', value => (value === 'now' ? Date.now() : Date.parse(value)) / 86400000 + 2440587.5);
+  const periods = Array.from({ length: 40 }, (_, i) => ({ period_type: 'quarterly',
+    fiscal_period_end: `${2016 + Math.floor(i / 4)}-${['03-31','06-30','09-30','12-31'][i % 4]}` }));
+  periods.push(...Array.from({ length: 10 }, (_, i) => ({ period_type: 'annual', fiscal_period_end: `${2016 + i}-12-31` })));
+  const pointMetrics = Object.entries(STANDARD_RAW_METRICS).filter(([, definition]) => definition.kind === 'point_in_time').map(([name]) => name);
+  const periodEnds = [...new Set(periods.map(row => row.fiscal_period_end))];
+  let networkCalls = 0;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = () => { networkCalls++; throw Error('합성 검증의 외부 호출 금지'); };
+  try {
+    for (let index = 0; index < 10; index++) {
+      const ticker = `SYN${index}`, facts = syntheticCompanyFacts();
+      c.sqlite.prepare('INSERT INTO companies(ticker,name) VALUES (?,?)').run(ticker, '합성 검증');
+      for (const period of periods) c.sqlite.prepare(`INSERT INTO financial_metrics
+        (ticker,period_type,fiscal_period_end,revenue,source) VALUES (?,?,?,?,?)`)
+        .run(ticker, period.period_type, period.fiscal_period_end, index + 42, 'SEC EDGAR');
+      const flowBefore = extractStandardRawMetrics(facts, { minimumYear: 2016, financialPeriods: periods }).filter(row => row.periodType !== 'instant');
+      for (let day = 0; day < 90; day++) addFact(facts, 'EntityCommonStockSharesOutstanding',
+        secFact(null, new Date(Date.UTC(2026, 0, 1 + day)).toISOString().slice(0, 10), 999,
+          { form: '10-Q', filed: '2026-08-01', accn: `synthetic-dei-${index}` }), 'shares', 'dei');
+      const records = extractStandardRawMetrics(facts, { minimumYear: 2016, financialPeriods: periods });
+      assert.deepEqual(records.filter(row => row.periodType !== 'instant'), flowBefore);
+      for (const end of periodEnds) for (const metric of pointMetrics)
+        assert.equal(records.find(row => row.metricName === metric && row.periodType === 'instant' && row.periodEnd === end).availability, 'available');
+      const dei = records.filter(row => row.provenance?.secTag === 'EntityCommonStockSharesOutstanding');
+      assert.equal(dei.length, 60);
+      assert.ok(dei.every(row => row.periodType === 'instant' && row.periodEnd === row.provenance.sourceEnd));
+      payloads.set(ticker, facts);
+    }
+    const protectedFinancial = legacy(c.sqlite);
+    assert.equal(protectedFinancial.length, 500);
+    const env = { DB: c.DB, SEC_STANDARD_RAW_FIELDS_ENABLED: 'true' };
+    for (const [ticker, facts] of payloads)
+      assert.equal((await runStandardRawRuntime(env, ticker, latestRawAccession(facts), async () => facts)).status, 'ready');
+    assert.equal(count(c.sqlite, 'sec_raw_runtime'), 10);
+    assert.equal(c.sqlite.prepare(`SELECT COUNT(*) n FROM sec_standard_raw_metrics
+      WHERE period_type='instant' AND period_end<='2025-12-31' AND availability='available'`).get().n, 2000);
+    assert.equal(c.sqlite.prepare(`SELECT COUNT(*) n FROM (SELECT 1 FROM sec_standard_raw_metrics
+      GROUP BY ticker,metric_name,period_type,period_start,period_end HAVING COUNT(*)>1)`).get().n, 0);
+    assert.equal(c.sqlite.prepare(`SELECT COUNT(*) n FROM sec_standard_raw_provenance p LEFT JOIN sec_standard_raw_metrics m
+      USING(ticker,metric_name,period_type,period_start,period_end) WHERE m.ticker IS NULL`).get().n, 0);
+    const before = raw(c.sqlite), registry = c.sqlite.prepare('SELECT * FROM sec_raw_runtime ORDER BY ticker').all();
+    const sources = c.sqlite.prepare('SELECT * FROM sec_standard_raw_provenance ORDER BY ticker,metric_name,period_type,period_start,period_end,source_fingerprint').all();
+    c.reset();
+    for (const [ticker, facts] of payloads)
+      assert.equal((await runStandardRawRuntime(env, ticker, latestRawAccession(facts), async () => { throw Error('Run2 payload 조회 금지'); })).status, 'unchanged');
+    assert.deepEqual(raw(c.sqlite), before);
+    assert.deepEqual(c.sqlite.prepare('SELECT * FROM sec_raw_runtime ORDER BY ticker').all(), registry);
+    assert.deepEqual(c.sqlite.prepare('SELECT * FROM sec_standard_raw_provenance ORDER BY ticker,metric_name,period_type,period_start,period_end,source_fingerprint').all(), sources);
+    assert.equal(c.stats.reduce((sum, row) => sum + row.logicalChanges, 0), 0);
+    assert.equal(c.batchCalls, 0);
+    assert.deepEqual(legacy(c.sqlite), protectedFinancial);
+    assert.equal(networkCalls, 0);
+  } finally { c.sqlite.close(); globalThis.fetch = originalFetch; }
+  const directory = await mkdtemp(join(tmpdir(), 'r5-private-evidence-'));
+  try {
+    await assert.rejects(runRawRuntimeAudit({ r4Directory: directory }), error => error.code === 'ENOENT');
+  } finally {
+    const target = resolve(directory);
+    assert.equal(dirname(target), resolve(tmpdir()));
+    assert.match(target, /^.+r5-private-evidence-[A-Za-z0-9]+$/);
+    await rm(target, { recursive: true, force: true });
+  }
+});
